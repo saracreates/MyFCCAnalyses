@@ -16,7 +16,7 @@ includePaths = ["ZHfunctions.h"]
 inputDir    = "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"
 
 #Optional: output directory, default is local running directory
-outputDir   = "./outputs/histmaker/ZZZ6l/"
+outputDir   = "./outputs/histmaker_missE/ZZZ6l/"
 
 
 # optional: ncpus, default is 4, -1 uses all cores available
@@ -42,18 +42,23 @@ bins_count = (10, 0, 10)
 bins_charge = (10, -5, 5)
 bins_iso = (500, 0, 3)
 
+bins_missE = (2000, 0, 200) # 100 MeV bins
+
 
 
 # build_graph function that contains the analysis logic, cuts and histograms (mandatory)
 def build_graph(df, dataset):
+    """
+    Goal of this exercise is to check if applying a cut on missing momentum/energy cuts away all the tau events. We expect this, because taus generate neutrinos.
+    """
 
     results = []
     df = df.Define("weight", "1.0")
     weightsum = df.Sum("weight")
     
     # define some aliases to be used later on
-    df = df.Alias("Particle0", "Particle#0.index") # index of the daughter particles
-    df = df.Alias("Particle1", "Particle#1.index") # index of the mother particles 
+    df = df.Alias("Particle0", "Particle#0.index")
+    df = df.Alias("Particle1", "Particle#1.index")
     df = df.Alias("MCRecoAssociations0", "MCRecoAssociations#0.index")
     df = df.Alias("MCRecoAssociations1", "MCRecoAssociations#1.index")
     df = df.Alias("Muon0", "Muon#0.index")
@@ -111,116 +116,49 @@ def build_graph(df, dataset):
     
 
     #########
-    ### CUT 0: all events
+    ### CUT 0: all events (lepton momentum > 5 GeV)
     #########
     df = df.Define("cut0", "0")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut0"))
 
     #########
-    ### CUT 1: There must be 6 isolated leptons in the event
+    ### CUT 1: cut on missing energy
     #########
-    df = df.Filter("muons_sel_iso.size() + electrons_sel_iso.size() == 6")
+    df = df.Define("part_missingEnergy", "FCCAnalyses::ZHfunctions::missingEnergy(240., ReconstructedParticles)")
+    df = df.Define("missingEnergy", "FCCAnalyses::ReconstructedParticle::get_e(part_missingEnergy)")
+
+    results.append(df.Histo1D(("missingEnergy", "", *bins_missE), "missingEnergy"))
+
+    df = df.Filter("missingEnergy[0] < 30")
     df = df.Define("cut1", "1")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut1"))
 
-    # histograms after the first cut
-    results.append(df.Histo1D(("muons_p_cut1", "", *bins_p_mu), "muons_p"))
-    results.append(df.Histo1D(("muons_q_cut1", "", *bins_charge), "muons_q"))
-    results.append(df.Histo1D(("muons_no_cut1", "", *bins_count), "muons_no"))
-    results.append(df.Histo1D(("muons_iso_cut1", "", *bins_iso), "muons_iso"))
-    # and electrons
-    results.append(df.Histo1D(("electrons_p_cut1", "", *bins_p_mu), "electrons_p"))
-    results.append(df.Histo1D(("electrons_q_cut1", "", *bins_charge), "electrons_q"))
-    results.append(df.Histo1D(("electrons_no_cut1", "", *bins_count), "electrons_no"))
-    results.append(df.Histo1D(("electrons_iso_cut1", "", *bins_iso), "electrons_iso"))
-
-    #########
-    ### CUT 2: 3 lepton pairs with opposite charge and right flavour
-    #########
-    df = df.Filter("Sum(muons_sel_iso_q) == 0 && Sum(electrons_sel_iso_q) == 0")
+    # cut again on lower missing energy
+    df = df.Filter("missingEnergy[0] < 20")
     df = df.Define("cut2", "2")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
 
-    # histograms after the third cut
-    results.append(df.Histo1D(("muons_p_cut2", "", *bins_p_mu), "muons_p"))
-    results.append(df.Histo1D(("muons_q_cut2", "", *bins_charge), "muons_q"))
-    results.append(df.Histo1D(("muons_no_cut2", "", *bins_count), "muons_no"))
-
-    results.append(df.Histo1D(("electrons_p_cut2", "", *bins_p_mu), "electrons_p"))
-    results.append(df.Histo1D(("electrons_q_cut2", "", *bins_charge), "electrons_q"))
-    results.append(df.Histo1D(("electrons_no_cut2", "", *bins_count), "electrons_no"))
-
-
-
-    """
-    #########
-    ### CUT 2 :at least 2 opposite-sign (OS) leptons
-    #########
-    df = df.Filter("muons_no >= 2 && abs(Sum(muons_q)) < muons_q.size()")
-    df = df.Define("cut2", "2")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
-    """ 
-    # now we build the Z resonance based on the isolated leptons. 
-    df = df.Define("zbuilder_result", "FCCAnalyses::ZHfunctions::resonanceBuilder(91.2)(electrons_sel_iso, muons_sel_iso)")
-    df = df.Define("res1", "Vec_rp{zbuilder_result[0]}") # the first resonance
-    df = df.Define("res2", "Vec_rp{zbuilder_result[1]}") # the second resonance
-    df = df.Define("res3", "Vec_rp{zbuilder_result[2]}") # the third resonance
-    df = df.Define("res_mass1", "FCCAnalyses::ReconstructedParticle::get_mass(res1)") # mass of the first resonance
-    df = df.Define("res_mass2", "FCCAnalyses::ReconstructedParticle::get_mass(res2)") # mass of the second resonance
-    df = df.Define("res_mass3", "FCCAnalyses::ReconstructedParticle::get_mass(res3)") # mass of the third resonance
-
-    # save in histogram 
-    results.append(df.Histo1D(("res_mass1", "", *bins_m_ll), "res_mass1"))
-    results.append(df.Histo1D(("res_mass2", "", *bins_m_ll), "res_mass2"))
-    results.append(df.Histo1D(("res_mass3", "", *bins_m_ll), "res_mass3"))
-    """
-
-
-    #########
-    ### CUT 3: Z mass window
-    #########  
-    df = df.Filter("zmumu_m > 86 && zmumu_m < 96")
+    # again
+    df = df.Filter("missingEnergy[0] < 10")
     df = df.Define("cut3", "3")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut3"))
 
-    
-    #########
-    ### CUT 4: Z momentum
-    #########  
-    df = df.Filter("zmumu_p > 20 && zmumu_p < 70")
+    #again 
+    df = df.Filter("missingEnergy[0] < 5")
     df = df.Define("cut4", "4")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
 
-    
-    #########
-    ### CUT 5: cosThetaMiss
-    #########  
-    df = df.Define("missingEnergy", "FCCAnalyses::ZHfunctions::missingEnergy(240., ReconstructedParticles)")
-    #df = df.Define("cosTheta_miss", "FCCAnalyses::get_cosTheta_miss(missingEnergy)")
-    df = df.Define("cosTheta_miss", "FCCAnalyses::ZHfunctions::get_cosTheta_miss(MissingET)")
-    results.append(df.Histo1D(("cosThetaMiss_cut4", "", *bins_cosThetaMiss), "cosTheta_miss")) # plot it before the cut
-
-    df = df.Filter("cosTheta_miss < 0.98")
+    #again
+    df = df.Filter("missingEnergy[0] < 2")
     df = df.Define("cut5", "5")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5"))
 
-
-    #########
-    ### CUT 6: recoil mass window
-    #########  
-    df = df.Filter("zmumu_recoil_m < 140 && zmumu_recoil_m > 120")
+    # again
+    df = df.Filter("missingEnergy[0] < 1")
     df = df.Define("cut6", "6")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
-    
 
-    ########################
-    # Final histograms
-    ########################
-    results.append(df.Histo1D(("zmumu_m", "", *bins_m_ll), "zmumu_m"))
-    results.append(df.Histo1D(("zmumu_recoil_m", "", *bins_recoil), "zmumu_recoil_m"))
-    results.append(df.Histo1D(("zmumu_p", "", *bins_p_ll), "zmumu_p"))
-    results.append(df.Histo1D(("zmumu_muons_p", "", *bins_p_mu), "zmumu_muons_p"))
-    """
+
     
 
     return results, weightsum
