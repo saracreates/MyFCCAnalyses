@@ -167,12 +167,19 @@ def build_graph(df, dataset):
     df = df.Define("res3", "Vec_rp{zbuilder_result[2]}") # the third resonance
     df = df.Define("res_mass1", "FCCAnalyses::ReconstructedParticle::get_mass(res1)") # mass of the first resonance
     df = df.Define("res_mass2", "FCCAnalyses::ReconstructedParticle::get_mass(res2)") # mass of the second resonance
-    df = df.Define("res_mass3", "FCCAnalyses::ReconstructedParticle::get_mass(res3)") # mass of the third resonance
+    df = df.Define("res_mass3", "FCCAnalyses::ReconstructedParticle::get_mass(res3)") # mass of the third resonance - offshell Z
+
+    # check the recoil mass
+    df = df.Define("recoil", "FCCAnalyses::ZHfunctions::recoilBuilder(125, 240)(res1, res2)")
+    df = df.Define("m_recoil", "FCCAnalyses::ReconstructedParticle::get_mass(recoil)") # recoil mass
 
     # save in histogram 
     results.append(df.Histo1D(("res_mass1", "", *bins_m_ll), "res_mass1"))
     results.append(df.Histo1D(("res_mass2", "", *bins_m_ll), "res_mass2"))
     results.append(df.Histo1D(("res_mass3", "", *bins_m_ll), "res_mass3"))
+    results.append(df.Histo1D(("m_recoil", "", *bins_recoil), "m_recoil"))
+
+
     """
 
 

@@ -149,8 +149,9 @@ namespace FCCAnalyses {
             float m_resonance_mass;
             // functions
             std::tuple<std::vector<std::vector<int>>, Vec_rp> calculate_pairs(Vec_rp legs);
-            std::vector<int> find_best_combination_4(Vec_rp res, std::vector<std::vector<int> > pairs);
+            std::vector<int> find_best_combination_4(Vec_rp res, std::vector<std::vector<int> > pairs, rp other_lep_pair);
             std::vector<int> find_best_combination_6(Vec_rp res, std::vector<std::vector<int> > pairs);
+            float chi_square_3Z(float m1, float m2, float m3);
 
             // operator
             Vec_rp operator()(Vec_rp electrons, Vec_rp muons) ;
@@ -163,7 +164,7 @@ namespace FCCAnalyses {
         // functions
         std::tuple<std::vector<std::vector<int>>, Vec_rp> resonanceBuilder::calculate_pairs(Vec_rp legs) {
             // legs - leptons/muons
-            // returns all possible resonance candidates and their corresponding indicies
+            // returns all possible resonance candidates (pairs of l+l-) and their corresponding indicies
             Vec_rp result;
             result.reserve(3);
 
@@ -207,76 +208,93 @@ namespace FCCAnalyses {
 
             return std::make_tuple(pairs, result);
         };
+
+        float resonanceBuilder::chi_square_3Z(float m1, float m2, float m3){
+            // mi are the masses of the potential resonances
+            float Z_mass = m_resonance_mass; // 91.2 GeV
+            float Z_mass_offshell = 30; // GeV
+
+            float nat_Z_width = 2; // GeV
+            float nat_Z_width_offshell = 10; // GeV
+
+            float chi2_1 = pow((m1-Z_mass)/nat_Z_width, 2) + pow((m2-Z_mass)/nat_Z_width, 2) + pow((m3-Z_mass_offshell)/nat_Z_width_offshell, 2);
+            float chi2_2 = pow((m3-Z_mass)/nat_Z_width, 2) + pow((m1-Z_mass)/nat_Z_width, 2) + pow((m2-Z_mass_offshell)/nat_Z_width_offshell, 2);
+            float chi2_3 = pow((m2-Z_mass)/nat_Z_width, 2) + pow((m3-Z_mass)/nat_Z_width, 2) + pow((m1-Z_mass_offshell)/nat_Z_width_offshell, 2);
+
+            // return the minimum chi2
+            return std::min({chi2_1, chi2_2, chi2_3});
+        }
+
         std::vector<int> resonanceBuilder::find_best_combination_6(Vec_rp res, std::vector<std::vector<int> > pairs) {
             // returns the best combination of 6 leptons
-            // res - 9 resonance candidates
+            // res - 9 resonance candidates (9 leptons paris of e^+e^- or mu^+mu^-)
             // pairs - 9 pairs of indices of leptons for each resonance candidate
-            float Z_mass = m_resonance_mass;
+            std::cout << "finding best combination out of 6" << std::endl;
 
-            std::vector<float> dist_Z; // will have 9 entries
+            std::vector<float> masses; // will have 9 entries
             for (int i = 0; i < res.size(); ++i) {
-                dist_Z.push_back(std::abs(res[0].mass - Z_mass));
+                masses.push_back(res[i].mass);
             } 
             // which combination of 3 entries in dist_Z are the lowest? Considering that the pairs entries are unqiue (because one lepton can only be in one combination)
-            std::vector<vector<int>> allowed_combinations; // {{0,1,2}, {...}, ...}
-            std::vector<float> dist_combinations;
-            for (int i = 0; i<dist_Z.size(); ++i) {
-                for (int j=i+1; j<dist_Z.size(); ++j) {
-                    for (int k=j+1; k<dist_Z.size(); ++k) {
+            std::vector<vector<int>> allowed_combinations; // {{0,1,2}, {...}, ...} - 3 pairs of l+l- (6 allowed combinations) 
+            std::vector<float> chi2_values;
+            for (int i = 0; i<masses.size(); ++i) {
+                for (int j=i+1; j<masses.size(); ++j) {
+                    for (int k=j+1; k<masses.size(); ++k) {
                         // now check if combination is allowed, check pairs
                         if (haveCommonElement(pairs[i], pairs[j]) || haveCommonElement(pairs[i], pairs[k]) || haveCommonElement(pairs[j], pairs[k])) {
                             continue;
                         } else {
                             allowed_combinations.push_back({i, j, k});
-                            float dist = dist_Z[i] + dist_Z[j] + dist_Z[k];
-                            dist_combinations.push_back(dist);
+                            // float dist = masses[i] + masses[j] + masses[k]; // naive approach
+                            float chi2 = chi_square_3Z(masses[i], masses[j], masses[k]);
+                            std::cout << "masses: \t" << masses[i] << "\t" << masses[j] << "\t" << masses[k] << "\t chi2: \t" << chi2 << std::endl;
+                            chi2_values.push_back(chi2);
                         }
                     }
                 }
             }
-            // now find the minimum distance
-            int ind_best_combi;
-            for (int i = 0; i < dist_combinations.size(); ++i) {
-                if (dist_combinations[i] == *std::min_element(dist_combinations.begin(), dist_combinations.end())) {
-                    ind_best_combi = i;
-                }
-            }
+            // std::cout << "chi2_values: " << chi2_values.size() << std::endl;  // 6
+            // now find the minimum chi2 value for the allowed combinations
+            int ind_best_combi = std::distance(chi2_values.begin(), 
+                                   std::min_element(chi2_values.begin(), chi2_values.end()) // find the minimum chi2 value and returns an iterator pointing to the smallest element 
+                                   ); // computes the index of the iterator relative to the beginning
+
 
             return allowed_combinations[ind_best_combi]; // e.g. {0, 1, 2}
 
         };
-        std::vector<int> resonanceBuilder::find_best_combination_4(Vec_rp res, std::vector<std::vector<int> > pairs) {
+
+        std::vector<int> resonanceBuilder::find_best_combination_4(Vec_rp res, std::vector<std::vector<int> > pairs, rp other_lep_pair) {
+            std::cout << "finding best combination out of 4" << std::endl;
             // returns the best combination of 4 leptons
             // res - 4 resonance candidates
             // pairs - 4 pairs of indices of leptons for each resonance candidate
-            float Z_mass = m_resonance_mass; // 91.1876;
-
-            std::vector<float> dist_Z; // will have 4 entries
+            float mass_other = other_lep_pair.mass;
+            std::vector<float> masses; // will have 9 entries
             for (int i = 0; i < res.size(); ++i) {
-                dist_Z.push_back(std::abs(res[0].mass - Z_mass));
+                masses.push_back(res[i].mass);
             } 
             // which combination of 2 entries in dist_Z are the lowest? Considering that the pairs entries are unqiue (because one lepton can only be in one combination)
             std::vector<vector<int>> allowed_combinations; // {{0,1}, {...}, ...}
-            std::vector<float> dist_combinations;
-            for (int i = 0; i<dist_Z.size(); ++i) {
-                for (int j=i+1; j<dist_Z.size(); ++j) {
+            std::vector<float> chi2_values;
+            for (int i = 0; i<masses.size(); ++i) {
+                for (int j=i+1; j<masses.size(); ++j) {
                     // now check if combination is allowed, check pairs
                     if (haveCommonElement(pairs[i], pairs[j])) {
                         continue;
                     } else {
                         allowed_combinations.push_back({i, j});
-                        float dist = dist_Z[i] + dist_Z[j];
-                        dist_combinations.push_back(dist);
+                        float chi2 = chi_square_3Z(masses[i], masses[j], mass_other);
+                        std::cout << "masses: \t" << masses[i] << "\t" << masses[j] << "\t" << mass_other << "\t chi2: \t" << chi2 << std::endl;
+                        chi2_values.push_back(chi2);
                     }
                 }
             }
-            // now find the minimum distance
-            int ind_best_combi;
-            for (int i = 0; i < dist_combinations.size(); ++i) {
-                if (dist_combinations[i] == *std::min_element(dist_combinations.begin(), dist_combinations.end())) {
-                    ind_best_combi = i;
-                }
-            }
+            // now find the minimum chi2 value for the allowed combinations
+            int ind_best_combi = std::distance(chi2_values.begin(), 
+                                   std::min_element(chi2_values.begin(), chi2_values.end()) // find the minimum chi2 value and returns an iterator pointing to the smallest element 
+                                   ); // computes the index of the iterator relative to the beginning
 
             return allowed_combinations[ind_best_combi]; // e.g. {0, 1}
 
@@ -315,19 +333,21 @@ namespace FCCAnalyses {
                 }
             } else if (muons.size() == 2){ // ONE muon pair and find best 2 pairs out of 4 possible electron combinations
                 auto [pairs_m, result_m] = calculate_pairs(muons);
-                resonance.push_back(result_m[pairs_m[0][0]]);
+                rp muon_pair = result_m[pairs_m[0][0]]; 
+                resonance.push_back(muon_pair);
 
                 auto [pairs_e, result_e] = calculate_pairs(electrons);
-                std::vector<int> best_resonance = find_best_combination_4(result_e, pairs_e);
+                std::vector<int> best_resonance = find_best_combination_4(result_e, pairs_e, muon_pair);
                 for (int i = 0; i < best_resonance.size(); ++i) {
                     resonance.push_back(result_e[best_resonance[i]]);
                 }
             } else if (electrons.size() == 2){ // ONE electron pair and find best 2 pairs out of 4 possible muon combinations
                 auto [pairs_e, result_e] = calculate_pairs(electrons);
-                resonance.push_back(result_e[pairs_e[0][0]]);
+                rp electron_pair = result_e[pairs_e[0][0]];
+                resonance.push_back(electron_pair);
 
                 auto [pairs_m, result_m] = calculate_pairs(muons);
-                std::vector<int> best_resonance = find_best_combination_4(result_m, pairs_m);
+                std::vector<int> best_resonance = find_best_combination_4(result_m, pairs_m, electron_pair);
                 for (int i = 0; i < best_resonance.size(); ++i) {
                     resonance.push_back(result_m[best_resonance[i]]);
                 }
@@ -335,6 +355,12 @@ namespace FCCAnalyses {
                 std::cout << "ERROR: 6 leptons must be electron and muon pairs" << std::endl;
                 exit(1);
             }
+            // check is resonance has 3 entries
+            if(resonance.size() != 3) {
+                std::cout << "ERROR: 3 resonance particles required" << std::endl;
+                exit(1);
+            }
+
 
             // sort the resonance particles by mass difference to Z mass
             std::sort(resonance.begin(), resonance.end(), [this](const auto& a, const auto& b) {
@@ -342,17 +368,82 @@ namespace FCCAnalyses {
             });
 
 
-            return resonance; // returns 3 resonance particles
+            return resonance; // returns 3 resonance particles: on-shell, o-shell, off-shell Z
+        }
+
+        // STRUCT: compute the recoil mass
+        struct recoilBuilder {
+            // constructor
+            recoilBuilder(float arg_resonance_mass, float arg_ecm);
+            // variables
+            float m_resonance_mass;
+            float ecm;
+            // operator
+            Vec_rp operator()(Vec_rp res1, Vec_rp res2) ;
+        };
+        // constructor - set the resonance mass
+        recoilBuilder::recoilBuilder(float arg_resonance_mass, float arg_ecm) {
+            m_resonance_mass = arg_resonance_mass;
+            ecm = arg_ecm;
+        }
+        // operator - compute the recoil mass
+        Vec_rp recoilBuilder::operator()(Vec_rp res1, Vec_rp res2) {
+            // resonance - 3 resonance particles: on-shell, o-shell, off-shell Z
+            // if(resonance.size() != 3) {
+            //     std::cout << "ERROR: 3 resonance particles required" << std::endl;
+            //     exit(1);
+            // }
+
+            TLorentzVector Z1;
+            Z1.SetXYZM(res1[0].momentum.x, res1[0].momentum.y, res1[0].momentum.z, res1[0].mass);
+            TLorentzVector Z2;
+            Z2.SetXYZM(res2[0].momentum.x, res2[0].momentum.y, res2[0].momentum.z, res2[0].mass);
+
+            // compute the recoil mass - consider that we need to test two on-shell Zs
+            
+
+            // get recoil
+            TLorentzVector recoil1;
+            recoil1.SetXYZM(0, 0, 0, ecm);
+            recoil1 -= Z1;
+            float m_r1 = recoil1.M();
+
+            TLorentzVector recoil2;
+            recoil2.SetXYZM(0, 0, 0, ecm);
+            recoil2 -= Z2;
+            float m_r2 = recoil2.M();
+
+            // check which recoil fits best with the Higgs mass 
+            float chi2_1 = pow(m_r1-m_resonance_mass, 2);
+            float chi2_2 = pow(m_r2-m_resonance_mass, 2);
+
+            // select the best fit
+            TLorentzVector recoil;
+            if (chi2_1 < chi2_2) {
+                recoil = recoil1;
+            } else {
+                recoil = recoil2;
+            }
+
+            // create a ReconstructedParticleData object
+            rp recoil_fcc;
+            recoil_fcc.momentum.x = recoil.Px();
+            recoil_fcc.momentum.y = recoil.Py();
+            recoil_fcc.momentum.z = recoil.Pz();
+            recoil_fcc.mass = recoil.M();
+
+            Vec_rp recoil_v;
+            recoil_v.push_back(recoil_fcc);
+
+            return recoil_v; // returns the recoil particle (MCParticleData object)
+
         }
 
 
+        // helper functions
 
-
-
-        // other helpers
-
+        // returns missing energy vector, based on reco particles
         Vec_rp missingEnergy(float ecm, Vec_rp in, float p_cutoff = 0.0) {
-            // returns missing energy vector, based on reco particles
             float px = 0, py = 0, pz = 0, e = 0;
             for(auto &p : in) {
                 if (std::sqrt(p.momentum.x * p.momentum.x + p.momentum.y*p.momentum.y) < p_cutoff) continue;
@@ -368,24 +459,11 @@ namespace FCCAnalyses {
             res.momentum.y = py;
             res.momentum.z = pz;
             res.energy = ecm-e;
+
+            std::cout << "total momentum: " << std::sqrt(px*px + py*py + pz*pz) << std::endl;
+
             ret.emplace_back(res);
             return ret;
-        }
-
-
-       ROOT::VecOps::RVec<float> print_MC_info(Vec_mc mc){
-            ROOT::VecOps::RVec<float> pdg = MCParticle::get_pdg(mc);
-            auto status = MCParticle::get_genStatus(mc);
-            auto e = MCParticle::get_e(mc);
-
-            // print the information
-            std::cout<<"--------------- MC particles: ------------ "<<std::endl;
-            for (int i = 0; i < mc.size(); ++i) {
-                std::cout << "PDG: \t" << pdg[i] << "\t status: \t" << status[i] << " energy: \t" << e[i] << std::endl;
-            }
-            
-
-            return pdg;
         }
 
     }

@@ -43,6 +43,7 @@ bins_charge = (10, -5, 5)
 bins_iso = (500, 0, 3)
 
 bins_missE = (2000, 0, 200) # 100 MeV bins
+bins_missP = (2400, 0,80)
 
 
 
@@ -126,37 +127,25 @@ def build_graph(df, dataset):
     #########
     df = df.Define("part_missingEnergy", "FCCAnalyses::ZHfunctions::missingEnergy(240., ReconstructedParticles)")
     df = df.Define("missingEnergy", "FCCAnalyses::ReconstructedParticle::get_e(part_missingEnergy)")
+    df = df.Define("missingMomentum", "FCCAnalyses::ReconstructedParticle::get_p(part_missingEnergy)")
 
     results.append(df.Histo1D(("missingEnergy", "", *bins_missE), "missingEnergy"))
+    results.append(df.Histo1D(("missingMomentum", "", *bins_missP), "missingMomentum"))
 
-    df = df.Filter("missingEnergy[0] < 30")
+    df = df.Filter("missingMomentum[0] < 5")
     df = df.Define("cut1", "1")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut1"))
 
     # cut again on lower missing energy
-    df = df.Filter("missingEnergy[0] < 20")
+    df = df.Filter("missingMomentum[0] < 2")
     df = df.Define("cut2", "2")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
 
     # again
-    df = df.Filter("missingEnergy[0] < 10")
+    df = df.Filter("missingMomentum[0] < 1")
     df = df.Define("cut3", "3")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut3"))
 
-    #again 
-    df = df.Filter("missingEnergy[0] < 5")
-    df = df.Define("cut4", "4")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
-
-    #again
-    df = df.Filter("missingEnergy[0] < 2")
-    df = df.Define("cut5", "5")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5"))
-
-    # again
-    df = df.Filter("missingEnergy[0] < 1")
-    df = df.Define("cut6", "6")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
 
 
     

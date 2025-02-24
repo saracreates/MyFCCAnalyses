@@ -31,7 +31,7 @@ intLumi = 10600000 # 10.6 /ab
 bins_p_mu = (2000, 0, 200) # 100 MeV bins
 bins_m_ll = (2000, 0, 200) # 100 MeV bins
 bins_p_ll = (2000, 0, 200) # 100 MeV bins
-bins_recoil = (200000, 0, 200) # 1 MeV bins 
+bins_recoil = (3000, 120, 150)#(200000, 0, 200) # 1 MeV bins 
 bins_cosThetaMiss = (10000, 0, 1)
 
 bins_theta = (500, -5, 5)
@@ -43,6 +43,7 @@ bins_charge = (10, -5, 5)
 bins_iso = (500, 0, 3)
 
 bins_pdg = (2000, -1000, 1000)
+bins_missP = (2400, 0,80)
 
 
 
@@ -72,10 +73,57 @@ def build_graph(df, dataset):
     df = df.Define("muons_all", "FCCAnalyses::ReconstructedParticle::get(Muon0, ReconstructedParticles)")
     df = df.Define("electrons_all", "FCCAnalyses::ReconstructedParticle::get(Electron0, ReconstructedParticles)")
     # print info on MC particles
-    df = df.Define("pdg_mc", "FCCAnalyses::ZHMCfunctions::print_MC_info(Particle)")
+    # df = df.Define("pdg_mc", "FCCAnalyses::ZHMCfunctions::print_MC_info(Particle, Particle0, Particle1)")
+
+    df = df.Define("leptons_from_Z", "FCCAnalyses::ZHMCfunctions::get_leptons_from_Z(Particle, Particle0, Particle1)")
+    df = df.Define("recoil_from_Z", "FCCAnalyses::ZHMCfunctions::get_recoil_from_Z(leptons_from_Z, 240)")
+    df = df.Define("m_recoil_from_Z", "FCCAnalyses::MCParticle::get_mass(recoil_from_Z)")
+    
+    # get the 3 Z bosons
+    df = df.Define("Z", "FCCAnalyses::ZHMCfunctions::get_Z_from_leptons(leptons_from_Z)")
+    df = df.Define("Z_onshell_from_H", "FCCAnalyses::ZHMCfunctions::get_Z_from_H(Particle, Particle0, Particle1, 0)")
+    df = df.Define("Z_offshell_from_H", "FCCAnalyses::ZHMCfunctions::get_Z_from_H(Particle, Particle0, Particle1, 1)")
+
+    # get the mass of the Z bosons
+    df = df.Define("m_Z", "FCCAnalyses::MCParticle::get_mass(Z)")
+    df = df.Define("m_Z_onshell_from_H", "FCCAnalyses::MCParticle::get_mass(Z_onshell_from_H)")
+    df = df.Define("m_Z_offshell_from_H", "FCCAnalyses::MCParticle::get_mass(Z_offshell_from_H)")
+
+    # get the momentum of the Z bosons
+    df = df.Define("p_Z", "FCCAnalyses::MCParticle::get_p(Z)")
+    df = df.Define("p_Z_onshell_from_H", "FCCAnalyses::MCParticle::get_p(Z_onshell_from_H)")
+    df = df.Define("p_Z_offshell_from_H", "FCCAnalyses::MCParticle::get_p(Z_offshell_from_H)")
+
 
     # add histogram
-    results.append(df.Histo1D(("pdg_mc", "", *bins_pdg), "pdg_mc"))
+    # results.append(df.Histo1D(("pdg_mc", "", *bins_pdg), "pdg_mc")) # for printing!!!
+
+    # masses
+    results.append(df.Histo1D(("m_Z", "", *bins_m_ll), "m_Z"))
+    results.append(df.Histo1D(("m_Z_onshell", "", *bins_m_ll), "m_Z_onshell_from_H"))
+    results.append(df.Histo1D(("m_Z_offshell", "", *bins_m_ll), "m_Z_offshell_from_H"))
+    results.append(df.Histo1D(("m_recoil_from_Z", "", *bins_recoil), "m_recoil_from_Z"))
+
+    # momentum
+    results.append(df.Histo1D(("p_Z", "", *bins_p_mu), "p_Z"))
+    results.append(df.Histo1D(("p_Z_onshell", "", *bins_p_mu), "p_Z_onshell_from_H"))
+    results.append(df.Histo1D(("p_Z_offshell", "", *bins_p_mu), "p_Z_offshell_from_H"))
+
+    # caluclate the missing momentum in these events 
+
+    df = df.Define("ll_Z_onshell", "FCCAnalyses::ZHMCfunctions::get_leptons(Z_onshell_from_H, Particle1, Particle)")
+    df = df.Define("ll_Z_offshell", "FCCAnalyses::ZHMCfunctions::get_leptons(Z_offshell_from_H, Particle1, Particle)")
+
+    df = df.Define("part_missingE", "FCCAnalyses::ZHMCfunctions::create_lepton_missingE(leptons_from_Z, ll_Z_onshell, ll_Z_offshell, Particle1, Particle)")
+    df = df.Define("part_missingE_emu_only", "FCCAnalyses::ZHMCfunctions::create_lepton_missingE_emu_only(leptons_from_Z, ll_Z_onshell, ll_Z_offshell, Particle1, Particle)")
+    df = df.Define("miss_p", "FCCAnalyses::MCParticle::get_p(part_missingE)")
+    df = df.Define("miss_p_emu_only", "FCCAnalyses::MCParticle::get_p(part_missingE_emu_only)")
+
+    # plot histogram
+
+    results.append(df.Histo1D(("missing_momentum", "", *bins_missP), "miss_p"))
+    results.append(df.Histo1D(("missing_momentum_emu_only", "", *bins_missP), "miss_p_emu_only"))
+
 
 
 
