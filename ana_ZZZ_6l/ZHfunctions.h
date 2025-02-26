@@ -229,7 +229,7 @@ namespace FCCAnalyses {
             // returns the best combination of 6 leptons
             // res - 9 resonance candidates (9 leptons paris of e^+e^- or mu^+mu^-)
             // pairs - 9 pairs of indices of leptons for each resonance candidate
-            std::cout << "finding best combination out of 6" << std::endl;
+            //std::cout << "finding best combination out of 6" << std::endl;
 
             std::vector<float> masses; // will have 9 entries
             for (int i = 0; i < res.size(); ++i) {
@@ -248,7 +248,7 @@ namespace FCCAnalyses {
                             allowed_combinations.push_back({i, j, k});
                             // float dist = masses[i] + masses[j] + masses[k]; // naive approach
                             float chi2 = chi_square_3Z(masses[i], masses[j], masses[k]);
-                            std::cout << "masses: \t" << masses[i] << "\t" << masses[j] << "\t" << masses[k] << "\t chi2: \t" << chi2 << std::endl;
+                            //std::cout << "masses: \t" << masses[i] << "\t" << masses[j] << "\t" << masses[k] << "\t chi2: \t" << chi2 << std::endl;
                             chi2_values.push_back(chi2);
                         }
                     }
@@ -266,7 +266,7 @@ namespace FCCAnalyses {
         };
 
         std::vector<int> resonanceBuilder::find_best_combination_4(Vec_rp res, std::vector<std::vector<int> > pairs, rp other_lep_pair) {
-            std::cout << "finding best combination out of 4" << std::endl;
+            //std::cout << "finding best combination out of 4" << std::endl;
             // returns the best combination of 4 leptons
             // res - 4 resonance candidates
             // pairs - 4 pairs of indices of leptons for each resonance candidate
@@ -286,7 +286,7 @@ namespace FCCAnalyses {
                     } else {
                         allowed_combinations.push_back({i, j});
                         float chi2 = chi_square_3Z(masses[i], masses[j], mass_other);
-                        std::cout << "masses: \t" << masses[i] << "\t" << masses[j] << "\t" << mass_other << "\t chi2: \t" << chi2 << std::endl;
+                        //std::cout << "masses: \t" << masses[i] << "\t" << masses[j] << "\t" << mass_other << "\t chi2: \t" << chi2 << std::endl;
                         chi2_values.push_back(chi2);
                     }
                 }
@@ -370,6 +370,72 @@ namespace FCCAnalyses {
 
             return resonance; // returns 3 resonance particles: on-shell, o-shell, off-shell Z
         }
+
+        // STRUCT: caluclate the Higgs mass from ZZ->4l
+        struct higgsmassBuilder{
+            // constructor
+            higgsmassBuilder(float arg_resonance_mass);
+            // variables
+            float m_resonance_mass;
+            // operator
+            Vec_rp operator()(Vec_rp res1, Vec_rp res2, Vec_rp res3) ;
+        };
+        // constructor - set the resonance mass
+        higgsmassBuilder::higgsmassBuilder(float arg_resonance_mass) {
+            m_resonance_mass = arg_resonance_mass;
+        }
+        // operator - compute the Higgs mass
+        Vec_rp higgsmassBuilder::operator()(Vec_rp res1, Vec_rp res2, Vec_rp res3) {
+            // resonance - 3 resonance particles: on-shell, o-shell, off-shell Z
+            // if(resonance.size() != 3) {
+            //     std::cout << "ERROR: 3 resonance particles required" << std::endl;
+            //     exit(1);
+            // }
+
+            TLorentzVector Z1;
+            Z1.SetXYZM(res1[0].momentum.x, res1[0].momentum.y, res1[0].momentum.z, res1[0].mass);
+            TLorentzVector Z2;
+            Z2.SetXYZM(res2[0].momentum.x, res2[0].momentum.y, res2[0].momentum.z, res2[0].mass);
+            TLorentzVector Z3;
+            Z3.SetXYZM(res3[0].momentum.x, res3[0].momentum.y, res3[0].momentum.z, res3[0].mass);
+
+            // compute the Higgs mass using one on and one off-shell Z
+            TLorentzVector Higgs_1 = Z1 + Z3;
+            float m_higgs_1 = Higgs_1.M();
+            TLorentzVector Higgs_2 = Z2 + Z3;
+            float m_higgs_2 = Higgs_2.M();
+
+
+            Vec_rp result; // H; Z(onshell from H); Z(offshell from H); Z(onshell from production)
+            rp higgs;
+            if(std::abs(m_higgs_1 - m_resonance_mass) < std::abs(m_higgs_2 - m_resonance_mass)) {
+                higgs = return_rp_from_tlv(Higgs_1);
+                result.push_back(higgs);
+                result.push_back(res1[0]);
+                result.push_back(res3[0]);
+                result.push_back(res2[0]);
+            } else {
+                higgs = return_rp_from_tlv(Higgs_2);
+                result.push_back(higgs);
+                result.push_back(res2[0]);
+                result.push_back(res3[0]);
+                result.push_back(res1[0]);
+            }
+
+
+            return result; // returns the Higgs particle (MCParticleData object), then the two Z from which is was built (first on-shell, then off-shell), then the third Z, being on-shell
+        }
+
+        rp return_rp_from_tlv(TLorentzVector tlv) {
+            rp rp_fcc;
+            rp_fcc.momentum.x = tlv.Px();
+            rp_fcc.momentum.y = tlv.Py();
+            rp_fcc.momentum.z = tlv.Pz();
+            rp_fcc.mass = tlv.M();
+            return rp_fcc;
+        }
+
+
 
         // STRUCT: compute the recoil mass
         struct recoilBuilder {
@@ -460,7 +526,7 @@ namespace FCCAnalyses {
             res.momentum.z = pz;
             res.energy = ecm-e;
 
-            std::cout << "total momentum: " << std::sqrt(px*px + py*py + pz*pz) << std::endl;
+            // std::cout << "total momentum: " << std::sqrt(px*px + py*py + pz*pz) << std::endl;
 
             ret.emplace_back(res);
             return ret;

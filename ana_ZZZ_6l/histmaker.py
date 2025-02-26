@@ -1,10 +1,10 @@
 # list of processes (mandatory)
 processList = {
-    'wzp6_ee_llH_HZZ_llll_ecm240':    {'fraction':1},
+    'wzp6_ee_llH_HZZ_llll_ecm240':    {'fraction':1}, # 'crossSection': 0.25792},
 }
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
-#prodTag     = "FCCee/winter2023/IDEA/"
+prodTag     = "FCCee/winter2023/IDEA/"
 
 # Link to the dictonary that contains all the cross section informations etc... (mandatory)
 procDict = "FCCee_procDict_winter2023_IDEA.json" # QUESTION: is this correct?
@@ -23,7 +23,7 @@ outputDir   = "./outputs/histmaker/ZZZ6l/"
 nCPUS       = -1
 
 # scale the histograms with the cross-section and integrated luminosity
-doScale = True
+# doScale = True
 intLumi = 10600000 # 10.6 /ab
 
 
@@ -41,6 +41,8 @@ bins_phi = (500, -5, 5)
 bins_count = (10, 0, 10)
 bins_charge = (10, -5, 5)
 bins_iso = (500, 0, 3)
+
+bins_higgs = (2000, 60, 160) # 100 MeV bins
 
 
 
@@ -150,21 +152,24 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("electrons_q_cut2", "", *bins_charge), "electrons_q"))
     results.append(df.Histo1D(("electrons_no_cut2", "", *bins_count), "electrons_no"))
 
-
-
-    """
-    #########
-    ### CUT 2 :at least 2 opposite-sign (OS) leptons
-    #########
-    df = df.Filter("muons_no >= 2 && abs(Sum(muons_q)) < muons_q.size()")
-    df = df.Define("cut2", "2")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
-    """ 
     # now we build the Z resonance based on the isolated leptons. 
     df = df.Define("zbuilder_result", "FCCAnalyses::ZHfunctions::resonanceBuilder(91.2)(electrons_sel_iso, muons_sel_iso)")
     df = df.Define("res1", "Vec_rp{zbuilder_result[0]}") # the first resonance
     df = df.Define("res2", "Vec_rp{zbuilder_result[1]}") # the second resonance
     df = df.Define("res3", "Vec_rp{zbuilder_result[2]}") # the third resonance
+
+    # caluclate the Higgs mass from H->ZZ->4l
+    df = df.Define("Higgs_results", "FCCAnalyses::ZHfunctions::higgsmassBuilder(125.0)(res1, res2, res3)")
+    df = df.Define("Higgs", "Vec_rp{Higgs_results[0]}") # the Higgs candidate
+    df = df.Define("Z_onshell_from_H", "Vec_rp{Higgs_results[1]}") 
+    df = df.Define("Z_offshell_from_H", "Vec_rp{Higgs_results[2]}") 
+    df = df.Define("Z_onshell", "Vec_rp{Higgs_results[3]}") 
+    df = df.Define("m_higgs", "FCCAnalyses::ReconstructedParticle::get_mass(Higgs)") # Higgs mass
+
+    results.append(df.Histo1D(("higgs_mass", "", *bins_higgs), "m_higgs"))
+
+    # CONTINUE HERE: CALCULATE P OF Zs AND CHECK IF THE MATCHING WORKS GOOD, DO THE MASSES AND SO ON. 
+    # REMVOE THESE RES MASSES 
     df = df.Define("res_mass1", "FCCAnalyses::ReconstructedParticle::get_mass(res1)") # mass of the first resonance
     df = df.Define("res_mass2", "FCCAnalyses::ReconstructedParticle::get_mass(res2)") # mass of the second resonance
     df = df.Define("res_mass3", "FCCAnalyses::ReconstructedParticle::get_mass(res3)") # mass of the third resonance - offshell Z
@@ -179,55 +184,6 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("res_mass3", "", *bins_m_ll), "res_mass3"))
     results.append(df.Histo1D(("m_recoil", "", *bins_recoil), "m_recoil"))
 
-
-    """
-
-
-    #########
-    ### CUT 3: Z mass window
-    #########  
-    df = df.Filter("zmumu_m > 86 && zmumu_m < 96")
-    df = df.Define("cut3", "3")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut3"))
-
-    
-    #########
-    ### CUT 4: Z momentum
-    #########  
-    df = df.Filter("zmumu_p > 20 && zmumu_p < 70")
-    df = df.Define("cut4", "4")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
-
-    
-    #########
-    ### CUT 5: cosThetaMiss
-    #########  
-    df = df.Define("missingEnergy", "FCCAnalyses::ZHfunctions::missingEnergy(240., ReconstructedParticles)")
-    #df = df.Define("cosTheta_miss", "FCCAnalyses::get_cosTheta_miss(missingEnergy)")
-    df = df.Define("cosTheta_miss", "FCCAnalyses::ZHfunctions::get_cosTheta_miss(MissingET)")
-    results.append(df.Histo1D(("cosThetaMiss_cut4", "", *bins_cosThetaMiss), "cosTheta_miss")) # plot it before the cut
-
-    df = df.Filter("cosTheta_miss < 0.98")
-    df = df.Define("cut5", "5")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5"))
-
-
-    #########
-    ### CUT 6: recoil mass window
-    #########  
-    df = df.Filter("zmumu_recoil_m < 140 && zmumu_recoil_m > 120")
-    df = df.Define("cut6", "6")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
-    
-
-    ########################
-    # Final histograms
-    ########################
-    results.append(df.Histo1D(("zmumu_m", "", *bins_m_ll), "zmumu_m"))
-    results.append(df.Histo1D(("zmumu_recoil_m", "", *bins_recoil), "zmumu_recoil_m"))
-    results.append(df.Histo1D(("zmumu_p", "", *bins_p_ll), "zmumu_p"))
-    results.append(df.Histo1D(("zmumu_muons_p", "", *bins_p_mu), "zmumu_muons_p"))
-    """
     
 
     return results, weightsum
