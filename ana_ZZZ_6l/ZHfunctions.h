@@ -30,6 +30,15 @@ bool haveCommonElement(const std::vector<int>& array1, const std::vector<int>& a
     return false; // No common elements found
 }
 
+rp return_rp_from_tlv(TLorentzVector tlv) {
+    rp rp_fcc;
+    rp_fcc.momentum.x = tlv.Px();
+    rp_fcc.momentum.y = tlv.Py();
+    rp_fcc.momentum.z = tlv.Pz();
+    rp_fcc.mass = tlv.M();
+    return rp_fcc;
+}
+
 // FCC Analyses functions
 
 namespace FCCAnalyses { 
@@ -386,11 +395,6 @@ namespace FCCAnalyses {
         }
         // operator - compute the Higgs mass
         Vec_rp higgsmassBuilder::operator()(Vec_rp res1, Vec_rp res2, Vec_rp res3) {
-            // resonance - 3 resonance particles: on-shell, o-shell, off-shell Z
-            // if(resonance.size() != 3) {
-            //     std::cout << "ERROR: 3 resonance particles required" << std::endl;
-            //     exit(1);
-            // }
 
             TLorentzVector Z1;
             Z1.SetXYZM(res1[0].momentum.x, res1[0].momentum.y, res1[0].momentum.z, res1[0].mass);
@@ -422,17 +426,13 @@ namespace FCCAnalyses {
                 result.push_back(res1[0]);
             }
 
+            // check if result has 4 entries
+            if(result.size() != 4) {
+                std::cout << "ERROR: results should be filled with 4 particles" << std::endl;
+                exit(1);
+            }
 
             return result; // returns the Higgs particle (MCParticleData object), then the two Z from which is was built (first on-shell, then off-shell), then the third Z, being on-shell
-        }
-
-        rp return_rp_from_tlv(TLorentzVector tlv) {
-            rp rp_fcc;
-            rp_fcc.momentum.x = tlv.Px();
-            rp_fcc.momentum.y = tlv.Py();
-            rp_fcc.momentum.z = tlv.Pz();
-            rp_fcc.mass = tlv.M();
-            return rp_fcc;
         }
 
 

@@ -13,7 +13,7 @@ procDict = "FCCee_procDict_winter2023_IDEA.json" # QUESTION: is this correct?
 includePaths = ["ZHfunctions.h"]
 
 # Define the input dir (optional)
-inputDir    = "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"
+# inputDir    = "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"
 
 #Optional: output directory, default is local running directory
 outputDir   = "./outputs/histmaker/ZZZ6l/"
@@ -31,7 +31,7 @@ intLumi = 10600000 # 10.6 /ab
 bins_p_mu = (2000, 0, 200) # 100 MeV bins
 bins_m_ll = (2000, 0, 200) # 100 MeV bins
 bins_p_ll = (2000, 0, 200) # 100 MeV bins
-bins_recoil = (200000, 0, 200) # 1 MeV bins 
+bins_recoil = (2000, 0, 200) # 1 MeV bins 
 bins_cosThetaMiss = (10000, 0, 1)
 
 bins_theta = (500, -5, 5)
@@ -42,7 +42,7 @@ bins_count = (10, 0, 10)
 bins_charge = (10, -5, 5)
 bins_iso = (500, 0, 3)
 
-bins_higgs = (2000, 60, 160) # 100 MeV bins
+bins_higgs = (2000, 100, 135) # 100 MeV bins
 
 
 
@@ -166,23 +166,28 @@ def build_graph(df, dataset):
     df = df.Define("Z_onshell", "Vec_rp{Higgs_results[3]}") 
     df = df.Define("m_higgs", "FCCAnalyses::ReconstructedParticle::get_mass(Higgs)") # Higgs mass
 
-    results.append(df.Histo1D(("higgs_mass", "", *bins_higgs), "m_higgs"))
+    # Z mass
+    df = df.Define("m_Z_onshell_from_H", "FCCAnalyses::ReconstructedParticle::get_mass(Z_onshell_from_H)") # Z mass
+    df = df.Define("m_Z_offshell_from_H", "FCCAnalyses::ReconstructedParticle::get_mass(Z_offshell_from_H)") # Z mass
+    df = df.Define("m_Z_onshell", "FCCAnalyses::ReconstructedParticle::get_mass(Z_onshell)") # Z mass
 
-    # CONTINUE HERE: CALCULATE P OF Zs AND CHECK IF THE MATCHING WORKS GOOD, DO THE MASSES AND SO ON. 
-    # REMVOE THESE RES MASSES 
-    df = df.Define("res_mass1", "FCCAnalyses::ReconstructedParticle::get_mass(res1)") # mass of the first resonance
-    df = df.Define("res_mass2", "FCCAnalyses::ReconstructedParticle::get_mass(res2)") # mass of the second resonance
-    df = df.Define("res_mass3", "FCCAnalyses::ReconstructedParticle::get_mass(res3)") # mass of the third resonance - offshell Z
+    # Z momentum 
+    df = df.Define("p_Z_onshell_from_H", "FCCAnalyses::ReconstructedParticle::get_p(Z_onshell_from_H)") # Z momentum
+    df = df.Define("p_Z_offshell_from_H", "FCCAnalyses::ReconstructedParticle::get_p(Z_offshell_from_H)") # Z momentum
+    df = df.Define("p_Z_onshell", "FCCAnalyses::ReconstructedParticle::get_p(Z_onshell)") # Z momentum - peaks at 50 GeV like expected!! 
 
     # check the recoil mass
     df = df.Define("recoil", "FCCAnalyses::ZHfunctions::recoilBuilder(125, 240)(res1, res2)")
     df = df.Define("m_recoil", "FCCAnalyses::ReconstructedParticle::get_mass(recoil)") # recoil mass
 
     # save in histogram 
-    results.append(df.Histo1D(("res_mass1", "", *bins_m_ll), "res_mass1"))
-    results.append(df.Histo1D(("res_mass2", "", *bins_m_ll), "res_mass2"))
-    results.append(df.Histo1D(("res_mass3", "", *bins_m_ll), "res_mass3"))
-    results.append(df.Histo1D(("m_recoil", "", *bins_recoil), "m_recoil"))
+    results.append(df.Histo1D(("higgs_mass", "", *bins_higgs), "m_higgs"))
+    results.append(df.Histo1D(("m_Z_onshell_from_H", "", *bins_recoil), "m_Z_onshell_from_H"))
+    results.append(df.Histo1D(("m_Z_offshell_from_H", "", *bins_recoil), "m_Z_offshell_from_H"))
+    results.append(df.Histo1D(("m_Z_onshell", "", *bins_recoil), "m_Z_onshell"))
+    results.append(df.Histo1D(("p_Z_onshell_from_H", "", *bins_p_mu), "p_Z_onshell_from_H"))
+    results.append(df.Histo1D(("p_Z_offshell_from_H", "", *bins_p_mu), "p_Z_offshell_from_H"))
+    results.append(df.Histo1D(("p_Z_onshell", "", *bins_p_mu), "p_Z_onshell"))
 
     
 
