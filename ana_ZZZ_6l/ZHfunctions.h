@@ -380,7 +380,7 @@ namespace FCCAnalyses {
             return resonance; // returns 3 resonance particles: on-shell, o-shell, off-shell Z
         }
 
-        // STRUCT: caluclate the Higgs mass from ZZ->4l
+        // STRUCT: assign the 3 Z for the process HZ; H-> ZZ; Z->ll
         struct higgsmassBuilder{
             // constructor
             higgsmassBuilder(float arg_resonance_mass);
@@ -445,7 +445,7 @@ namespace FCCAnalyses {
             float m_resonance_mass;
             float ecm;
             // operator
-            Vec_rp operator()(Vec_rp res1, Vec_rp res2) ;
+            Vec_rp operator()(Vec_rp Z) ;
         };
         // constructor - set the resonance mass
         recoilBuilder::recoilBuilder(float arg_resonance_mass, float arg_ecm) {
@@ -453,43 +453,16 @@ namespace FCCAnalyses {
             ecm = arg_ecm;
         }
         // operator - compute the recoil mass
-        Vec_rp recoilBuilder::operator()(Vec_rp res1, Vec_rp res2) {
-            // resonance - 3 resonance particles: on-shell, o-shell, off-shell Z
-            // if(resonance.size() != 3) {
-            //     std::cout << "ERROR: 3 resonance particles required" << std::endl;
-            //     exit(1);
-            // }
+        Vec_rp recoilBuilder::operator()(Vec_rp Z) {
 
-            TLorentzVector Z1;
-            Z1.SetXYZM(res1[0].momentum.x, res1[0].momentum.y, res1[0].momentum.z, res1[0].mass);
-            TLorentzVector Z2;
-            Z2.SetXYZM(res2[0].momentum.x, res2[0].momentum.y, res2[0].momentum.z, res2[0].mass);
-
-            // compute the recoil mass - consider that we need to test two on-shell Zs
+            TLorentzVector Z_for_recoil;
+            Z_for_recoil.SetXYZM(Z[0].momentum.x, Z[0].momentum.y, Z[0].momentum.z, Z[0].mass);
             
 
             // get recoil
-            TLorentzVector recoil1;
-            recoil1.SetXYZM(0, 0, 0, ecm);
-            recoil1 -= Z1;
-            float m_r1 = recoil1.M();
-
-            TLorentzVector recoil2;
-            recoil2.SetXYZM(0, 0, 0, ecm);
-            recoil2 -= Z2;
-            float m_r2 = recoil2.M();
-
-            // check which recoil fits best with the Higgs mass 
-            float chi2_1 = pow(m_r1-m_resonance_mass, 2);
-            float chi2_2 = pow(m_r2-m_resonance_mass, 2);
-
-            // select the best fit
             TLorentzVector recoil;
-            if (chi2_1 < chi2_2) {
-                recoil = recoil1;
-            } else {
-                recoil = recoil2;
-            }
+            recoil.SetXYZM(0, 0, 0, ecm);
+            recoil -= Z_for_recoil;
 
             // create a ReconstructedParticleData object
             rp recoil_fcc;
