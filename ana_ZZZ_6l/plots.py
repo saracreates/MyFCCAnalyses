@@ -20,9 +20,9 @@ colors['llH-qqll'] = ROOT.kBlue+1
 colors['qqH-4l'] = ROOT.kGreen+2
 
 procs = {}
-procs['signal'] = {'ZZZ-6l':['wzp6_ee_llH_HZZ_llll_ecm240']}
-procs['backgrounds'] =  {'llH-qqll':['wzp6_ee_llH_HZZ_qqll_ecm240'], 
-                        'qqH-4l':['wzp6_ee_llH_HZZ_llll_ecm240'],
+procs['signal'] = {'ZZZ-6l':['wzp6_ee_llH_HZZ_llll_ecm240']} # 60 events
+procs['backgrounds'] =  {'llH-qqll':['wzp6_ee_llH_HZZ_qqll_ecm240'], # 5k?
+                        'qqH-4l':['wzp6_ee_qqH_HZZ_llll_ecm240'], # 380 events 
                         }
 
 
@@ -40,9 +40,9 @@ hists["higgs_mass"] = {
     "input":    "higgs_mass",
     "logy":     False,
     "stack":    True,
-    "rebin":    100,
-    "xmin":     120,
-    "xmax":     140,
+    # "rebin":    100,
+    "xmin":     115,
+    "xmax":     130,
     "ymin":     0,
     "ymax":     2500,
     "xtitle":   "Mass (GeV)",
@@ -54,9 +54,9 @@ hists["recoil_mass"] = {
     "output":   "recoil_mass",
     "logy":     False,
     "stack":    True,
-    "rebin":    100,
+    # "rebin":    100,
     "xmin":     120,
-    "xmax":     140,
+    "xmax":     135,
     "ymin":     0,
     "ymax":     2500,
     "xtitle":   "Recoil (GeV)",
@@ -72,12 +72,12 @@ hists["cutFlow"] = {
     "output":   "cutFlow",
     "input":    "cutFlow",
     "logy":     True,
-    "stack":    True,
+    "stack":    False,
     "xmin":     0,
-    "xmax":     6,
+    "xmax":     5,
     "ymin":     1e4,
     "ymax":     1e11,
-    "xtitle":   ["All events", "N(e) + N(#mu) >=6", "N(e_{iso}) + N(#mu_{iso}) = 6", "l pairs", "124 < m_H < 125.5"],
+    "xtitle":   ["All events", "N(e) + N(#mu) >=6", "N(e_{iso}) + N(#mu_{iso}) = 6", "l pairs", "124 < m_{H} < 125.5"],
     "ytitle":   "Events ",
     "scaleSig": 10
 }
