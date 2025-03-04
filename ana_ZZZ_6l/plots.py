@@ -79,5 +79,5 @@ hists["cutFlow"] = {
     "ymax":     1e11,
     "xtitle":   ["All events", "N(e) + N(#mu) >=6", "N(e_{iso}) + N(#mu_{iso}) = 6", "l pairs", "124 < m_{H} < 125.5"],
     "ytitle":   "Events ",
-    "scaleSig": 10
+    # "scaleSig": 10
 }

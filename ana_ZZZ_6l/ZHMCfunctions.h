@@ -369,7 +369,7 @@ namespace FCCAnalyses {
             return ret;
         }
 
-        Vec_mc create_lepton_missingE_emu_only(Vec_mc ll_from_Z, Vec_mc ll_from_H1, Vec_mc ll_from_H2, Vec_i ind_daughter, Vec_mc mcparticles)
+        Vec_mc create_lepton_missingE_emu_only(Vec_mc ll_from_Z, Vec_mc ll_from_H1, Vec_mc ll_from_H2, Vec_i ind_daughter, Vec_mc mcparticles){
 
             Vec_mc ret;
 
@@ -405,6 +405,26 @@ namespace FCCAnalyses {
 
             ret.emplace_back(res);
             return ret;
+        }
+
+        Vec_mc create_higgs_from_ZZ(Vec_mc res1, Vec_mc res2){
+            TLorentzVector Z1;
+            Z1.SetXYZM(res1[0].momentum.x, res1[0].momentum.y, res1[0].momentum.z, res1[0].mass);
+            TLorentzVector Z2;
+            Z2.SetXYZM(res2[0].momentum.x, res2[0].momentum.y, res2[0].momentum.z, res2[0].mass);
+
+            TLorentzVector Higgs = Z1 + Z2;
+
+            Vec_mc result;
+            edm4hep::MCParticleData higgs;
+            higgs.momentum.x = Higgs.Px();
+            higgs.momentum.y = Higgs.Py();
+            higgs.momentum.z = Higgs.Pz();
+            higgs.mass = Higgs.M();
+            result.push_back(higgs);
+
+            return result;
+
         }
 
     }

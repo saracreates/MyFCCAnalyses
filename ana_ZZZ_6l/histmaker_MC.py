@@ -95,6 +95,7 @@ def build_graph(df, dataset):
     df = df.Define("p_Z_offshell_from_H", "FCCAnalyses::MCParticle::get_p(Z_offshell_from_H)")
 
 
+
     # add histogram
     # results.append(df.Histo1D(("pdg_mc", "", *bins_pdg), "pdg_mc")) # for printing!!!
 
@@ -108,6 +109,14 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("p_Z", "", *bins_p_mu), "p_Z"))
     results.append(df.Histo1D(("p_Z_onshell", "", *bins_p_mu), "p_Z_onshell_from_H"))
     results.append(df.Histo1D(("p_Z_offshell", "", *bins_p_mu), "p_Z_offshell_from_H"))
+
+    # get higgs from H-> ZZ event
+    df = df.Define("higgs", "FCCAnalyses::ZHMCfunctions::create_higgs_from_ZZ(Z_onshell_from_H, Z_offshell_from_H)")
+    df = df.Define("m_higgs", "FCCAnalyses::MCParticle::get_mass(higgs)")
+
+    results.append(df.Histo1D(("m_higgs", "", *bins_m_ll), "m_higgs"))
+
+
 
     # caluclate the missing momentum in these events 
 

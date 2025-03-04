@@ -1,7 +1,7 @@
 # list of processes (mandatory)
 processList = {
     'wzp6_ee_llH_HZZ_llll_ecm240':    {'fraction':1, 'crossSection': 0.00000557}, # 5.7 ab 
-    'wzp6_ee_llH_HZZ_qqll_ecm240':    {'fraction':1}, 
+    'wzp6_ee_llH_HZZ_qqll_ecm240':    {'fraction':1, 'crossSection': 0.000025}, # 25 ab 
     'wzp6_ee_qqH_HZZ_llll_ecm240':    {'fraction':1, 'crossSection': 0.000038}, # 38 ab 
 }
 
