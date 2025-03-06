@@ -1,9 +1,9 @@
 # list of processes (mandatory)
 processList = {
-    # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
-    'wzp6_ee_llH_HZZ_llll_ecm240':    {'fraction':1,} # 'crossSection': 0.00000517}, # 5.17 ab 
-    'wzp6_ee_llH_HZZ_qqll_ecm240':    {'fraction':1,} 
-    'wzp6_ee_qqH_HZZ_llll_ecm240':    {'fraction':1,} 
+    # change x sections!! 
+    'wzp6_ee_llH_HZZ_llll_ecm365':    {'fraction':1, 'crossSection': 0.00000517}, # 5.17 ab (from Louis) 
+    'wzp6_ee_llH_HZZ_qqll_ecm365':    {'fraction':1, 'crossSection': 0.000025}, # 25 ab 
+    'wzp6_ee_qqH_HZZ_llll_ecm365':    {'fraction':1, 'crossSection': 0.000038}, # 38 ab 
     # 'p8_ee_llZZ_ecm240_edm4hep': {'fraction':1, 'crossSection': 0.00008746} # 8.746e-05 +- 1.176e-07 pb
 }
 
@@ -18,8 +18,7 @@ includePaths = ["ZHfunctions.h"]
 
 # Define the input dir (optional)
 # inputDir    = "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"
-
-# inputDir = "/afs/cern.ch/work/s/saaumill/public/madgraph_to_edm4hep_pipeline/pythia_to_delphes_to_edm4hep/"
+#inputDir = "/afs/cern.ch/work/s/saaumill/public/madgraph_to_edm4hep_pipeline/pythia_to_delphes_to_edm4hep/"
 
 #Optional: output directory, default is local running directory
 outputDir   = "./outputs/histmaker/ZZZ6l/"
