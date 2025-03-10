@@ -281,7 +281,7 @@ namespace FCCAnalyses {
                     edm4hep::MCParticleData daughter = mcparticles[ind_d];
                     if(abs(daughter.PDG) == 11 || abs(daughter.PDG) == 13 || abs(daughter.PDG) == 15){
                         lepton_daughters.push_back(daughter);
-                    }
+                    } 
                 }
             }
 
@@ -426,6 +426,134 @@ namespace FCCAnalyses {
             return result;
 
         }
+
+
+        // MC functions for BACKGROUND data 
+        void print_Z_info(Vec_mc mcparticles, Vec_i ind_parents, Vec_i ind_daugthers){
+            // find Zs
+            Vec_mc Zs; 
+            for (int i = 0; i < mcparticles.size(); ++i) {
+                if(mcparticles[i].PDG == 23){
+                    Zs.push_back(mcparticles[i]);
+                }
+            }
+            // if no Z found, print all other mcparticles
+            if (Zs.size() == 0){
+                std::cout << "No Zs found, printing all mcparticles" << std::endl;
+                for (int i = 0; i < mcparticles.size(); ++i) {
+                    std::cout << "PDG: \t" << mcparticles[i].PDG << std::endl;
+                }
+            }
+
+            // print Zs info
+            std::cout<<"---- number of total Zs: "<<Zs.size()<< " ---------" <<std::endl;
+            // print parents and daughtersof Zs
+            for(edm4hep::MCParticleData& mcp: Zs){
+                std::cout << "---- new Z ----" << std::endl;
+                int pb = mcp.parents_begin;
+                int pe = mcp.parents_end;
+                int size_parents = pe - pb;
+                for (int j = pb; j < pe; ++j) {
+                    int ind_par = ind_parents[j];
+                    std::cout << "Z parents: \t" << mcparticles[ind_par].PDG << " (" << ind_par << ")"<< std::endl;
+                } 
+                int pb_d = mcp.daughters_begin;
+                int pe_d = mcp.daughters_end;
+                int size_daughters = pe_d - pb_d;
+                for (int j = pb_d; j < pe_d; ++j) {
+                    int ind_d = ind_daugthers[j];
+                    std::cout << "Z daughters: \t" << mcparticles[ind_d].PDG << " (" << ind_d << ")"<< std::endl;
+                }
+            }
+        }
+
+        Vec_mc get_all_Zs_bg(Vec_mc mcparticles, Vec_i ind_parents, Vec_i ind_daugthers){
+            // function for BACKGROUND data ee-> ZZll; Z->ll
+            // get all Zs
+            int pdg_Z = 23;
+            std::vector<int> pdg_leptons = {11, -11, 13, -13, 15, -15};
+            Vec_mc Zs;
+            for(edm4hep::MCParticleData& mcp: mcparticles){
+                if(mcp.PDG == pdg_Z){
+                    // check that Z has two leptons as daughters
+                    int pb = mcp.daughters_begin;
+                    int pe = mcp.daughters_end;
+                    int size_daughters = pe - pb;
+                    if (size_daughters != 2){
+                        continue;
+                    } else {
+                        int daughter_pdg1 = mcparticles[ind_daugthers[pb]].PDG;
+                        int daughter_pdg2 = mcparticles[ind_daugthers[pb+1]].PDG;
+                        if(std::find(pdg_leptons.begin(), pdg_leptons.end(), daughter_pdg1) != pdg_leptons.end() && std::find(pdg_leptons.begin(), pdg_leptons.end(), daughter_pdg2) != pdg_leptons.end()){
+                            std::cout << "found Z with two leptons as daughters with ID:" << daughter_pdg1 << " " << daughter_pdg2 << std::endl;
+                            Zs.push_back(mcp);
+                        }
+                    }
+                }
+            }
+            bool debug = true;
+            if (debug){
+                print_Z_info(mcparticles, ind_parents, ind_daugthers);
+            }
+
+            // check if there are 2 Zs
+            if(Zs.size() != 2){
+                std::cout << "ERROR: there should be exactly two Zs in the event but got "<< Zs.size() << std::endl;
+                std::cout << "total number of mcparticles: " << mcparticles.size() << std::endl;
+                std::cout << "Only found these Zs: " << std::endl;
+                print_Z_info(mcparticles, ind_parents, ind_daugthers);
+                exit(1);
+            }
+
+
+            return Zs;
+        }
+
+
+        Vec_f calculate_inv_mass_of_two_leptons(Vec_mc leptons){
+            // calculate invariant mass of two leptons
+
+            // check if leptons have size 2
+            if (leptons.size() != 2){
+                std::cout << "ERROR: there should be exactly two leptons as an input to this function" << std::endl;
+                exit(1);
+            }
+
+            Vec_f inv_mass;
+
+            TLorentzVector lv1;
+            TLorentzVector lv2;
+            lv1.SetXYZM(leptons[0].momentum.x, leptons[0].momentum.y, leptons[0].momentum.z, leptons[0].mass);
+            lv2.SetXYZM(leptons[1].momentum.x, leptons[1].momentum.y, leptons[1].momentum.z, leptons[1].mass);
+
+            TLorentzVector lv = lv1 + lv2;
+            inv_mass.push_back(lv.M());
+
+            return inv_mass;
+        }
+
+        Vec_i n_daughters(Vec_mc mcparticles){
+            // caluclate number of daughters of each particle
+            Vec_i n_daughters;
+            for(edm4hep::MCParticleData& mcp: mcparticles){
+                int pb = mcp.daughters_begin;
+                int pe = mcp.daughters_end;
+                int size_daughters = pe - pb;
+                n_daughters.push_back(size_daughters);
+            }
+            return n_daughters;
+        }
+
+        Vec_i n_mcparticles(Vec_mc mcparticles){
+            // return number of mc particles 
+            Vec_i n_mc;
+            int num_mc = mcparticles.size();
+            n_mc.push_back(num_mc);
+
+            return n_mc;
+        }
+
+        
 
     }
 
