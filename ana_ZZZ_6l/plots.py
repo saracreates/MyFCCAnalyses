@@ -15,21 +15,24 @@ inputDir       = './outputs/histmaker/ZZZ6l/'
 plotStatUnc    = True
 
 colors = {}
-colors['ZZZ-6l'] = ROOT.kRed
+colors['ZH-6l'] = ROOT.kRed
 colors['llH-qqll'] = ROOT.kBlue+1
 colors['qqH-4l'] = ROOT.kGreen+2
+colors['ZZll-6l'] = ROOT.kOrange+1
 
 procs = {}
-procs['signal'] = {'ZZZ-6l':['wzp6_ee_llH_HZZ_llll_ecm240']} # 60 events
+procs['signal'] = {'ZH-6l':['wzp6_ee_llH_HZZ_llll_ecm240']} # 60 events
 procs['backgrounds'] =  {'llH-qqll':['wzp6_ee_llH_HZZ_qqll_ecm240'], # 5k?
                         'qqH-4l':['wzp6_ee_qqH_HZZ_llll_ecm240'], # 380 events 
+                        'ZZll-6l': ['p8_ee_llZZ_ecm240']
                         }
 
 
 legend = {}
-legend['ZZZ-6l'] = 'ZZZ-6l'
+legend['ZH-6l'] = 'ZH-6l'
 legend['llH-qqll'] = 'llH-qqll'
 legend['qqH-4l'] = 'qqH-4l'
+legend['ZZll-6l'] = 'ZZll-6l'
 
 
 
@@ -74,10 +77,10 @@ hists["cutFlow"] = {
     "logy":     True,
     "stack":    False,
     "xmin":     0,
-    "xmax":     5,
+    "xmax":     7,
     "ymin":     1e4,
     "ymax":     1e11,
-    "xtitle":   ["All events", "N(e) + N(#mu) >=6", "N(e_{iso}) + N(#mu_{iso}) = 6", "l pairs", "124 < m_{H} < 125.5"],
+    "xtitle":   ["All events", "N(e) + N(#mu) >=6", "N(e_{iso}) + N(#mu_{iso}) = 6", "l pairs", "115 < m_{H} < 127", "122 < m_{recoil} < 160", "40 < p_{Z, prod} < 60"],
     "ytitle":   "Events ",
     # "scaleSig": 10
 }
