@@ -1,12 +1,13 @@
 # list of processes (mandatory)
 processList = {
     # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
-    'wzp6_ee_llH_HZZ_llll_ecm240':    {'fraction':1,} # 'crossSection': 0.00000517}, # 5.17 ab 
-    'wzp6_ee_llH_HZZ_qqll_ecm240':    {'fraction':1,} 
-    'wzp6_ee_qqH_HZZ_llll_ecm240':    {'fraction':1,} 
-    # 'p8_ee_llZZ_ecm240_edm4hep': {'fraction':1, 'crossSection': 0.00008746} # 8.746e-05 +- 1.176e-07 pb
+    'wzp6_ee_llH_HZZ_llll_ecm240':    {'fraction':1}, # 'crossSection': 0.00000517}, # 5.17 ab 
+    'wzp6_ee_llH_HZZ_qqll_ecm240':    {'fraction':1}, 
+    'wzp6_ee_qqH_HZZ_llll_ecm240':    {'fraction':1}, 
+    'p8_ee_llZZ_ecm240': {'fraction':1, 
+                                'inputDir': "/afs/cern.ch/work/s/saaumill/public/tmp_madgraph_output/edm4hep_data",
+                                'crossSection': 0.00000013423} # 1.3184825911999996e-05 (pb), -> Z decay -> 0.13423 ab
 }
-
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
 prodTag     = "FCCee/winter2023/IDEA/"
 
@@ -18,8 +19,6 @@ includePaths = ["ZHfunctions.h"]
 
 # Define the input dir (optional)
 # inputDir    = "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"
-
-# inputDir = "/afs/cern.ch/work/s/saaumill/public/madgraph_to_edm4hep_pipeline/pythia_to_delphes_to_edm4hep/"
 
 #Optional: output directory, default is local running directory
 outputDir   = "./outputs/histmaker/ZZZ6l/"
@@ -191,11 +190,11 @@ def build_graph(df, dataset):
     # Z momentum 
     df = df.Define("p_Z_onshell_from_H", "FCCAnalyses::ReconstructedParticle::get_p(Z_onshell_from_H)") # Z momentum
     df = df.Define("p_Z_offshell_from_H", "FCCAnalyses::ReconstructedParticle::get_p(Z_offshell_from_H)") # Z momentum
-    df = df.Define("p_Z_onshell", "FCCAnalyses::ReconstructedParticle::get_p(Z_onshell)") # Z momentum - peaks at 50 GeV like expected!! 
+    df = df.Define("p_Z_onshell", "FCCAnalyses::ReconstructedParticle::get_p(Z_onshell)[0]") # Z momentum - peaks at 50 GeV like expected!! 
 
     # check the recoil mass
     df = df.Define("recoil", "FCCAnalyses::ZHfunctions::recoilBuilder(125, 240)(Z_onshell)")
-    df = df.Define("m_recoil", "FCCAnalyses::ReconstructedParticle::get_mass(recoil)") # recoil mass
+    df = df.Define("m_recoil", "FCCAnalyses::ReconstructedParticle::get_mass(recoil)[0]") # recoil mass
 
     # save in histogram 
     results.append(df.Histo1D(("higgs_mass", "", *bins_higgs), "m_higgs"))
@@ -210,7 +209,7 @@ def build_graph(df, dataset):
     #########
     ### CUT 4: higgs_mass 124 < m < 125.5
     #########
-    df = df.Filter("m_higgs > 124 && m_higgs < 125.5")
+    df = df.Filter("m_higgs > 115 && m_higgs < 127")
     df = df.Define("cut4", "4")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
 
@@ -223,6 +222,28 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("p_Z_onshell_from_H_cut4", "", *bins_p_mu), "p_Z_onshell_from_H"))
     results.append(df.Histo1D(("p_Z_offshell_from_H_cut4", "", *bins_p_mu), "p_Z_offshell_from_H"))
     results.append(df.Histo1D(("p_Z_onshell_cut4", "", *bins_p_mu), "p_Z_onshell"))
+
+
+    #########
+    ### CUT 5: recoil mass 110 < m < 180
+    #########
+    df = df.Filter("m_recoil > 122 && m_recoil < 160")
+    df = df.Define("cut5", "5")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5"))
+    
+    # histograms after the fifth cut - hist on recoil mass
+    results.append(df.Histo1D(("higgs_mass_cut5", "", *bins_higgs), "m_higgs"))
+    results.append(df.Histo1D(("recoil_mass_cut5", "", *bins_recoil), "m_recoil"))
+
+    #########
+    ### CUT 6: momentum of Z_onshell 40 < p < 60
+    #########
+    df = df.Filter("p_Z_onshell > 40 && p_Z_onshell < 60")
+    df = df.Define("cut6", "6")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
+
+    # histograms after the sixth cut - hist on p_Z_onshell
+
 
 
     return results, weightsum
