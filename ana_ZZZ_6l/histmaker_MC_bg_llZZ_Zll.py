@@ -1,7 +1,9 @@
 """
 Comment:
 This file should check if the Z has a natural width when creating on shell Z with madgraph and then pythia8. 
-Turns out IT DOES NOT. 
+Turns out 
+- IT DOES NOT if the decay is done in pythia8
+- IT DOES if the decay is done in madgraph
 
 """
 
@@ -9,7 +11,8 @@ Turns out IT DOES NOT.
 
 # list of processes (mandatory)
 processList = {
-    'p8_ee_llZZ_ecm240_edm4hep': {'fraction':1, 'crossSection': 0.00008746} # 8.746e-05 +- 1.176e-07 pb
+    'p8_ee_llZZ_ecm240': {'fraction':1}, # Z decay to ll done in pythia -> NO natural width
+    'p8_ee_llZZ_Zll_ecm240': {'fraction':1}, # Z decay to ll done in madgraph -> natural width of Z!! 
 }
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
@@ -23,7 +26,7 @@ includePaths = ["ZHMCfunctions.h"]
 
 # Define the input dir (optional)
 # inputDir    = "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"
-inputDir = "/afs/cern.ch/work/s/saaumill/public/mg_configs/pythia_to_delphes_to_edm4hep"
+inputDir = "/afs/cern.ch/work/s/saaumill/public/tmp_madgraph_output/edm4hep_data"
 
 #Optional: output directory, default is local running directory
 outputDir   = "./outputs/histmaker_bg_MC/ZZZ6l/"

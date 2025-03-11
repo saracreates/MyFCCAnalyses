@@ -485,13 +485,13 @@ namespace FCCAnalyses {
                         int daughter_pdg1 = mcparticles[ind_daugthers[pb]].PDG;
                         int daughter_pdg2 = mcparticles[ind_daugthers[pb+1]].PDG;
                         if(std::find(pdg_leptons.begin(), pdg_leptons.end(), daughter_pdg1) != pdg_leptons.end() && std::find(pdg_leptons.begin(), pdg_leptons.end(), daughter_pdg2) != pdg_leptons.end()){
-                            std::cout << "found Z with two leptons as daughters with ID:" << daughter_pdg1 << " " << daughter_pdg2 << std::endl;
+                            // std::cout << "found Z with two leptons as daughters with ID:" << daughter_pdg1 << " " << daughter_pdg2 << std::endl;
                             Zs.push_back(mcp);
                         }
                     }
                 }
             }
-            bool debug = true;
+            bool debug = false;
             if (debug){
                 print_Z_info(mcparticles, ind_parents, ind_daugthers);
             }
@@ -502,7 +502,12 @@ namespace FCCAnalyses {
                 std::cout << "total number of mcparticles: " << mcparticles.size() << std::endl;
                 std::cout << "Only found these Zs: " << std::endl;
                 print_Z_info(mcparticles, ind_parents, ind_daugthers);
-                exit(1);
+                // if 3 Zs, then just take the first two otherwise exit
+                if(Zs.size() == 3){
+                    Zs.pop_back();
+                } else {
+                    exit(1);
+                }
             }
 
 
