@@ -4,10 +4,18 @@ processList = {
     'wzp6_ee_llH_HZZ_llll_ecm240':    {'fraction':1}, # 'crossSection': 0.00000517}, # 5.17 ab 
     'wzp6_ee_llH_HZZ_qqll_ecm240':    {'fraction':1}, 
     'wzp6_ee_qqH_HZZ_llll_ecm240':    {'fraction':1}, 
-    'p8_ee_llZZ_ecm240': {'fraction':1, 
+    # 'p8_ee_llZZ_ecm240': {'fraction':1, 
+    #                             'inputDir': "/afs/cern.ch/work/s/saaumill/public/tmp_madgraph_output/edm4hep_data",
+    #                             'crossSection': 0.00000013423} # 1.3184825911999996e-05 (pb), -> Z decay -> 0.13423 ab
+    'p8_ee_llZZ_Zll_single_os_Z_ecm240': {'fraction':1,
                                 'inputDir': "/afs/cern.ch/work/s/saaumill/public/tmp_madgraph_output/edm4hep_data",
-                                'crossSection': 0.00000013423} # 1.3184825911999996e-05 (pb), -> Z decay -> 0.13423 ab
+                                'crossSection': 0.000000857731}, # 8.577310059438061e-07
+    # also load the one that does not consider the single on-shell Z
+    'p8_ee_llZZ_Zll_ecm240': {'fraction':1,
+                                'inputDir': "/afs/cern.ch/work/s/saaumill/public/tmp_madgraph_output/edm4hep_data",
+                                'crossSection': 0.0000002653569}, # 2.6535691267239996e-07
 }
+
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
 prodTag     = "FCCee/winter2023/IDEA/"
 
@@ -29,7 +37,7 @@ nCPUS       = -1
 
 # scale the histograms with the cross-section and integrated luminosity
 # doScale = True
-intLumi = 10600000 # 10.6 /ab
+intLumi = 10800000 # 10.8 /ab
 
 
 # define some binning for various histograms
@@ -184,7 +192,7 @@ def build_graph(df, dataset):
 
     # Z mass
     df = df.Define("m_Z_onshell_from_H", "FCCAnalyses::ReconstructedParticle::get_mass(Z_onshell_from_H)") # Z mass
-    df = df.Define("m_Z_offshell_from_H", "FCCAnalyses::ReconstructedParticle::get_mass(Z_offshell_from_H)") # Z mass
+    df = df.Define("m_Z_offshell_from_H", "FCCAnalyses::ReconstructedParticle::get_mass(Z_offshell_from_H)[0]") # Z mass
     df = df.Define("m_Z_onshell", "FCCAnalyses::ReconstructedParticle::get_mass(Z_onshell)") # Z mass
 
     # Z momentum 
@@ -205,6 +213,14 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("p_Z_onshell_from_H", "", *bins_p_mu), "p_Z_onshell_from_H"))
     results.append(df.Histo1D(("p_Z_offshell_from_H", "", *bins_p_mu), "p_Z_offshell_from_H"))
     results.append(df.Histo1D(("p_Z_onshell", "", *bins_p_mu), "p_Z_onshell"))
+
+    # #########
+    # ### CUT 4: off shell Z mass from Higgs greater than 15 GeV
+    # #########
+    # df = df.Filter("m_Z_offshell_from_H > 15")
+    # df = df.Define("cut4", "4")
+    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
+
 
     #########
     ### CUT 4: higgs_mass 124 < m < 125.5
@@ -235,12 +251,12 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("higgs_mass_cut5", "", *bins_higgs), "m_higgs"))
     results.append(df.Histo1D(("recoil_mass_cut5", "", *bins_recoil), "m_recoil"))
 
-    #########
-    ### CUT 6: momentum of Z_onshell 40 < p < 60
-    #########
-    df = df.Filter("p_Z_onshell > 40 && p_Z_onshell < 60")
-    df = df.Define("cut6", "6")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
+    # #########
+    # ### CUT 6: momentum of Z_onshell 40 < p < 60
+    # #########
+    # df = df.Filter("p_Z_onshell > 40 && p_Z_onshell < 60")
+    # df = df.Define("cut6", "6")
+    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
 
     # histograms after the sixth cut - hist on p_Z_onshell
 

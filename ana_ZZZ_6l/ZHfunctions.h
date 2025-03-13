@@ -478,6 +478,220 @@ namespace FCCAnalyses {
 
         }
 
+        // STRUCT: out of 6 available leptons, check if there are two pairs which come from an on-shell Z
+        struct ZpairBuilder {
+            // constructor
+            ZpairBuilder(float arg_resonance_mass);
+            // variables
+            float m_resonance_mass;
+            // operator
+            Vec_rp operator()(Vec_rp electrons, Vec_rp muons) ;
+            // functions
+            float chi_square_2Z_onshell(float m1, float m2, float m3);
+            std::vector<int> find_best_combination_6(Vec_rp res, std::vector<std::vector<int> > pairs);
+            std::vector<int> find_best_combination_4(Vec_rp res, std::vector<std::vector<int> > pairs, rp other_lep_pair);
+            std::tuple<std::vector<std::vector<int>>, Vec_rp> calculate_pairs(Vec_rp legs);
+
+        };
+        // constructor - set the resonance mass
+        ZpairBuilder::ZpairBuilder(float arg_resonance_mass) {
+            m_resonance_mass = arg_resonance_mass;
+        }
+        // functions
+        float ZpairBuilder::chi_square_2Z_onshell(float m1, float m2, float m3){
+            // mi are the masses of the potential resonances
+            float Z_mass = m_resonance_mass; // 91.2 GeV
+            float Z_mass_offshell = 30; // GeV
+
+            float nat_Z_width = 2; // GeV
+            float nat_Z_width_offshell = 10; // GeV
+
+            float chi2_1 = pow((m1-Z_mass)/nat_Z_width, 2) + pow((m2-Z_mass)/nat_Z_width, 2);
+            float chi2_2 = pow((m3-Z_mass)/nat_Z_width, 2) + pow((m1-Z_mass)/nat_Z_width, 2);
+            float chi2_3 = pow((m2-Z_mass)/nat_Z_width, 2) + pow((m3-Z_mass)/nat_Z_width, 2);
+
+            // return the minimum chi2
+            return std::min({chi2_1, chi2_2, chi2_3});
+        }
+
+        std::tuple<std::vector<std::vector<int>>, Vec_rp> ZpairBuilder::calculate_pairs(Vec_rp legs) {
+            // legs - leptons/muons
+            // returns all possible resonance candidates (pairs of l+l-) and their corresponding indicies
+            Vec_rp result;
+            result.reserve(3);
+
+            std::vector<std::vector<int>> pairs; // for each permutation, add the indices of the muons
+            int n = legs.size(); // number of leptons/muons
+        
+            if(n > 1) { // at last two leptons required
+                ROOT::VecOps::RVec<bool> v(n);
+                std::fill(v.end() - 2, v.end(), true); // helper variable for permutations
+                do { // calculate the resonance for all permutations (pairs of leptons)
+                    std::vector<int> pair;
+                    rp reso; // ReconstructedParticleData object for the resonance
+                    reso.charge = 0;
+                    TLorentzVector reso_lv; 
+                    for(int i = 0; i < n; ++i) {
+                        if(v[i]) {
+                            pair.push_back(i);
+                            reso.charge += legs[i].charge;
+
+                            TLorentzVector leg_lv;
+                            leg_lv.SetXYZM(legs[i].momentum.x, legs[i].momentum.y, legs[i].momentum.z, legs[i].mass);
+
+                            reso_lv += leg_lv;
+                        }
+                    }
+
+                    if(reso.charge != 0) continue; // neglect non-zero charge pairs
+                    reso.momentum.x = reso_lv.Px();
+                    reso.momentum.y = reso_lv.Py();
+                    reso.momentum.z = reso_lv.Pz();
+                    reso.mass = reso_lv.M();
+                    result.emplace_back(reso);
+                    pairs.push_back(pair);
+
+                } while(std::next_permutation(v.begin(), v.end())); // loop over all permutations
+            }
+            else {
+                std::cout << "ERROR: resonanceBuilder, at least two leptons required." << std::endl;
+                exit(1);
+            }
+
+            return std::make_tuple(pairs, result);
+        };
+
+
+        std::vector<int> ZpairBuilder::find_best_combination_6(Vec_rp res, std::vector<std::vector<int> > pairs) {
+            // returns the best combination of 6 leptons
+            // res - 9 resonance candidates (9 leptons paris of e^+e^- or mu^+mu^-)
+            // pairs - 9 pairs of indices of leptons for each resonance candidate
+            //std::cout << "finding best combination out of 6" << std::endl;
+
+            std::vector<float> masses; // will have 9 entries
+            for (int i = 0; i < res.size(); ++i) {
+                masses.push_back(res[i].mass);
+            } 
+            // which combination of 3 entries in dist_Z are the lowest? Considering that the pairs entries are unqiue (because one lepton can only be in one combination)
+            std::vector<vector<int>> allowed_combinations; // {{0,1,2}, {...}, ...} - 3 pairs of l+l- (6 allowed combinations) 
+            std::vector<float> chi2_values;
+            for (int i = 0; i<masses.size(); ++i) {
+                for (int j=i+1; j<masses.size(); ++j) {
+                    for (int k=j+1; k<masses.size(); ++k) {
+                        // now check if combination is allowed, check pairs
+                        if (haveCommonElement(pairs[i], pairs[j]) || haveCommonElement(pairs[i], pairs[k]) || haveCommonElement(pairs[j], pairs[k])) {
+                            continue;
+                        } else {
+                            allowed_combinations.push_back({i, j, k});
+                            // float dist = masses[i] + masses[j] + masses[k]; // naive approach
+                            float chi2 = chi_square_2Z_onshell(masses[i], masses[j], masses[k]);
+                            //std::cout << "masses: \t" << masses[i] << "\t" << masses[j] << "\t" << masses[k] << "\t chi2: \t" << chi2 << std::endl;
+                            chi2_values.push_back(chi2);
+                        }
+                    }
+                }
+            }
+            // std::cout << "chi2_values: " << chi2_values.size() << std::endl;  // 6
+            // now find the minimum chi2 value for the allowed combinations
+            int ind_best_combi = std::distance(chi2_values.begin(), 
+                                   std::min_element(chi2_values.begin(), chi2_values.end()) // find the minimum chi2 value and returns an iterator pointing to the smallest element 
+                                   ); // computes the index of the iterator relative to the beginning
+
+
+            return allowed_combinations[ind_best_combi]; // e.g. {0, 1, 2}
+
+        };
+
+        std::vector<int> ZpairBuilder::find_best_combination_4(Vec_rp res, std::vector<std::vector<int> > pairs, rp other_lep_pair) {
+            //std::cout << "finding best combination out of 4" << std::endl;
+            // returns the best combination of 4 leptons
+            // res - 4 resonance candidates
+            // pairs - 4 pairs of indices of leptons for each resonance candidate
+            float mass_other = other_lep_pair.mass;
+            std::vector<float> masses; // will have 9 entries
+            for (int i = 0; i < res.size(); ++i) {
+                masses.push_back(res[i].mass);
+            } 
+            // which combination of 2 entries in dist_Z are the lowest? Considering that the pairs entries are unqiue (because one lepton can only be in one combination)
+            std::vector<vector<int>> allowed_combinations; // {{0,1}, {...}, ...}
+            std::vector<float> chi2_values;
+            for (int i = 0; i<masses.size(); ++i) {
+                for (int j=i+1; j<masses.size(); ++j) {
+                    // now check if combination is allowed, check pairs
+                    if (haveCommonElement(pairs[i], pairs[j])) {
+                        continue;
+                    } else {
+                        allowed_combinations.push_back({i, j});
+                        float chi2 = chi_square_2Z_onshell(masses[i], masses[j], mass_other);
+                        //std::cout << "masses: \t" << masses[i] << "\t" << masses[j] << "\t" << mass_other << "\t chi2: \t" << chi2 << std::endl;
+                        chi2_values.push_back(chi2);
+                    }
+                }
+            }
+            // now find the minimum chi2 value for the allowed combinations
+            int ind_best_combi = std::distance(chi2_values.begin(), 
+                                   std::min_element(chi2_values.begin(), chi2_values.end()) // find the minimum chi2 value and returns an iterator pointing to the smallest element 
+                                   ); // computes the index of the iterator relative to the beginning
+
+            return allowed_combinations[ind_best_combi]; // e.g. {0, 1}
+
+        };
+
+        // operator - check if there are two pairs which come from an on-shell Z
+        Vec_rp ZpairBuilder::operator()(Vec_rp electrons, Vec_rp muons) {
+
+            Vec_rp result;
+            result.reserve(4);
+
+            if (electrons.size() + muons.size() != 6) {
+                std::cout << "ERROR: 6 leptons required" << std::endl;
+                exit(1);
+            }
+
+            // pick the best resulting pairs
+            if(electrons.size() == 0){ // all leptons are muons
+                auto [pairs_m, result_m] = calculate_pairs(muons);
+                for (int i = 0; i < pairs_m.size(); ++i) {
+                    result.push_back(result_m[i]);
+                }
+            } else if (muons.size() == 0){ // all leptons are electrons
+                auto [pairs_e, result_e] = calculate_pairs(electrons);
+                for (int i = 0; i < pairs_e.size(); ++i) {
+                    result.push_back(result_e[i]);
+                }
+            } else if (muons.size() == 2){ // ONE muon pair and find best 2 pairs out of 4 possible electron combinations
+                auto [pairs_m, result_m] = calculate_pairs(muons);
+                for (int i = 0; i < pairs_m.size(); ++i) {
+                    result.push_back(result_m[i]);
+                }
+
+                auto [pairs_e, result_e] = calculate_pairs(electrons);
+                for (int i = 0; i < pairs_e.size(); ++i) {
+                    result.push_back(result_e[i]);
+                }
+            } else if (electrons.size() == 2){ // ONE electron pair and find best 2 pairs out of 4 possible muon combinations
+                auto [pairs_e, result_e] = calculate_pairs(electrons);
+                for (int i = 0; i < pairs_e.size(); ++i) {
+                    result.push_back(result_e[i]);
+                }
+
+                auto [pairs_m, result_m] = calculate_pairs(muons);
+                for (int i = 0; i < pairs_m.size(); ++i) {
+                    result.push_back(result_m[i]);
+                }
+            } else { 
+                std::cout << "ERROR: 6 leptons must be electron and muon pairs" << std::endl;
+                exit(1);
+            }
+
+            // check is result has 4 entries
+            if(result.size() != 4) {
+                std::cout << "ERROR: results should be filled with 4 particles" << std::endl;
+                exit(1);
+            }
+
+        }
+
 
         // helper functions
 
