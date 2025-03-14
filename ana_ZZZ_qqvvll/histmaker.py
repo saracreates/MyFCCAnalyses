@@ -18,7 +18,7 @@ prodTag     = "FCCee/winter2023/IDEA/"
 procDict = "FCCee_procDict_winter2023_IDEA.json" # QUESTION: is this correct?
 
 #Optional: output directory, default is local running directory
-outputDir   = "./outputs/histmaker/ZZZqqllvv/"
+outputDir   = "./outputs/histmaker/ZZZqqvvll/"
 
 # additional/costom C++ functions, defined in header files (optional)
 includePaths = ["functions.h"]
@@ -298,11 +298,16 @@ def build_graph(df, dataset):
     df = df.Define("cut2", "2")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
 
+    df = df.Define("recoil_jjll", "FCCAnalyses::ZHfunctions::get_recoil_from_lep_and_jets(240.0, jet1, jet2, l1, l2)")
+    df = df.Define("recoil_mass_jjll", "FCCAnalyses::ReconstructedParticle::get_mass(recoil_jjll)[0]")
+
+    results.append(df.Histo1D(("recoil_mass_jjll", "", *bins_m_ll), "recoil_mass_jjll"))
 
     #########
-    ### CUT 3: lepton invariant mass around Z mass
+    ### CUT 3: recoil Z from jets and leptons must match Z mass
     #########
-    df = df.Filter("m_ll > 80 && m_ll < 100") # WW has background smaller 80/90 GeV
+
+    df = df.Filter("recoil_mass_jjll > 80 && recoil_mass_jjll < 105") 
     df = df.Define("cut3", "3")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut3"))
 
@@ -310,9 +315,9 @@ def build_graph(df, dataset):
 
 
     #########
-    ### CUT 4: missing momentum greater than 6-7 GeV but smaller than 60 GeV (be careful, so analysis remain orthogonal here - check paper!)
+    ### CUT 4: missing momentum greater than 20 GeV but smaller than 100 GeV (be careful, so analysis remain orthogonal here - check paper!)
     #########
-    df = df.Filter("miss_p > 6 && miss_p < 60")
+    df = df.Filter("miss_p > 20 && miss_p < 100")
     df = df.Define("cut4", "4")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
 

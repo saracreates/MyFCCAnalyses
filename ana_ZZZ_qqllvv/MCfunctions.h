@@ -83,6 +83,126 @@ namespace FCCAnalyses {
             return leptons_from_Z;
             
         }
+
+        Vec_mc get_leptons_from_offshell_Z_decay(Vec_mc mcparticles, Vec_i ind_parents, Vec_i ind_daugthers){
+            // get all leptons from a onshell Z decay from Higgs H->ZZ*; on-shell Z->ll
+            Vec_mc leptons_from_Z;
+
+            // loop over all MC particles and check the daughters of the Z. If lepton, add to the list
+            for(edm4hep::MCParticleData& mcp: mcparticles){ // loop over Zs, should only happen once
+                if (mcp.PDG == 23) {
+                    // check if parent is Higgs
+                    int pab = mcp.parents_begin;
+                    int pae = mcp.parents_end;
+                    int size_parents = pae - pab;
+                    if (size_parents != 1) continue;
+                    // std::cout << "Found Z with " << size_parents << " parents" << std::endl;
+                    int ind_parent = ind_parents[pab];
+                    // std::cout << "Particle pdg: " << mcparticles[ind_parent].PDG << std::endl;
+                    if (mcparticles[ind_parent].PDG != 25) continue;
+                    // std::cout << "Found Z with parent Higgs" << std::endl;
+                    // check if Z is off-shell
+                    if (mcp.mass > 60) continue;
+                    // std::cout << "Found Z with mass " << mcp.mass << std::endl;
+                    // loop over daughters
+                    int pb = mcp.daughters_begin;
+                    int pe = mcp.daughters_end;
+                    int size_daughters = pe - pb;
+                    for (int j = pb; j < pe; ++j) {
+                        int ind_d = ind_daugthers[j];
+                        edm4hep::MCParticleData daughter = mcparticles[ind_d];
+                        if(abs(daughter.PDG) == 11 || abs(daughter.PDG) == 13 || abs(daughter.PDG) == 15){
+                            // std::cout << "Found lepton from Z decay with PDG " << daughter.PDG << std::endl;
+                            leptons_from_Z.push_back(daughter);
+                        } 
+                    }
+                }
+            }
+            // if (leptons_from_Z.size() != 0) std::cout << "Found " << leptons_from_Z.size() << " leptons from Z decay" << std::endl;
+
+            return leptons_from_Z;
+            
+        }
+
+        Vec_mc get_neutrinos_from_offshell_Z_decay(Vec_mc mcparticles, Vec_i ind_parents, Vec_i ind_daugthers){
+            // get all neutrinos from a offshell Z decay from Higgs H->ZZ*; of-shell Z->vv
+            Vec_mc neutrinos_from_Z;
+
+            // loop over all MC particles and check the daughters of the Z. If lepton, add to the list
+            for(edm4hep::MCParticleData& mcp: mcparticles){ 
+                if (mcp.PDG == 23) {
+                    // check if parent is Higgs
+                    int pab = mcp.parents_begin;
+                    int pae = mcp.parents_end;
+                    int size_parents = pae - pab;
+                    if (size_parents != 1) continue;
+                    // std::cout << "Found Z with " << size_parents << " parents" << std::endl;
+                    int ind_parent = ind_parents[pab];
+                    // std::cout << "Particle pdg: " << mcparticles[ind_parent].PDG << std::endl;
+                    if (mcparticles[ind_parent].PDG != 25) continue;
+                    // std::cout << "Found Z with parent Higgs" << std::endl;
+                    // check if Z is off-shell
+                    if (mcp.mass > 60) continue;
+                    // std::cout << "Found Z with mass " << mcp.mass << std::endl;
+                    // loop over daughters
+                    int pb = mcp.daughters_begin;
+                    int pe = mcp.daughters_end;
+                    int size_daughters = pe - pb;
+                    for (int j = pb; j < pe; ++j) {
+                        int ind_d = ind_daugthers[j];
+                        edm4hep::MCParticleData daughter = mcparticles[ind_d];
+                        if(abs(daughter.PDG) == 12 || abs(daughter.PDG) == 14 || abs(daughter.PDG) == 16){
+                            // std::cout << "Found lepton from Z decay with PDG " << daughter.PDG << std::endl;
+                            neutrinos_from_Z.push_back(daughter);
+                        } 
+                    }
+                }
+            }
+            // if (neutrinos_from_Z.size() != 0) std::cout << "Found " << neutrinos_from_Z.size() << " leptons from Z decay" << std::endl;
+
+            return neutrinos_from_Z;
+            
+        }
+
+        Vec_mc get_neutrinos_from_onshell_Z_decay(Vec_mc mcparticles, Vec_i ind_parents, Vec_i ind_daugthers){
+            // get all neutrinos from a offshell Z decay from Higgs H->ZZ*; of-shell Z->vv
+            Vec_mc neutrinos_from_Z;
+
+            // loop over all MC particles and check the daughters of the Z. If lepton, add to the list
+            for(edm4hep::MCParticleData& mcp: mcparticles){ 
+                if (mcp.PDG == 23) {
+                    // check if parent is Higgs
+                    int pab = mcp.parents_begin;
+                    int pae = mcp.parents_end;
+                    int size_parents = pae - pab;
+                    if (size_parents != 1) continue;
+                    // std::cout << "Found Z with " << size_parents << " parents" << std::endl;
+                    int ind_parent = ind_parents[pab];
+                    // std::cout << "Particle pdg: " << mcparticles[ind_parent].PDG << std::endl;
+                    if (mcparticles[ind_parent].PDG != 25) continue;
+                    // std::cout << "Found Z with parent Higgs" << std::endl;
+                    // check if Z is on-shell
+                    if (mcp.mass < 60 || mcp.mass > 110) continue;
+                    // std::cout << "Found Z with mass " << mcp.mass << std::endl;
+                    // loop over daughters
+                    int pb = mcp.daughters_begin;
+                    int pe = mcp.daughters_end;
+                    int size_daughters = pe - pb;
+                    for (int j = pb; j < pe; ++j) {
+                        int ind_d = ind_daugthers[j];
+                        edm4hep::MCParticleData daughter = mcparticles[ind_d];
+                        if(abs(daughter.PDG) == 12 || abs(daughter.PDG) == 14 || abs(daughter.PDG) == 16){
+                            // std::cout << "Found lepton from Z decay with PDG " << daughter.PDG << std::endl;
+                            neutrinos_from_Z.push_back(daughter);
+                        } 
+                    }
+                }
+            }
+            // if (neutrinos_from_Z.size() != 0) std::cout << "Found " << neutrinos_from_Z.size() << " leptons from Z decay" << std::endl;
+
+            return neutrinos_from_Z;
+            
+        }
         
     }
 }

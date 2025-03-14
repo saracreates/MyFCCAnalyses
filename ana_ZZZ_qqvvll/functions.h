@@ -210,6 +210,29 @@ namespace FCCAnalyses {
             result.emplace_back(recoil);
             return result;
         }
+
+        Vec_rp get_recoil_from_lep_and_jets(float ecm, const TLorentzVector &jet1, const TLorentzVector &jet2, rp lep1, rp lep2){
+            // get the recoil of the two jets from the two leptons
+
+            TLorentzVector tlv_jets = jet1 + jet2;
+
+            TLorentzVector tlv_lep1;
+            tlv_lep1.SetPxPyPzE(lep1.momentum.x, lep1.momentum.y, lep1.momentum.z, lep1.energy);
+            TLorentzVector tlv_lep2;
+            tlv_lep2.SetPxPyPzE(lep2.momentum.x, lep2.momentum.y, lep2.momentum.z, lep2.energy);
+            TLorentzVector tlv_leptons = tlv_lep1 + tlv_lep2;
+
+            // calculate recoil
+            auto tlv_recoil = TLorentzVector(0, 0, 0, ecm);
+            tlv_recoil -= tlv_jets;
+            tlv_recoil -= tlv_leptons;
+
+            rp recoil = return_rp_from_tlv(tlv_recoil);
+            Vec_rp result;
+            result.emplace_back(recoil);
+            return result;
+
+        }
         
     }
 }

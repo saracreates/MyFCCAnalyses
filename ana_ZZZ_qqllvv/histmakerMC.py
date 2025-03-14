@@ -75,15 +75,28 @@ def build_graph(df, dataset):
     df = df.Define("lep_from_os_Z", "FCCAnalyses::MCfunctions::get_leptons_from_onshell_Z_decay(Particle, Particle0, Particle1)") # Vec_mc mcparticles, Vec_i ind_parents, Vec_i ind_daugthers
     df = df.Define("p_lep_from_os_Z", "FCCAnalyses::MCParticle::get_p(lep_from_os_Z)")
 
-    results.append(df.Histo1D(("p_lep_from_os_Z", "", *bins_p_mu), "p_lep_from_os_Z"))
+    # off shell Z
+    df = df.Define("lep_from_offs_Z", "FCCAnalyses::MCfunctions::get_leptons_from_offshell_Z_decay(Particle, Particle0, Particle1)") # Vec_mc mcparticles, Vec_i ind_parents, Vec_i ind_daugthers
+    df = df.Define("p_lep_from_offs_Z", "FCCAnalyses::MCParticle::get_p(lep_from_offs_Z)")
 
-    """
-    THE PLAN:
-    Find events with
-    - two jets with p around 53 GeV
-    - two leptons with inv m ~ Z mass
-    - missing energy
-    """
+    results.append(df.Histo1D(("p_lep_from_os_Z", "", *bins_p_mu), "p_lep_from_os_Z"))
+    results.append(df.Histo1D(("p_lep_from_offs_Z", "", *bins_p_mu), "p_lep_from_offs_Z"))
+
+    # I want to plot the distribution of missing energy from the neutrinos coming from the Z of-shell boson 
+
+    df = df.Define("neutrinos_from_os_Z", "FCCAnalyses::MCfunctions::get_neutrinos_from_offshell_Z_decay(Particle, Particle0, Particle1)") # Vec_mc mcparticles, Vec_i ind_parents, Vec_i ind_daugthers
+
+    df = df.Define("p_nu_from_offs_Z", "FCCAnalyses::MCParticle::get_p(neutrinos_from_os_Z)")
+    df = df.Define("E_nu_from_offs_Z", "FCCAnalyses::MCParticle::get_e(neutrinos_from_os_Z)")
+
+    results.append(df.Histo1D(("p_nu_from_offs_Z", "", *bins_p_mu), "p_nu_from_offs_Z"))
+    results.append(df.Histo1D(("E_nu_from_offs_Z", "", *bins_p_mu), "E_nu_from_offs_Z"))
+
+    # get onshell neutrino
+
+    df = df.Define("neutrinos_from_ons_Z", "FCCAnalyses::MCfunctions::get_neutrinos_from_onshell_Z_decay(Particle, Particle0, Particle1)") # Vec_mc mcparticles, Vec_i ind_parents, Vec_i ind_daugthers
+    df = df.Define("p_nu_from_ons_Z", "FCCAnalyses::MCParticle::get_p(neutrinos_from_ons_Z)")
+    results.append(df.Histo1D(("p_nu_from_ons_Z", "", *bins_p_mu), "p_nu_from_ons_Z"))
 
 
     return results, weightsum
