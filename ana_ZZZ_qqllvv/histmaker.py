@@ -277,6 +277,19 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("jet2_nconst_N2", "", *bin_njets), "jet2_nconst_N2"))
 
 
+    df = df.Define("missP", "FCCAnalyses::ZHfunctions::missingParticle(240.0, ReconstructedParticles)")
+    df = df.Define("miss_p", "FCCAnalyses::ReconstructedParticle::get_p(missP)[0]")
+    df = df.Define("miss_e", "FCCAnalyses::ReconstructedParticle::get_e(missP)[0]")
+    df = df.Define("miss_pz", "FCCAnalyses::ReconstructedParticle::get_pz(missP)[0]")
+    df = df.Define("miss_theta", "FCCAnalyses::ZHfunctions::get_cosTheta_miss(missP)")
+    df = df.Define("miss_pT", "FCCAnalyses::ZHfunctions::miss_pT(missP)")
+
+
+    results.append(df.Histo1D(("miss_p_cut1", "", *bins_p_mu), "miss_p"))
+    results.append(df.Histo1D(("miss_pT_cut1", "", *bins_p_mu), "miss_pT"))
+    results.append(df.Histo1D(("miss_pz_cut1", "", *bins_p_mu), "miss_pz"))
+
+
 
 
 
@@ -298,42 +311,25 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut3"))
 
 
-
-    df = df.Define("missP", "FCCAnalyses::ZHfunctions::missingParticle(240.0, ReconstructedParticles)")
-    df = df.Define("miss_p", "FCCAnalyses::ReconstructedParticle::get_p(missP)[0]")
-    df = df.Define("miss_e", "FCCAnalyses::ReconstructedParticle::get_e(missP)[0]")
-    df = df.Define("miss_theta", "FCCAnalyses::ZHfunctions::get_cosTheta_miss(missP)")
-    df = df.Define("miss_pT", "FCCAnalyses::ZHfunctions::miss_pT(missP)")
-
-
-
     #########
-    ### CUT 4: missing momentum greater than 6-7 GeV but smaller than 60 GeV (be careful, so analysis remain orthogonal here - check paper!)
+    ### CUT 4: m_jj between 85 and 105 GeV - should cut away WW background
     #########
-    df = df.Filter("miss_p > 6 && miss_p < 60")
+    df = df.Filter("m_jj > 85 && m_jj < 105")
     df = df.Define("cut4", "4")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
 
 
     #########
-    ### CUT 5: m_jj between 85 and 105 GeV - should cut away WW background
-    #########
-    df = df.Filter("m_jj > 85 && m_jj < 105")
-    df = df.Define("cut5", "5")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5"))
-
-
-    #########
-    ### CUT 6: p_jj > 43 GeV and < 55 GeV
+    ### CUT 5: p_jj > 43 GeV and < 55 GeV
     #########
 
     df = df.Filter("p_res_jj > 40 && p_res_jj < 55")
-    df = df.Define("cut6", "6")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6")) 
+    df = df.Define("cut5", "5")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5")) 
 
 
     #########
-    ### CUT 7: inv mass of ll jj system must be the offshell Z
+    ### CUT 6: inv mass of ll jj system must be the offshell Z
     #########
 
     # calculate invariant mass of llqq system which gives the offshell Z and apply prop cut on recoil mass ~ 10-50 GeV 
@@ -344,21 +340,36 @@ def build_graph(df, dataset):
 
 
     df = df.Filter("recoil_mass_jjll > 10 && recoil_mass_jjll < 50")
+    df = df.Define("cut6", "6")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
+
+
+    #########
+    ### CUT 7: missing momentum greater than 6-7 GeV but smaller than 60 GeV (be careful, so analysis remain orthogonal here - check paper!)
+    #########
+    # df = df.Filter("miss_p > 6 && miss_p < 60")
+    # df = df.Define("cut7", "7")
+    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
+
+
+    #########
+    ### CUT 7: miss pT > 5 GeV and pT < 50 GeV
+    #########
+
+    df = df.Filter("miss_pT > 5 && miss_pT < 50")
     df = df.Define("cut7", "7")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
 
 
-    #########
-    ### CUT 8: miss pT > 5 GeV and pT < 50 GeV
-    #########
-
     ### plot all the variables AFTER the last cut: 
 
 
-    results.append(df.Histo1D(("miss_p", "", *bins_p_mu), "miss_p"))
+
     results.append(df.Histo1D(("miss_e", "", *bins_p_mu), "miss_e"))
     results.append(df.Histo1D(("miss_theta", "", *bins_cosThetaMiss), "miss_theta"))
-    results.append(df.Histo1D(("miss_pT", "", *bins_p_mu), "miss_pT"))
+    results.append(df.Histo1D(("miss_p_cut8", "", *bins_p_mu), "miss_p"))
+    results.append(df.Histo1D(("miss_pT_cut8", "", *bins_p_mu), "miss_pT"))
+    results.append(df.Histo1D(("miss_pz_cut8", "", *bins_p_mu), "miss_pz"))
 
 
     df = df.Define("dot_prod_had", "FCCAnalyses::ZHfunctions::dot_prod_had(missP, jet1, jet2)")
@@ -371,7 +382,11 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("Z_costheta", "", *bins_cosThetaMiss), "Z_costheta"))
 
 
-    df = df.Filter("miss_pT > 5 && miss_pT < 50")
+    #########
+    ### CUT 8: dot product of hadronic system and missing momentum
+    #########
+
+    df = df.Filter("dot_prod_had < 0.3")
     df = df.Define("cut8", "8")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
 
