@@ -71,7 +71,7 @@ hists["cutFlow"] = {
     "xmax":     6,
     "ymin":     1e4,
     "ymax":     1e11,
-    "xtitle":   ["All events", "1 lepton pair", "122 GeV < recoil_{jj} < 130 GeV", "80 GeV < recoil_{jjll} < 105 GeV", "20 GeV < p_{miss} < 100 GeV"],
+    "xtitle":   ["All events", "1 lepton pair", "122 GeV < recoil_{jj} < 130 GeV", "80 GeV < recoil_{jjll} < 105 GeV", "20 GeV < p_{miss} < 100 GeV", "85 < m_{jj} < 105 GeV", "40 < p_{jj} < 55 GeV",],
     "ytitle":   "Events ",
     # "scaleSig": 10
 }

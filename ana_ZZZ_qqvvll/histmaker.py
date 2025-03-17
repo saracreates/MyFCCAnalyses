@@ -121,7 +121,7 @@ def build_graph(df, dataset):
     )
     df = df.Define(
         "muons_sel_iso",
-        "FCCAnalyses::ZHfunctions::sel_iso(0.5)(muons, muons_iso)",
+        "FCCAnalyses::ZHfunctions::sel_iso(0.25)(muons, muons_iso)",
     )
     df = df.Define(
         "muons_sel_q",
@@ -133,7 +133,7 @@ def build_graph(df, dataset):
     )
     df = df.Define(
         "electrons_sel_iso",
-        "FCCAnalyses::ZHfunctions::sel_iso(0.5)(electrons, electrons_iso)",
+        "FCCAnalyses::ZHfunctions::sel_iso(0.25)(electrons, electrons_iso)",
     )
     df = df.Define(
         "electrons_sel_q",
@@ -236,15 +236,6 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("y34", "", *bin_njets), "y34"))
 
 
-
-
-    #########
-    ### CUT 2: Njets = 2 (meaning d_23 is small!)
-    #########
-    # df = df.Filter("y23 < 10") # dip in distribution at 10 - prob from 3 to 2 jets
-    # df = df.Define("cut2", "2")
-    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
-
     ### gives 800 events, I expect 644 signal events - so need to check that qs come not from Z from higgs -> use p = 53 GeV!!
 
     df = df.Define(
@@ -312,14 +303,28 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut3"))
 
 
-
-
     #########
     ### CUT 4: missing momentum greater than 20 GeV but smaller than 100 GeV (be careful, so analysis remain orthogonal here - check paper!)
     #########
     df = df.Filter("miss_p > 20 && miss_p < 100")
     df = df.Define("cut4", "4")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
+
+    #########
+    ### CUT 5: m_jj between 85 and 105 GeV - should cut away WW background
+    #########
+    df = df.Filter("m_jj > 85 && m_jj < 105")
+    df = df.Define("cut5", "5")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5"))
+
+
+    #########
+    ### CUT 6: p_jj > 43 GeV and < 55 GeV
+    #########
+
+    df = df.Filter("p_res_jj > 40 && p_res_jj < 55")
+    df = df.Define("cut6", "6")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6")) 
 
 
 

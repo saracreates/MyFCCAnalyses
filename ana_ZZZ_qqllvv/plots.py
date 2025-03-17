@@ -68,10 +68,10 @@ hists["cutFlow"] = {
     "logy":     True,
     "stack":    False,
     "xmin":     0,
-    "xmax":     6,
+    "xmax":     9,
     "ymin":     1e4,
     "ymax":     1e11,
-    "xtitle":   ["All events", "1 lepton pair", "122 GeV < recoil_{jj} < 130 GeV", "80 GeV < m_{ll} < 100 GeV", "6 GeV < p_{miss} < 60 GeV"],
+    "xtitle":   ["All events", "1 lepton pair", "122 GeV < recoil_{jj} < 130 GeV", "80 GeV < m_{ll} < 100 GeV", "6 GeV < p_{miss} < 60 GeV", "85 < m_{jj} < 105 GeV", "40 < p_{jj} < 55 GeV", "10 < recoil_{jjll} < 50 GeV", "cut on p_{miss} * p_{jets}"],
     "ytitle":   "Events ",
     # "scaleSig": 10
 }

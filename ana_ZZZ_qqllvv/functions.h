@@ -210,6 +210,137 @@ namespace FCCAnalyses {
             result.emplace_back(recoil);
             return result;
         }
+
+        Vec_rp get_recoil_from_lep_and_jets(float ecm, const TLorentzVector &jet1, const TLorentzVector &jet2, rp lep1, rp lep2){
+            // get the recoil of the two jets from the two leptons
+
+            TLorentzVector tlv_jets = jet1 + jet2;
+
+            TLorentzVector tlv_lep1;
+            tlv_lep1.SetPxPyPzE(lep1.momentum.x, lep1.momentum.y, lep1.momentum.z, lep1.energy);
+            TLorentzVector tlv_lep2;
+            tlv_lep2.SetPxPyPzE(lep2.momentum.x, lep2.momentum.y, lep2.momentum.z, lep2.energy);
+            TLorentzVector tlv_leptons = tlv_lep1 + tlv_lep2;
+
+            // calculate recoil
+            auto tlv_recoil = TLorentzVector(0, 0, 0, ecm);
+            tlv_recoil -= tlv_jets;
+            tlv_recoil -= tlv_leptons;
+
+            rp recoil = return_rp_from_tlv(tlv_recoil);
+            Vec_rp result;
+            result.emplace_back(recoil);
+            return result;
+
+        }
+
+        float dot_prod(Vec_rp miss_particle, TLorentzVector jet){
+            // caluclate dot product between momentum of missing particle and jet because in case of the signal, they should not be alligned
+
+            // check size of the missing particle vector
+            if (miss_particle.size() != 1){
+                std::cout << "Error: missing particle vector should have size one, but got "<< miss_particle.size() << std::endl;
+                exit(1);
+            }
+                
+
+            rp miss_part = miss_particle.at(0);
+            rp jet_rp = return_rp_from_tlv(jet);
+
+            float dot_product = miss_part.momentum.x * jet_rp.momentum.x + miss_part.momentum.y * jet_rp.momentum.y + miss_part.momentum.z * jet_rp.momentum.z;
+
+            // norm it via its magnitude
+            float mag_miss = std::sqrt(miss_part.momentum.x * miss_part.momentum.x + miss_part.momentum.y * miss_part.momentum.y + miss_part.momentum.z * miss_part.momentum.z);
+            float mag_jet = std::sqrt(jet_rp.momentum.x * jet_rp.momentum.x + jet_rp.momentum.y * jet_rp.momentum.y + jet_rp.momentum.z * jet_rp.momentum.z);
+
+            float dot_product_norm = dot_product / (mag_miss * mag_jet);
+
+            return dot_product_norm;
+        }
+
+        // calculate the cosine(theta) of the missing energy vector
+        float get_cosTheta_miss(Vec_rp met){
+            
+            float costheta = 0.;
+            if(met.size() > 0) {
+                
+                TLorentzVector lv_met;
+                lv_met.SetPxPyPzE(met[0].momentum.x, met[0].momentum.y, met[0].momentum.z, met[0].energy);
+                costheta = fabs(std::cos(lv_met.Theta()));
+            }
+            return costheta;
+        }
+
+        float miss_pT(Vec_rp met){
+            // calculate the missing transverse energy
+            float px_miss = met[0].momentum.x;
+            float py_miss = met[0].momentum.y;
+
+            float pT_miss = std::sqrt(px_miss * px_miss + py_miss * py_miss);
+
+            return pT_miss;
+        }
+
+        // float func_neg_x(float x1){
+        //     // check that x1 is smaller than 0, else throw error
+        //     if (x1 > 0){
+        //         std::cout << "Error: Number should be smaller than 1, but got " << x1 << std::endl;
+        //         exit(1);
+        //     }
+        //     return -0.8 * x1 - 1;
+        // }
+
+        // float func_pos_x(float x1){
+        //     // check that x1 is greater than 0, else throw error
+        //     if (x1 < 0){
+        //         std::cout << "Error: Number should be greater than -1, but got " << x1 << std::endl;
+        //         exit(1);
+        //     }
+        //     return - 0.8 * x1 + 1;
+        // }
+
+
+        // int dot_prod_cut(float x1, float x2){
+        //     // bool == 1 equals to true, 
+        //     // bool == 0 equals to false
+
+        //     // check if x1 if between -1 and 1, else through error
+        //     if (x1 > 1 || x1 < -1){
+        //         std::cout << "Error: dot product should be between -1 and 1, but got " << x1 << std::endl;
+        //         exit(1);
+        //     }
+
+        //     bool is_in;
+
+        //     // now define function
+        //     if (x1>0){
+        //         float x2_lim = func_pos_x(x1);
+        //         if (x2 < x2_lim){
+        //             is_in = true;
+        //         } else {
+        //             is_in = false;
+        //         }
+        //     } else if (x1 < 0){
+        //         float x2_lim = func_neg_x(x1);
+        //         if (x2 > x2_lim){
+        //             is_in = true;
+        //         } else {
+        //             is_in = false;
+        //         }
+        //     // } else if (x1 == 0.0){
+        //     //     is_in = true;
+        //     } else {
+        //         std::cout << "Error: dot product should be a number, but got " << x1 << std::endl;
+        //         exit(1);
+        //     }
+
+        //     if (is_in){
+        //         return 1;
+        //     } else {
+        //         std::cout << " cutting value " << std::endl;
+        //         return 0;
+        //     }
+        // }
         
     }
 }
