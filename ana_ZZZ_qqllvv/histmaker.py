@@ -5,10 +5,11 @@ processList = {
     # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
     'wzp6_ee_qqH_HZZ_ecm240':    {'fraction':1}, # 0.001409 pb -> 15200 events
     'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # 0.01148 pb  -> 186000 events
-    'p8_ee_ZZ_ecm240':          {'fraction':0.001},
+    'p8_ee_ZZ_ecm240':          {'fraction':0.01},
     'p8_ee_WW_ecm240':          {'fraction':0.01},
     'wzp6_ee_qqH_Hbb_ecm240':  {'fraction':1},
     'wzp6_ee_qqH_Htautau_ecm240':  {'fraction':1},
+    'p8_ee_Zqq_ecm240':         {'fraction':0.01},
 }
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
@@ -269,34 +270,14 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("recoil_mass", "", *bins_m_ll), "recoil_mass"))
 
 
-    """
-    THE PLAN:
-    Find events with
-    - two jets with inv mas 87-100 GeV -> or use recoil mass method?
-    - two leptons with inv m ~ Z mass -> will cut away WW background (80-95 GeV) -> look goooood when looking at both distributions!! (signal and background)
-    - missing energy
-    """
+    results.append(df.Histo1D(("y23", "", *bin_njets), "y23"))
+    results.append(df.Histo1D(("y34", "", *bin_njets), "y34"))
 
-    df = df.Define("missP", "FCCAnalyses::ZHfunctions::missingParticle(240.0, ReconstructedParticles)")
-    df = df.Define("miss_p", "FCCAnalyses::ReconstructedParticle::get_p(missP)[0]")
-    df = df.Define("miss_e", "FCCAnalyses::ReconstructedParticle::get_e(missP)[0]")
-    df = df.Define("miss_theta", "FCCAnalyses::ZHfunctions::get_cosTheta_miss(missP)")
-    df = df.Define("miss_pT", "FCCAnalyses::ZHfunctions::miss_pT(missP)")
-
-    results.append(df.Histo1D(("miss_p", "", *bins_p_mu), "miss_p"))
-    results.append(df.Histo1D(("miss_e", "", *bins_p_mu), "miss_e"))
-    results.append(df.Histo1D(("miss_theta", "", *bins_cosThetaMiss), "miss_theta"))
-    results.append(df.Histo1D(("miss_pT", "", *bins_p_mu), "miss_pT"))
+    results.append(df.Histo1D(("jet1_nconst_N2", "", *bin_njets), "jet1_nconst_N2"))
+    results.append(df.Histo1D(("jet2_nconst_N2", "", *bin_njets), "jet2_nconst_N2"))
 
 
-    df = df.Define("dot_prod_1", "FCCAnalyses::ZHfunctions::dot_prod(missP, jet1)")
-    df = df.Define("dot_prod_2", "FCCAnalyses::ZHfunctions::dot_prod(missP, jet2)")
-    results.append(df.Histo1D(("dot_prod_1", "", *bin_dotprod), "dot_prod_1"))
-    results.append(df.Histo1D(("dot_prod_2", "", *bin_dotprod), "dot_prod_2"))
 
-
-    # Define the 2D histogram
-    results.append(df.Histo2D(("dot_prod_2D", "", *bin_dotprod, *bin_dotprod), "dot_prod_1", "dot_prod_2"))
 
 
     #########
@@ -308,18 +289,6 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
 
 
-    results.append(df.Histo1D(("y23", "", *bin_njets), "y23"))
-    results.append(df.Histo1D(("y34", "", *bin_njets), "y34"))
-
-    results.append(df.Histo1D(("jet1_nconst_N2", "", *bin_njets), "jet1_nconst_N2"))
-    results.append(df.Histo1D(("jet2_nconst_N2", "", *bin_njets), "jet2_nconst_N2"))
-
-    # calculate invariant mass of llqq system which gives the offshell Z and apply prop cut on recoil mass ~ 10-50 GeV 
-    df = df.Define("recoil_jjll", "FCCAnalyses::ZHfunctions::get_recoil_from_lep_and_jets(240.0, jet1, jet2, l1, l2)")
-    df = df.Define("recoil_mass_jjll", "FCCAnalyses::ReconstructedParticle::get_mass(recoil_jjll)[0]")
-
-    results.append(df.Histo1D(("recoil_mass_jjll", "", *bins_m_ll), "recoil_mass_jjll"))
-
 
     #########
     ### CUT 3: lepton invariant mass around Z mass
@@ -328,6 +297,13 @@ def build_graph(df, dataset):
     df = df.Define("cut3", "3")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut3"))
 
+
+
+    df = df.Define("missP", "FCCAnalyses::ZHfunctions::missingParticle(240.0, ReconstructedParticles)")
+    df = df.Define("miss_p", "FCCAnalyses::ReconstructedParticle::get_p(missP)[0]")
+    df = df.Define("miss_e", "FCCAnalyses::ReconstructedParticle::get_e(missP)[0]")
+    df = df.Define("miss_theta", "FCCAnalyses::ZHfunctions::get_cosTheta_miss(missP)")
+    df = df.Define("miss_pT", "FCCAnalyses::ZHfunctions::miss_pT(missP)")
 
 
 
@@ -360,14 +336,44 @@ def build_graph(df, dataset):
     ### CUT 7: inv mass of ll jj system must be the offshell Z
     #########
 
+    # calculate invariant mass of llqq system which gives the offshell Z and apply prop cut on recoil mass ~ 10-50 GeV 
+    df = df.Define("recoil_jjll", "FCCAnalyses::ZHfunctions::get_recoil_from_lep_and_jets(240.0, jet1, jet2, l1, l2)")
+    df = df.Define("recoil_mass_jjll", "FCCAnalyses::ReconstructedParticle::get_mass(recoil_jjll)[0]")
+
+    results.append(df.Histo1D(("recoil_mass_jjll", "", *bins_m_ll), "recoil_mass_jjll"))
+
+
     df = df.Filter("recoil_mass_jjll > 10 && recoil_mass_jjll < 50")
     df = df.Define("cut7", "7")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
 
 
     #########
-    ### CUT 8: 
+    ### CUT 8: miss pT > 5 GeV and pT < 50 GeV
     #########
+
+    ### plot all the variables AFTER the last cut: 
+
+
+    results.append(df.Histo1D(("miss_p", "", *bins_p_mu), "miss_p"))
+    results.append(df.Histo1D(("miss_e", "", *bins_p_mu), "miss_e"))
+    results.append(df.Histo1D(("miss_theta", "", *bins_cosThetaMiss), "miss_theta"))
+    results.append(df.Histo1D(("miss_pT", "", *bins_p_mu), "miss_pT"))
+
+
+    df = df.Define("dot_prod_had", "FCCAnalyses::ZHfunctions::dot_prod_had(missP, jet1, jet2)")
+    df = df.Define("dot_prod_lep", "FCCAnalyses::ZHfunctions::dot_prod_lep(missP, l1, l2)")
+    results.append(df.Histo1D(("dot_prod_had", "", *bin_dotprod), "dot_prod_had"))
+    results.append(df.Histo1D(("dot_prod_lep", "", *bin_dotprod), "dot_prod_lep"))
+
+
+    df = df.Define("Z_costheta", "FCCAnalyses::ZHfunctions::get_cosTheta_miss(res_ll)")
+    results.append(df.Histo1D(("Z_costheta", "", *bins_cosThetaMiss), "Z_costheta"))
+
+
+    df = df.Filter("miss_pT > 5 && miss_pT < 50")
+    df = df.Define("cut8", "8")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
 
 
 
