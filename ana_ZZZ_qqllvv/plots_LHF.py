@@ -9,8 +9,8 @@ energy         = 240.0
 collider       = 'FCC-ee'
 formats        = ['png','pdf']
 
-outdir         = './outputs/plots/ZZZqqvvll/' 
-inputDir       = './outputs/histmaker/ZZZqqvvll/'
+outdir         = './outputs/plots/ZZZqqllvv_LHF/' 
+inputDir       = './outputs/histmaker_LHF/ZZZqqllvv'
 
 plotStatUnc    = True
 
@@ -31,7 +31,7 @@ procs['backgrounds'] =  {'qqH-HWW':['wzp6_ee_qqH_HWW_ecm240'],
                         'ee-WW':['p8_ee_WW_ecm240'], 
                         'qqH-Hbb':['wzp6_ee_qqH_Hbb_ecm240'], 
                         'qqH-Htautau':['wzp6_ee_qqH_Htautau_ecm240'],
-                        'Zqq':['p8_ee_Zqq_ecm240']
+                        'Zqq':['p8_ee_Zqq_ecm240'] 
 }
 
 
@@ -49,15 +49,14 @@ legend['Zqq'] = 'Zqq'
 
 hists = {}
 
-hists["m_ll"] = {
-    "output":   "m_ll",
-    "input":    "m_ll",
+hists["recoil_mass_LHE"] = {
+    "output":   "recoil_mass_LHE",
+    "input":    "recoil_mass_LHE",
     "logy":     False,
     "stack":    True,
-    "logy":     True,
     # "rebin":    100,
-    "xmin":     0,
-    "xmax":     200,
+    "xmin":     100,
+    "xmax":     170,
     # "ymin":     0,
     # "ymax":     2500,
     "xtitle":   "Mass (GeV)",
@@ -71,10 +70,10 @@ hists["cutFlow"] = {
     "logy":     True,
     "stack":    False,
     "xmin":     0,
-    "xmax":     15,
-    "ymin":     1,
-    "ymax":     1e9,
-    "xtitle":   ["All events", "1 lepton pair", "122 GeV < recoil_{jj} < 130 GeV", "80 GeV < recoil_{jjll} < 105 GeV", "20 GeV < p_{miss} < 100 GeV", "85 < m_{jj} < 105 GeV", "40 < p_{jj} < 55 GeV", "10 < p_{T, miss} < 70 GeV", "cos(#theta)_{p_{miss}, p_{had}} < -0.4", " 10 < m_{ll} < 45 GeV", "cos(#theta)_{p_{miss}, p_{lep}} < 0.95", "8 < p_{ll} < 45 GeV"],
+    "xmax":     9,
+    "ymin":     1e4,
+    "ymax":     1e11,
+    "xtitle":   ["All events", "1 lepton pair", "100 GeV < recoil_{jj} < 170 GeV", "80 GeV < m_{ll} < 100 GeV", "85 < m_{jj} < 105 GeV", "40 < p_{jj} < 55 GeV", "10 < recoil_{jjll} < 50 GeV", "5 < p_{T, miss} < 50 GeV", "cos(#theta)_{p_{miss}, p_{had}} < 0.3", "120 GeV < recoil_{jj} < 140 GeV"],
     "ytitle":   "Events ",
     # "scaleSig": 10
 }

@@ -4,7 +4,7 @@ import os, copy
 processList = {
     # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
     'wzp6_ee_qqH_HZZ_ecm240':    {'fraction':1}, # 0.001409 pb -> 15200 events
-    'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # 0.01148 pb  -> 186000 events
+    'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # 1! # 0.01148 pb  -> 186000 events
     'p8_ee_ZZ_ecm240':          {'fraction':0.1},
     'p8_ee_WW_ecm240':          {'fraction':0.1},
     'wzp6_ee_qqH_Hbb_ecm240':  {'fraction':1},
@@ -78,7 +78,7 @@ bins_theta = (500, -5, 5)
 bins_eta = (600, -3, 3)
 bins_phi = (500, -5, 5)
 
-bins_count = (10, 0, 10)
+bins_count = (15, 0, 15)
 bins_charge = (10, -5, 5)
 bins_iso = (500, 0, 3)
 
@@ -389,20 +389,20 @@ def build_graph(df, dataset):
 
 
 
-    # # check p_ll? 
-    # df = df.Define("p_ll", "FCCAnalyses::ReconstructedParticle::get_p(res_ll)[0]")
-    # results.append(df.Histo1D(("p_ll_cut10", "", *bins_p_ll), "p_ll"))
+    # check p_ll? 
+    df = df.Define("p_ll", "FCCAnalyses::ReconstructedParticle::get_p(res_ll)[0]")
+    results.append(df.Histo1D(("p_ll_cut10", "", *bins_p_ll), "p_ll"))
 
-    # #########
-    # ### CUT 11: 8 < p_ll < 45 GeV
-    # #########
+    #########
+    ### CUT 11: 8 < p_ll < 45 GeV
+    #########
 
-    # df = df.Filter("p_ll > 8 && p_ll < 45")
-    # df = df.Define("cut11", "11")
-    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
+    df = df.Filter("p_ll > 8 && p_ll < 45")
+    df = df.Define("cut11", "11")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
 
 
-    # results.append(df.Histo1D(("p_ll_cut11", "", *bins_m_ll), "p_ll"))
+    results.append(df.Histo1D(("p_ll_cut11", "", *bins_m_ll), "p_ll"))
     
 
 

@@ -160,7 +160,6 @@ def build_graph(df, dataset):
     ### CUT 1: exactely two isolated leptons of opposite charge and same flavor
     #########
 
-    ## FALSCH, koennten auch 4 iso leptons sein 
     df = df.Filter("((muons_sel_iso.size() == 2 && Sum(muons_sel_q) == 0) || (electrons_sel_iso.size() == 2 && Sum(electrons_sel_q) == 0)) && (muons_sel_iso.size() + electrons_sel_iso.size() == 2)")
     df = df.Define("cut1", "1")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut1"))

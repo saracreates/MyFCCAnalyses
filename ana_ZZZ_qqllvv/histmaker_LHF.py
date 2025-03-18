@@ -5,11 +5,11 @@ processList = {
     # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
     'wzp6_ee_qqH_HZZ_ecm240':    {'fraction':1}, # 0.001409 pb -> 15200 events
     'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # 0.01148 pb  -> 186000 events
-    'p8_ee_ZZ_ecm240':          {'fraction':0.1},
-    'p8_ee_WW_ecm240':          {'fraction':0.01},
+    'p8_ee_ZZ_ecm240':          {'fraction':1}, # 0.1},
+    'p8_ee_WW_ecm240':          {'fraction':1}, # 0.01},
     'wzp6_ee_qqH_Hbb_ecm240':  {'fraction':1},
     'wzp6_ee_qqH_Htautau_ecm240':  {'fraction':1},
-    'p8_ee_Zqq_ecm240':         {'fraction':0.01},
+    'p8_ee_Zqq_ecm240':         {'fraction':0.1}, #0.01},
 }
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
@@ -19,7 +19,7 @@ prodTag     = "FCCee/winter2023/IDEA/"
 procDict = "FCCee_procDict_winter2023_IDEA.json" # QUESTION: is this correct?
 
 #Optional: output directory, default is local running directory
-outputDir   = "./outputs/histmaker/ZZZqqllvv/"
+outputDir   = "./outputs/histmaker_LHF/ZZZqqllvv/"
 
 # additional/costom C++ functions, defined in header files (optional)
 includePaths = ["functions.h"]
@@ -259,21 +259,9 @@ def build_graph(df, dataset):
     df = df.Define("res_jj", "FCCAnalyses::ZHfunctions::get_two_jets_res(jet1, jet2)")
     df = df.Define("p_res_jj", "FCCAnalyses::ReconstructedParticle::get_p(res_jj)[0]")
 
-    # plot the invariant mass of the two jets
-    results.append(df.Histo1D(("m_jj", "", *bins_Z), "m_jj"))
-    results.append(df.Histo1D(("p_res_jj", "", *bins_p_mu), "p_res_jj"))
     # calculate recoil mass of the two jets
     df = df.Define("recoil", "FCCAnalyses::ZHfunctions::get_recoil_jets(240.0, jet1, jet2)")
     df = df.Define("recoil_mass", "FCCAnalyses::ReconstructedParticle::get_mass(recoil)[0]")
-
-    results.append(df.Histo1D(("recoil_mass", "", *bins_m_ll), "recoil_mass"))
-
-
-    results.append(df.Histo1D(("y23", "", *bin_njets), "y23"))
-    results.append(df.Histo1D(("y34", "", *bin_njets), "y34"))
-
-    results.append(df.Histo1D(("jet1_nconst_N2", "", *bin_njets), "jet1_nconst_N2"))
-    results.append(df.Histo1D(("jet2_nconst_N2", "", *bin_njets), "jet2_nconst_N2"))
 
 
     df = df.Define("missP", "FCCAnalyses::ZHfunctions::missingParticle(240.0, ReconstructedParticles)")
@@ -284,19 +272,14 @@ def build_graph(df, dataset):
     df = df.Define("miss_pT", "FCCAnalyses::ZHfunctions::miss_pT(missP)")
 
 
-    results.append(df.Histo1D(("miss_p_cut1", "", *bins_p_mu), "miss_p"))
-    results.append(df.Histo1D(("miss_pT_cut1", "", *bins_p_mu), "miss_pT"))
-    results.append(df.Histo1D(("miss_pz_cut1", "", *bins_p_mu), "miss_pz"))
-
-
 
 
 
     #########
-    ### CUT 2: recoil mass of the two jets must match Higgs mass
+    ### CUT 2: rough cut on recoil mass of the two jets must match Higgs mass
     #########
 
-    df = df.Filter("recoil_mass > 120 && recoil_mass < 140")
+    df = df.Filter("recoil_mass > 100 && recoil_mass < 170")
     df = df.Define("cut2", "2")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
 
@@ -344,30 +327,16 @@ def build_graph(df, dataset):
 
 
 
-    # look at miss system
-    results.append(df.Histo1D(("miss_e_cut6", "", *bins_p_mu), "miss_e"))
-    results.append(df.Histo1D(("miss_theta_cut6", "", *bins_cosThetaMiss), "miss_theta"))
-    results.append(df.Histo1D(("miss_p_cut6", "", *bins_p_mu), "miss_p"))
-    results.append(df.Histo1D(("miss_pT_cut6", "", *bins_p_mu), "miss_pT"))
-    results.append(df.Histo1D(("miss_pz_cut6", "", *bins_p_mu), "miss_pz"))
-
-
     # look at ll system
     df = df.Define("Zll_costheta", "FCCAnalyses::ZHfunctions::get_cosTheta_miss(res_ll)")
     df = df.Define("Zll_p", "FCCAnalyses::ReconstructedParticle::get_p(res_ll)[0]")
     df = df.Define("Zll_pT", "FCCAnalyses::ReconstructedParticle::get_pt(res_ll)[0]")
 
-    results.append(df.Histo1D(("Zll_costheta_cut6", "", *bins_cosThetaMiss), "Zll_costheta"))
-    results.append(df.Histo1D(("Zll_p_cut6", "", *bins_p_mu), "Zll_p"))
-    results.append(df.Histo1D(("Zll_pT_cut6", "", *bins_p_mu), "Zll_pT"))
-
     # look at jj system
     df = df.Define("Zjj_costheta", "FCCAnalyses::ZHfunctions::get_cosTheta_miss(res_jj)")
     df = df.Define("Zjj_p", "FCCAnalyses::ReconstructedParticle::get_p(res_jj)[0]")
     df = df.Define("Zjj_pT", "FCCAnalyses::ReconstructedParticle::get_pt(res_jj)[0]")
-    results.append(df.Histo1D(("Zjj_costheta_cut6", "", *bins_cosThetaMiss), "Zjj_costheta"))
-    results.append(df.Histo1D(("Zjj_p_cut6", "", *bins_p_mu), "Zjj_p"))
-    results.append(df.Histo1D(("Zjj_pT_cut6", "", *bins_p_mu), "Zjj_pT"))
+
 
 
 
@@ -383,8 +352,6 @@ def build_graph(df, dataset):
 
     df = df.Define("dot_prod_had", "FCCAnalyses::ZHfunctions::dot_prod_had(missP, jet1, jet2)")
     df = df.Define("dot_prod_lep", "FCCAnalyses::ZHfunctions::dot_prod_lep(missP, l1, l2)")
-    results.append(df.Histo1D(("dot_prod_had", "", *bin_dotprod), "dot_prod_had"))
-    results.append(df.Histo1D(("dot_prod_lep", "", *bin_dotprod), "dot_prod_lep"))
 
 
 
@@ -398,7 +365,25 @@ def build_graph(df, dataset):
     df = df.Define("cut8", "8")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
 
-    results.append(df.Histo1D(("dot_prod_lep_cut8", "", *bin_dotprod), "dot_prod_lep"))
+
+
+
+    ### SAVE HISTOGRAM TO THE THE LIKELIHOOD FIT HERE (RECOIL MASS)
+
+
+    bin_lhf = (70, 100, 170)
+    results.append(df.Histo1D(("recoil_mass_LHF", "", *bin_lhf), "recoil_mass"))
+
+
+
+
+    #########
+    ### CUT 9: cut on recoil mass of the two jets must match Higgs mass
+    #########
+
+    df = df.Filter("recoil_mass > 110 && recoil_mass < 140")
+    df = df.Define("cut9", "9")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
 
 
 
