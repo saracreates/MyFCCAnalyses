@@ -5,11 +5,11 @@ processList = {
     # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
     'wzp6_ee_qqH_HZZ_ecm240':    {'fraction':1}, # 0.001409 pb -> 15200 events
     'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # 0.01148 pb  -> 186000 events
-    'p8_ee_ZZ_ecm240':          {'fraction':0.01},
+    'p8_ee_ZZ_ecm240':          {'fraction':0.1},
     'p8_ee_WW_ecm240':          {'fraction':0.01},
-    'wzp6_ee_qqH_Hbb_ecm240':  {'fraction':1},
+    # 'wzp6_ee_qqH_Hbb_ecm240':  {'fraction':1},
     'wzp6_ee_qqH_Htautau_ecm240':  {'fraction':1},
-    'p8_ee_Zqq_ecm240':         {'fraction':0.01},
+    # 'p8_ee_Zqq_ecm240':         {'fraction':0.01},
 }
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
@@ -161,7 +161,7 @@ def build_graph(df, dataset):
     #########
 
     ## FALSCH, koennten auch 4 iso leptons sein 
-    df = df.Filter("(muons_sel_iso.size() == 2 && Sum(muons_sel_q) == 0) || (electrons_sel_iso.size() == 2 && Sum(electrons_sel_q) == 0)")
+    df = df.Filter("((muons_sel_iso.size() == 2 && Sum(muons_sel_q) == 0) || (electrons_sel_iso.size() == 2 && Sum(electrons_sel_q) == 0)) && (muons_sel_iso.size() + electrons_sel_iso.size() == 2)")
     df = df.Define("cut1", "1")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut1"))
 
@@ -344,12 +344,32 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
 
 
-    #########
-    ### CUT 7: missing momentum greater than 6-7 GeV but smaller than 60 GeV (be careful, so analysis remain orthogonal here - check paper!)
-    #########
-    # df = df.Filter("miss_p > 6 && miss_p < 60")
-    # df = df.Define("cut7", "7")
-    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
+
+    # look at miss system
+    results.append(df.Histo1D(("miss_e_cut6", "", *bins_p_mu), "miss_e"))
+    results.append(df.Histo1D(("miss_theta_cut6", "", *bins_cosThetaMiss), "miss_theta"))
+    results.append(df.Histo1D(("miss_p_cut6", "", *bins_p_mu), "miss_p"))
+    results.append(df.Histo1D(("miss_pT_cut6", "", *bins_p_mu), "miss_pT"))
+    results.append(df.Histo1D(("miss_pz_cut6", "", *bins_p_mu), "miss_pz"))
+
+
+    # look at ll system
+    df = df.Define("Zll_costheta", "FCCAnalyses::ZHfunctions::get_cosTheta_miss(res_ll)")
+    df = df.Define("Zll_p", "FCCAnalyses::ReconstructedParticle::get_p(res_ll)[0]")
+    df = df.Define("Zll_pT", "FCCAnalyses::ReconstructedParticle::get_pt(res_ll)[0]")
+
+    results.append(df.Histo1D(("Zll_costheta_cut6", "", *bins_cosThetaMiss), "Zll_costheta"))
+    results.append(df.Histo1D(("Zll_p_cut6", "", *bins_p_mu), "Zll_p"))
+    results.append(df.Histo1D(("Zll_pT_cut6", "", *bins_p_mu), "Zll_pT"))
+
+    # look at jj system
+    df = df.Define("Zjj_costheta", "FCCAnalyses::ZHfunctions::get_cosTheta_miss(res_jj)")
+    df = df.Define("Zjj_p", "FCCAnalyses::ReconstructedParticle::get_p(res_jj)[0]")
+    df = df.Define("Zjj_pT", "FCCAnalyses::ReconstructedParticle::get_pt(res_jj)[0]")
+    results.append(df.Histo1D(("Zjj_costheta_cut6", "", *bins_cosThetaMiss), "Zjj_costheta"))
+    results.append(df.Histo1D(("Zjj_p_cut6", "", *bins_p_mu), "Zjj_p"))
+    results.append(df.Histo1D(("Zjj_pT_cut6", "", *bins_p_mu), "Zjj_pT"))
+
 
 
     #########
@@ -361,16 +381,6 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
 
 
-    ### plot all the variables AFTER the last cut: 
-
-
-
-    results.append(df.Histo1D(("miss_e", "", *bins_p_mu), "miss_e"))
-    results.append(df.Histo1D(("miss_theta", "", *bins_cosThetaMiss), "miss_theta"))
-    results.append(df.Histo1D(("miss_p_cut8", "", *bins_p_mu), "miss_p"))
-    results.append(df.Histo1D(("miss_pT_cut8", "", *bins_p_mu), "miss_pT"))
-    results.append(df.Histo1D(("miss_pz_cut8", "", *bins_p_mu), "miss_pz"))
-
 
     df = df.Define("dot_prod_had", "FCCAnalyses::ZHfunctions::dot_prod_had(missP, jet1, jet2)")
     df = df.Define("dot_prod_lep", "FCCAnalyses::ZHfunctions::dot_prod_lep(missP, l1, l2)")
@@ -378,17 +388,42 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("dot_prod_lep", "", *bin_dotprod), "dot_prod_lep"))
 
 
-    df = df.Define("Z_costheta", "FCCAnalyses::ZHfunctions::get_cosTheta_miss(res_ll)")
-    results.append(df.Histo1D(("Z_costheta", "", *bins_cosThetaMiss), "Z_costheta"))
-
 
     #########
     ### CUT 8: dot product of hadronic system and missing momentum
     #########
+    # in signal, the dot product is smaller than 0.3 aka the neutrinos go into the opposite direction of the jets
+    # in the background, the missing momentum comes from decays inside the jets, so it's more likely to be larger than 0.3 because it's aligned with the jets
 
     df = df.Filter("dot_prod_had < 0.3")
     df = df.Define("cut8", "8")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
+
+    results.append(df.Histo1D(("dot_prod_lep_cut8", "", *bin_dotprod), "dot_prod_lep"))
+
+
+    #########
+    ### CUT 9: dot product of leptonic system and missing momentum
+    #########
+
+    df = df.Filter("dot_prod_lep > -0.8")
+    df = df.Define("cut9", "9")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
+
+
+    ## check miss p after miss pT cut
+    results.append(df.Histo1D(("miss_p_cut9", "", *bins_p_mu), "miss_p"))
+
+
+    #########
+    ### CUT 10: 5 < p_miss < 50 GeV
+    #########
+
+    df = df.Filter("miss_p > 5 && miss_p < 50")
+    df = df.Define("cut10", "10")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
+
+
 
 
 

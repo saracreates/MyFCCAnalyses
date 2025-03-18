@@ -233,6 +233,84 @@ namespace FCCAnalyses {
             return result;
 
         }
+
+        float dot_prod_had(Vec_rp miss_particle, TLorentzVector jet1, TLorentzVector jet2){
+            // caluclate dot product between momentum of missing particle and jet because in case of the signal, they should not be alligned
+
+            // check size of the missing particle vector
+            if (miss_particle.size() != 1){
+                std::cout << "Error: missing particle vector should have size one, but got "<< miss_particle.size() << std::endl;
+                exit(1);
+            }
+
+            TLorentzVector jet = jet1 + jet2;
+                
+
+            rp miss_part = miss_particle.at(0);
+            rp jet_rp = return_rp_from_tlv(jet);
+
+            float dot_product = miss_part.momentum.x * jet_rp.momentum.x + miss_part.momentum.y * jet_rp.momentum.y + miss_part.momentum.z * jet_rp.momentum.z;
+
+            // norm it via its magnitude
+            float mag_miss = std::sqrt(miss_part.momentum.x * miss_part.momentum.x + miss_part.momentum.y * miss_part.momentum.y + miss_part.momentum.z * miss_part.momentum.z);
+            float mag_jet = std::sqrt(jet_rp.momentum.x * jet_rp.momentum.x + jet_rp.momentum.y * jet_rp.momentum.y + jet_rp.momentum.z * jet_rp.momentum.z);
+
+            float dot_product_norm = dot_product / (mag_miss * mag_jet);
+
+            return dot_product_norm;
+        }
+
+        float dot_prod_lep(Vec_rp miss_particle, rp lep1, rp lep2){
+            // caluclate dot product between momentum of missing particle and jet because in case of the signal, they should not be alligned
+
+            // check size of the missing particle vector
+            if (miss_particle.size() != 1){
+                std::cout << "Error: missing particle vector should have size one, but got "<< miss_particle.size() << std::endl;
+                exit(1);
+            }
+                
+
+            rp miss_part = miss_particle.at(0);
+            rp lep_rp;
+            lep_rp.momentum.x = lep1.momentum.x + lep2.momentum.x;
+            lep_rp.momentum.y = lep1.momentum.y + lep2.momentum.y;
+            lep_rp.momentum.z = lep1.momentum.z + lep2.momentum.z;
+            
+
+            float dot_product = miss_part.momentum.x * lep_rp.momentum.x + miss_part.momentum.y * lep_rp.momentum.y + miss_part.momentum.z * lep_rp.momentum.z;
+
+            // norm it via its magnitude
+            float mag_miss = std::sqrt(miss_part.momentum.x * miss_part.momentum.x + miss_part.momentum.y * miss_part.momentum.y + miss_part.momentum.z * miss_part.momentum.z);
+            float mag_jet = std::sqrt(lep_rp.momentum.x * lep_rp.momentum.x + lep_rp.momentum.y * lep_rp.momentum.y + lep_rp.momentum.z * lep_rp.momentum.z);
+
+            float dot_product_norm = dot_product / (mag_miss * mag_jet);
+
+            return dot_product_norm;
+        }
+
+        // calculate the cosine(theta) of the missing energy vector
+        float get_cosTheta_miss(Vec_rp met){
+            
+            float costheta = 0.;
+            if(met.size() > 0) {
+                
+                TLorentzVector lv_met;
+                lv_met.SetPxPyPzE(met[0].momentum.x, met[0].momentum.y, met[0].momentum.z, met[0].energy);
+                costheta = fabs(std::cos(lv_met.Theta()));
+            }
+            return costheta;
+        }
+
+        float miss_pT(Vec_rp met){
+            // calculate the missing transverse energy
+            float px_miss = met[0].momentum.x;
+            float py_miss = met[0].momentum.y;
+
+            float pT_miss = std::sqrt(px_miss * px_miss + py_miss * py_miss);
+
+            return pT_miss;
+        }
+
         
     }
 }

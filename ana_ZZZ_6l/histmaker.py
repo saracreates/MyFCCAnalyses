@@ -11,9 +11,19 @@ processList = {
                                 'inputDir': "/afs/cern.ch/work/s/saaumill/public/tmp_madgraph_output/edm4hep_data",
                                 'crossSection': 0.000000857731}, # 8.577310059438061e-07
     # also load the one that does not consider the single on-shell Z
-    'p8_ee_llZZ_Zll_ecm240': {'fraction':1,
+    # 'p8_ee_llZZ_Zll_ecm240': {'fraction':1,
+    #                             'inputDir': "/afs/cern.ch/work/s/saaumill/public/tmp_madgraph_output/edm4hep_data",
+    #                             'crossSection': 0.0000002653569}, # 2.6535691267239996e-07
+
+    ## Zjj background
+    'p8_ee_jjZZ_Zll_ecm240': {'fraction':1,
                                 'inputDir': "/afs/cern.ch/work/s/saaumill/public/tmp_madgraph_output/edm4hep_data",
-                                'crossSection': 0.0000002653569}, # 2.6535691267239996e-07
+                                'crossSection': 0.00000000700474, # 3.5023752759999995e-09 pb pure; but multiply by two because of the Z ambiguity -> 
+                            },
+    'p8_ee_jjllZ_Zll_ecm240': {'fraction':1,
+                                'inputDir': "/afs/cern.ch/work/s/saaumill/public/tmp_madgraph_output/edm4hep_data",
+                                'crossSection': 0.000000201534, # 1.0076732346110299e-07 pb pure; but multiply by two because of the two possible Z->ll decays
+                            },
 }
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)

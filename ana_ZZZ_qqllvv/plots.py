@@ -21,7 +21,7 @@ colors['ee-ZZ'] = ROOT.kGreen+2
 colors['ee-WW'] = ROOT.kOrange+1
 colors['qqH-Hbb'] = ROOT.kMagenta+1
 colors['qqH-Htautau'] = ROOT.kCyan+1
-colors['Zqq'] = ROOT.kBlack
+# colors['Zqq'] = ROOT.kBlack
 
 
 procs = {}
@@ -31,9 +31,8 @@ procs['backgrounds'] =  {'qqH-HWW':['wzp6_ee_qqH_HWW_ecm240'],
                         'ee-WW':['p8_ee_WW_ecm240'], 
                         'qqH-Hbb':['wzp6_ee_qqH_Hbb_ecm240'], 
                         'qqH-Htautau':['wzp6_ee_qqH_Htautau_ecm240'],
-                        'Zqq':['p8_ee_Zqq_ecm240'] 
+                        # 'Zqq':['p8_ee_Zqq_ecm240'] 
 }
-# p8_ee_Zqq_ecm240
 
 
 legend = {}
@@ -43,7 +42,7 @@ legend['ee-ZZ'] = 'ee-ZZ'
 legend['ee-WW'] = 'ee-WW'
 legend['qqH-Hbb'] = 'qqH-Hbb'
 legend['qqH-Htautau'] = 'qqH-Htautau'
-legend['Zqq'] = 'Zqq'
+# legend['Zqq'] = 'Zqq'
 
 
 
@@ -75,7 +74,7 @@ hists["cutFlow"] = {
     "xmax":     9,
     "ymin":     1e4,
     "ymax":     1e11,
-    "xtitle":   ["All events", "1 lepton pair", "122 GeV < recoil_{jj} < 130 GeV", "80 GeV < m_{ll} < 100 GeV", "85 < m_{jj} < 105 GeV", "40 < p_{jj} < 55 GeV", "10 < recoil_{jjll} < 50 GeV", "5 < p_{T, miss} < 50 GeV", "prod had * miss < 0.3"],
+    "xtitle":   ["All events", "1 lepton pair", "122 GeV < recoil_{jj} < 130 GeV", "80 GeV < m_{ll} < 100 GeV", "85 < m_{jj} < 105 GeV", "40 < p_{jj} < 55 GeV", "10 < recoil_{jjll} < 50 GeV", "5 < p_{T, miss} < 50 GeV", "cos(#theta)_{p_{miss}, p_{had}} < 0.3", "cos(#theta)_{p_{miss}, p_{lep}} > -0.8", "5 < p_{miss} < 50 GeV"],
     "ytitle":   "Events ",
     # "scaleSig": 10
 }

@@ -311,66 +311,6 @@ namespace FCCAnalyses {
             return pT_miss;
         }
 
-        // float func_neg_x(float x1){
-        //     // check that x1 is smaller than 0, else throw error
-        //     if (x1 > 0){
-        //         std::cout << "Error: Number should be smaller than 1, but got " << x1 << std::endl;
-        //         exit(1);
-        //     }
-        //     return -0.8 * x1 - 1;
-        // }
-
-        // float func_pos_x(float x1){
-        //     // check that x1 is greater than 0, else throw error
-        //     if (x1 < 0){
-        //         std::cout << "Error: Number should be greater than -1, but got " << x1 << std::endl;
-        //         exit(1);
-        //     }
-        //     return - 0.8 * x1 + 1;
-        // }
-
-
-        // int dot_prod_cut(float x1, float x2){
-        //     // bool == 1 equals to true, 
-        //     // bool == 0 equals to false
-
-        //     // check if x1 if between -1 and 1, else through error
-        //     if (x1 > 1 || x1 < -1){
-        //         std::cout << "Error: dot product should be between -1 and 1, but got " << x1 << std::endl;
-        //         exit(1);
-        //     }
-
-        //     bool is_in;
-
-        //     // now define function
-        //     if (x1>0){
-        //         float x2_lim = func_pos_x(x1);
-        //         if (x2 < x2_lim){
-        //             is_in = true;
-        //         } else {
-        //             is_in = false;
-        //         }
-        //     } else if (x1 < 0){
-        //         float x2_lim = func_neg_x(x1);
-        //         if (x2 > x2_lim){
-        //             is_in = true;
-        //         } else {
-        //             is_in = false;
-        //         }
-        //     // } else if (x1 == 0.0){
-        //     //     is_in = true;
-        //     } else {
-        //         std::cout << "Error: dot product should be a number, but got " << x1 << std::endl;
-        //         exit(1);
-        //     }
-
-        //     if (is_in){
-        //         return 1;
-        //     } else {
-        //         std::cout << " cutting value " << std::endl;
-        //         return 0;
-        //     }
-        // }
         
     }
 }
