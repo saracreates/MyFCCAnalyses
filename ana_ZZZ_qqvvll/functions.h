@@ -311,6 +311,16 @@ namespace FCCAnalyses {
             return pT_miss;
         }
 
+        Vec_f sort_by_momentum(float p1, float p2){
+            // sort the two leptons by energy
+            Vec_f result;
+            result.reserve(2);
+            result.emplace_back(p1);
+            result.emplace_back(p2);
+            std::sort(result.begin(), result.end(), std::greater<float>());
+            return result;
+        }
+
         
     }
 }

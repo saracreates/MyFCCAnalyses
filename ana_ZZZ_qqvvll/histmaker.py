@@ -3,13 +3,22 @@ import os, copy
 # list of processes (mandatory)
 processList = {
     # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
-    'wzp6_ee_qqH_HZZ_ecm240':    {'fraction':1}, # 0.001409 pb -> 15200 events
-    'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # 1! # 0.01148 pb  -> 186000 events
+    'wzp6_ee_qqH_HZZ_llvv_ecm240': {'fraction':1, 'crossSection': 0.00015, 'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"}, # 
+    'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # q = u, d
+    'wzp6_ee_ssH_HWW_ecm240':   {'fraction':1}, # s
+    'wzp6_ee_ccH_HWW_ecm240':   {'fraction':1}, # c
+    'wzp6_ee_bbH_HWW_ecm240':   {'fraction':1}, # b
     'p8_ee_ZZ_ecm240':          {'fraction':0.1},
-    'p8_ee_WW_ecm240':          {'fraction':0.1},
-    'wzp6_ee_qqH_Hbb_ecm240':  {'fraction':1},
-    'wzp6_ee_qqH_Htautau_ecm240':  {'fraction':1},
-    'p8_ee_Zqq_ecm240':         {'fraction':0.1},
+    'p8_ee_WW_ecm240':          {'fraction':0.01},
+    'wzp6_ee_qqH_Hbb_ecm240':  {'fraction':1}, # q = u, d
+    'wzp6_ee_ssH_Hbb_ecm240':  {'fraction':1}, # s
+    'wzp6_ee_ccH_Hbb_ecm240':  {'fraction':1}, # c
+    'wzp6_ee_bbH_Hbb_ecm240':  {'fraction':1}, # b
+    'wzp6_ee_qqH_Htautau_ecm240':  {'fraction':1}, # q = u, d
+    'wzp6_ee_ssH_Htautau_ecm240':  {'fraction':1}, # s
+    'wzp6_ee_ccH_Htautau_ecm240':  {'fraction':1}, # c
+    'wzp6_ee_bbH_Htautau_ecm240':  {'fraction':1}, # b
+    'p8_ee_Zqq_ecm240':         {'fraction':0.01}, # q = u,d,s,c,b,t 
 }
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
@@ -329,8 +338,17 @@ def build_graph(df, dataset):
     df = df.Define("cut6", "6")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6")) 
 
+
     #########
-    ### CUT 7: cut on pT_miss > 5 GeV and < 70 GeV
+    ### CUT 7: 10 < m_ll < 45 GeV
+    #########
+
+    df = df.Filter("m_ll > 10 && m_ll < 45")
+    df = df.Define("cut7", "7")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
+
+    #########
+    ### CUT 8: cut on pT_miss > 5 GeV and < 70 GeV
     #########
 
     df = df.Define("miss_pz", "FCCAnalyses::ReconstructedParticle::get_pz(missP)[0]")
@@ -343,11 +361,11 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("miss_p", "", *bins_p_mu), "miss_p"))
 
     df = df.Filter("miss_pT > 10 && miss_pT < 70")
-    df = df.Define("cut7", "7")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
+    df = df.Define("cut8", "8")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
 
     #########
-    ### CUT 8: cos(theta)_{miss, had} < -0.4
+    ### CUT 9: cos(theta)_{miss, had} < -0.4
     #########
 
     # check out angles between jets/leptons and missing momentum
@@ -358,20 +376,12 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("dot_prod_lep", "", *bin_dotprod), "dot_prod_lep"))
 
     df = df.Filter("dot_prod_had < -0.4")
-    df = df.Define("cut8", "8")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
-
-
-
-    results.append(df.Histo1D(("m_ll_cut8", "", *bins_m_ll), "m_ll"))
-
-    #########
-    ### CUT 9: 10 < m_ll < 45 GeV
-    #########
-
-    df = df.Filter("m_ll > 10 && m_ll < 45")
     df = df.Define("cut9", "9")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
+
+
+
+    results.append(df.Histo1D(("m_ll_cut9", "", *bins_m_ll), "m_ll"))
 
 
     #########
@@ -393,16 +403,46 @@ def build_graph(df, dataset):
     df = df.Define("p_ll", "FCCAnalyses::ReconstructedParticle::get_p(res_ll)[0]")
     results.append(df.Histo1D(("p_ll_cut10", "", *bins_p_ll), "p_ll"))
 
+
+    # df = df.Filter("p_ll > 8 && p_ll < 45")
+    # df = df.Define("cut11", "11")
+    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
+
+
+    # plot variables for signal and background
+
+    results.append(df.Histo1D(("y23_cut11", "", *bin_njets), "y23"))
+    results.append(df.Histo1D(("y34_cut11", "", *bin_njets), "y34"))
+
+
+    # save lepton momentum in histogram
+
+    df = df.Define("l1_p", "FCCAnalyses::ReconstructedParticle::get_p(Vec_rp{l1})[0]")
+    df = df.Define("l2_p", "FCCAnalyses::ReconstructedParticle::get_p(Vec_rp{l2})[0]")
+    df = df.Define("p_lep_sorted", "FCCAnalyses::ZHfunctions::sort_by_momentum(l1_p, l2_p)")
+    df = df.Define("l_p_max", "p_lep_sorted[0]")
+    df = df.Define("l_p_min", "p_lep_sorted[1]")
+    results.append(df.Histo1D(("l_p_max_cut10", "", *bins_p_mu), "l_p_max"))
+    results.append(df.Histo1D(("l_p_min_cut10", "", *bins_p_mu), "l_p_min"))
+
+
     #########
-    ### CUT 11: 8 < p_ll < 45 GeV
+    ### CUT 11: 10 < l_p_max < 40 GeV
     #########
 
-    df = df.Filter("p_ll > 8 && p_ll < 45")
+    df = df.Filter("l_p_max > 10 && l_p_max < 40")
     df = df.Define("cut11", "11")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
 
+    # harder cut on recoil jj - doesn't help
 
-    results.append(df.Histo1D(("p_ll_cut11", "", *bins_m_ll), "p_ll"))
+    #########
+    ### CUT 12: recoil mass of the two jets must match Higgs mass
+    #########
+
+    df = df.Filter("recoil_mass > 120 && recoil_mass < 132") # upper limit is harder (140 before)
+    df = df.Define("cut12", "12")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
     
 
 

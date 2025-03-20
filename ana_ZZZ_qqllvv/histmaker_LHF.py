@@ -3,13 +3,22 @@ import os, copy
 # list of processes (mandatory)
 processList = {
     # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
-    'wzp6_ee_qqH_HZZ_ecm240':    {'fraction':1}, # 0.001409 pb -> 15200 events
-    'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # 0.01148 pb  -> 186000 events
-    'p8_ee_ZZ_ecm240':          {'fraction':1}, # 0.1},
-    'p8_ee_WW_ecm240':          {'fraction':1}, # 0.01},
-    'wzp6_ee_qqH_Hbb_ecm240':  {'fraction':1},
-    'wzp6_ee_qqH_Htautau_ecm240':  {'fraction':1},
-    'p8_ee_Zqq_ecm240':         {'fraction':0.1}, #0.01},
+    'wzp6_ee_qqH_HZZ_llvv_ecm240': {'fraction':1, 'crossSection': 0.00015, 'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"}, # 
+    'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # q = u, d
+    'wzp6_ee_ssH_HWW_ecm240':   {'fraction':1}, # s
+    'wzp6_ee_ccH_HWW_ecm240':   {'fraction':1}, # c
+    'wzp6_ee_bbH_HWW_ecm240':   {'fraction':1}, # b
+    'p8_ee_ZZ_ecm240':          {'fraction':1},
+    'p8_ee_WW_ecm240':          {'fraction':1},
+    'wzp6_ee_qqH_Hbb_ecm240':  {'fraction':1}, # q = u, d
+    'wzp6_ee_ssH_Hbb_ecm240':  {'fraction':1}, # s
+    'wzp6_ee_ccH_Hbb_ecm240':  {'fraction':1}, # c
+    'wzp6_ee_bbH_Hbb_ecm240':  {'fraction':1}, # b
+    'wzp6_ee_qqH_Htautau_ecm240':  {'fraction':1}, # q = u, d
+    'wzp6_ee_ssH_Htautau_ecm240':  {'fraction':1}, # s
+    'wzp6_ee_ccH_Htautau_ecm240':  {'fraction':1}, # c
+    'wzp6_ee_bbH_Htautau_ecm240':  {'fraction':1}, # b
+    'p8_ee_Zqq_ecm240':         {'fraction':1}, # q = u,d,s,c,b,t 
 }
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
@@ -381,7 +390,7 @@ def build_graph(df, dataset):
     ### CUT 9: cut on recoil mass of the two jets must match Higgs mass
     #########
 
-    df = df.Filter("recoil_mass > 110 && recoil_mass < 140")
+    df = df.Filter("recoil_mass > 120 && recoil_mass < 140")
     df = df.Define("cut9", "9")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
 

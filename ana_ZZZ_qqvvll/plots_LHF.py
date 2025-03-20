@@ -3,14 +3,14 @@ import ROOT
 # global parameters
 intLumi        = 1.
 intLumiLabel   = "L = 10.8 ab^{-1}"
-ana_tex        = 'e^{+}e^{-}#rightarrow Z(qq)H; H#rightarrow Z(ll)Z*(#nu#nu)' #; l=e,#mu'
+ana_tex        = 'e^{+}e^{-}#rightarrow Z(qq)H; H#rightarrow Z(#nu#nu)Z*(ll)' #; l=e,#mu'
 delphesVersion = '3.4.2'
 energy         = 240.0
 collider       = 'FCC-ee'
 formats        = ['png','pdf']
 
-outdir         = './outputs/plots/ZZZqqllvv_LHF/' 
-inputDir       = './outputs/histmaker_LHF/ZZZqqllvv'
+outdir         = './outputs/plots/ZZZqqvvll_LHF/' 
+inputDir       = './outputs/histmaker_LHF/ZZZqqvvll'
 
 plotStatUnc    = True
 
@@ -19,7 +19,7 @@ colors['qqH-HZZ'] = ROOT.kRed
 colors['qqH-HWW'] = ROOT.kBlue+1
 colors['ee-ZZ'] = ROOT.kGreen+2
 colors['ee-WW'] = ROOT.kOrange+1
-#colors['qqH-Hbb'] = ROOT.kBlack
+# colors['qqH-Hbb'] = ROOT.kBlack
 colors['qqH-Htautau'] = ROOT.kCyan+1
 colors['Zqq'] = ROOT.kMagenta+1
 
@@ -71,10 +71,10 @@ hists["cutFlow"] = {
     "logy":     True,
     "stack":    False,
     "xmin":     0,
-    "xmax":     9,
+    "xmax":     15,
     "ymin":     1e4,
     "ymax":     1e11,
-    "xtitle":   ["All events", "1 lepton pair", "100 GeV < recoil_{jj} < 170 GeV", "80 GeV < m_{ll} < 100 GeV", "85 < m_{jj} < 105 GeV", "40 < p_{jj} < 55 GeV", "10 < recoil_{jjll} < 50 GeV", "5 < p_{T, miss} < 50 GeV", "cos(#theta)_{p_{miss}, p_{had}} < 0.3", "120 GeV < recoil_{jj} < 140 GeV"],
+    "xtitle":   ["All events", "1 lepton pair", "120 GeV < recoil_{jj} < 140 GeV", "80 GeV < recoil_{jjll} < 105 GeV", "20 GeV < p_{miss} < 100 GeV", "85 < m_{jj} < 105 GeV", "40 < p_{jj} < 55 GeV", " 10 < m_{ll} < 45 GeV", "10 < p_{T, miss} < 70 GeV", "cos(#theta)_{p_{miss}, p_{had}} < -0.4", "cos(#theta)_{p_{miss}, p_{lep}} < 0.95", "10 < p_{lep, max} < 40 GeV", "120 GeV < recoil_{jj} < 132 GeV"],
     "ytitle":   "Events ",
     # "scaleSig": 10
 }

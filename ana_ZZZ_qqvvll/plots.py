@@ -25,15 +25,15 @@ colors['Zqq'] = ROOT.kBlack
 
 
 procs = {}
-procs['signal'] = {'qqH-HZZ':['wzp6_ee_qqH_HZZ_ecm240']} 
-procs['backgrounds'] =  {'qqH-HWW':['wzp6_ee_qqH_HWW_ecm240'], 
+# procs['signal'] = {'qqH-HZZ':['wzp6_ee_qqH_HZZ_ecm240']} 
+procs['signal'] = {'qqH-HZZ':['wzp6_ee_qqH_HZZ_llvv_ecm240']}
+procs['backgrounds'] =  {'qqH-HWW':['wzp6_ee_qqH_HWW_ecm240', 'wzp6_ee_ssH_HWW_ecm240', 'wzp6_ee_ccH_HWW_ecm240', 'wzp6_ee_bbH_HWW_ecm240' ], 
                         'ee-ZZ':['p8_ee_ZZ_ecm240'], 
                         'ee-WW':['p8_ee_WW_ecm240'], 
-                        'qqH-Hbb':['wzp6_ee_qqH_Hbb_ecm240'], 
-                        'qqH-Htautau':['wzp6_ee_qqH_Htautau_ecm240'],
-                        'Zqq':['p8_ee_Zqq_ecm240']
+                        'qqH-Hbb':['wzp6_ee_qqH_Hbb_ecm240', 'wzp6_ee_ssH_Hbb_ecm240', 'wzp6_ee_ccH_Hbb_ecm240', 'wzp6_ee_bbH_Hbb_ecm240'], 
+                        'qqH-Htautau':['wzp6_ee_qqH_Htautau_ecm240', 'wzp6_ee_ssH_Htautau_ecm240', 'wzp6_ee_ccH_Htautau_ecm240', 'wzp6_ee_bbH_Htautau_ecm240'],
+                        'Zqq':['p8_ee_Zqq_ecm240'] 
 }
-
 
 legend = {}
 legend['qqH-HZZ'] = 'qqH-HZZ'
@@ -74,7 +74,7 @@ hists["cutFlow"] = {
     "xmax":     15,
     "ymin":     1,
     "ymax":     1e9,
-    "xtitle":   ["All events", "1 lepton pair", "122 GeV < recoil_{jj} < 130 GeV", "80 GeV < recoil_{jjll} < 105 GeV", "20 GeV < p_{miss} < 100 GeV", "85 < m_{jj} < 105 GeV", "40 < p_{jj} < 55 GeV", "10 < p_{T, miss} < 70 GeV", "cos(#theta)_{p_{miss}, p_{had}} < -0.4", " 10 < m_{ll} < 45 GeV", "cos(#theta)_{p_{miss}, p_{lep}} < 0.95", "8 < p_{ll} < 45 GeV"],
+    "xtitle":   ["All events", "1 lepton pair", "120 GeV < recoil_{jj} < 140 GeV", "80 GeV < recoil_{jjll} < 105 GeV", "20 GeV < p_{miss} < 100 GeV", "85 < m_{jj} < 105 GeV", "40 < p_{jj} < 55 GeV", " 10 < m_{ll} < 45 GeV", "10 < p_{T, miss} < 70 GeV", "cos(#theta)_{p_{miss}, p_{had}} < -0.4", "cos(#theta)_{p_{miss}, p_{lep}} < 0.95", "10 < p_{lep, max} < 40 GeV", "120 GeV < recoil_{jj} < 132 GeV"],
     "ytitle":   "Events ",
     # "scaleSig": 10
 }

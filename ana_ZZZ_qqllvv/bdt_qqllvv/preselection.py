@@ -85,44 +85,29 @@ class RDFanalysis():
 
         # get all the leptons from the collection
         df = df.Define("muons", "FCCAnalyses::ReconstructedParticle::get(Muon0, ReconstructedParticles)",)
+        df = df.Define("muons_p", "FCCAnalyses::ReconstructedParticle::get_p(muons)",)
         df = df.Define("electrons", "FCCAnalyses::ReconstructedParticle::get(Electron0, ReconstructedParticles)",)
+        df = df.Define("electrons_p", "FCCAnalyses::ReconstructedParticle::get_p(electrons)",)
 
         # compute the muon isolation and store muons with an isolation cut of 0df = df.25 in a separate column muons_sel_iso
         df = df.Define("muons_iso", "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.1)(muons, ReconstructedParticles)",)
         df = df.Define("muons_sel_iso", "FCCAnalyses::ZHfunctions::sel_iso(0.5)(muons, muons_iso)",)
         df = df.Define("muons_sel_q", "FCCAnalyses::ReconstructedParticle::get_charge(muons_sel_iso)",)
+        df = df.Define("muons_sel_p", "FCCAnalyses::ReconstructedParticle::get_p(muons_sel_iso)",)
+        df = df.Define("muons_sel_theta", "FCCAnalyses::ReconstructedParticle::get_theta(muons_sel_iso)",)
         df = df.Define("electrons_iso", "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.1)(electrons, ReconstructedParticles)",)
         df = df.Define("electrons_sel_iso", "FCCAnalyses::ZHfunctions::sel_iso(0.5)(electrons, electrons_iso)",)
         df = df.Define("electrons_sel_q", "FCCAnalyses::ReconstructedParticle::get_charge(electrons_sel_iso)",)
+        df = df.Define("electrons_sel_p", "FCCAnalyses::ReconstructedParticle::get_p(electrons_sel_iso)",)
+        df = df.Define("electrons_sel_theta", "FCCAnalyses::ReconstructedParticle::get_theta(electrons_sel_iso)",)
 
-        # plot iso values
-        results.append(df.Histo1D(("muons_iso", "", *bins_iso), "muons_iso"))
-        results.append(df.Histo1D(("electrons_iso", "", *bins_iso), "electrons_iso"))
 
-        #########
-        ### CUT 0: all events
-        #########
-        df = df.Define("cut0", "0")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut0"))
-        
-
-        #########
-        ### CUT 1: exactely two isolated leptons of opposite charge and same flavor
-        #########
-
-        df = df.Filter("((muons_sel_iso.size() == 2 && Sum(muons_sel_q) == 0) || (electrons_sel_iso.size() == 2 && Sum(electrons_sel_q) == 0)) && (muons_sel_iso.size() + electrons_sel_iso.size() == 2)")
-        df = df.Define("cut1", "1")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut1"))
-
-        # get the two leptons
+        # get the two leptons from Z decay
         df = df.Define("l1", "muons_sel_iso.size() == 2 ? muons_sel_iso[0] : electrons_sel_iso[0]")
         df = df.Define("l2", "muons_sel_iso.size() == 2 ? muons_sel_iso[1] : electrons_sel_iso[1]")
 
         df = df.Define("res_ll", "FCCAnalyses::ZHfunctions::get_two_lep_res(l1, l2)")
         df = df.Define("m_ll", "FCCAnalyses::ReconstructedParticle::get_mass(res_ll)[0]")
-
-        # plot m_ll
-        results.append(df.Histo1D(("m_ll", "", *bins_m_ll), "m_ll"))
 
 
         ## here cluster jets in the events but first remove muons from the list of
@@ -191,17 +176,9 @@ class RDFanalysis():
             df = df.Define(f"jet{j}_nconst_N{i}", f"jet_nconst_N{i}[{j-1}]")
 
 
-        df = df.Define(
-            "jets_p4",
-            "JetConstituentsUtils::compute_tlv_jets({})".format(
-                jetClusteringHelper.jets
-            ),
-        )
+        df = df.Define("jets_p4", "JetConstituentsUtils::compute_tlv_jets({})".format(jetClusteringHelper.jets),)
 
-        df = df.Define(
-            "m_jj",
-            "JetConstituentsUtils::InvariantMass(jets_p4[0], jets_p4[1])",
-        )
+        df = df.Define("m_jj", "JetConstituentsUtils::InvariantMass(jets_p4[0], jets_p4[1])",)
 
         # add two lorentz vectors for the two jets to get Z resonance?
         df = df.Define("jet1", "jets_p4[0]")
@@ -222,59 +199,9 @@ class RDFanalysis():
         df = df.Define("miss_pT", "FCCAnalyses::ZHfunctions::miss_pT(missP)")
 
 
-
-
-
-        #########
-        ### CUT 2: rough cut on recoil mass of the two jets must match Higgs mass
-        #########
-
-        df = df.Filter("recoil_mass > 100 && recoil_mass < 170")
-        df = df.Define("cut2", "2")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
-
-
-
-        #########
-        ### CUT 3: lepton invariant mass around Z mass
-        #########
-        df = df.Filter("m_ll > 80 && m_ll < 100") # WW has background smaller 80/90 GeV
-        df = df.Define("cut3", "3")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut3"))
-
-
-        #########
-        ### CUT 4: m_jj between 85 and 105 GeV - should cut away WW background
-        #########
-        df = df.Filter("m_jj > 85 && m_jj < 105")
-        df = df.Define("cut4", "4")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
-
-
-        #########
-        ### CUT 5: p_jj > 43 GeV and < 55 GeV
-        #########
-
-        df = df.Filter("p_res_jj > 40 && p_res_jj < 55")
-        df = df.Define("cut5", "5")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5")) 
-
-
-        #########
-        ### CUT 6: inv mass of ll jj system must be the offshell Z
-        #########
-
         # calculate invariant mass of llqq system which gives the offshell Z and apply prop cut on recoil mass ~ 10-50 GeV 
         df = df.Define("recoil_jjll", "FCCAnalyses::ZHfunctions::get_recoil_from_lep_and_jets(240.0, jet1, jet2, l1, l2)")
         df = df.Define("recoil_mass_jjll", "FCCAnalyses::ReconstructedParticle::get_mass(recoil_jjll)[0]")
-
-        results.append(df.Histo1D(("recoil_mass_jjll", "", *bins_m_ll), "recoil_mass_jjll"))
-
-
-        df = df.Filter("recoil_mass_jjll > 10 && recoil_mass_jjll < 50")
-        df = df.Define("cut6", "6")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
-
 
 
         # look at ll system
@@ -288,54 +215,13 @@ class RDFanalysis():
         df = df.Define("Zjj_pT", "FCCAnalyses::ReconstructedParticle::get_pt(res_jj)[0]")
 
 
-
-
-        #########
-        ### CUT 7: miss pT > 5 GeV and pT < 50 GeV
-        #########
-
-        df = df.Filter("miss_pT > 5 && miss_pT < 50")
-        df = df.Define("cut7", "7")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
-
-
-
         df = df.Define("dot_prod_had", "FCCAnalyses::ZHfunctions::dot_prod_had(missP, jet1, jet2)")
         df = df.Define("dot_prod_lep", "FCCAnalyses::ZHfunctions::dot_prod_lep(missP, l1, l2)")
 
 
-
-        #########
-        ### CUT 8: dot product of hadronic system and missing momentum
-        #########
-        # in signal, the dot product is smaller than 0.3 aka the neutrinos go into the opposite direction of the jets
-        # in the background, the missing momentum comes from decays inside the jets, so it's more likely to be larger than 0.3 because it's aligned with the jets
-
-        df = df.Filter("dot_prod_had < 0.3")
-        df = df.Define("cut8", "8")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
-
-        # kinematic cuts
-        df = df.Filter("zmumu_m > 86 && zmumu_m < 96")
-        df = df.Filter("zmumu_p > 20 && zmumu_p < 70")
-        df = df.Filter("zmumu_recoil_m < 140 && zmumu_recoil_m > 120")
-
-        df = df.Define("muon1_p", "muons_p[0]")
-        df = df.Define("muon2_p", "muons_p[1]")
-        df = df.Define("muon1_theta", "muons_theta[0]")
-        df = df.Define("muon2_theta", "muons_theta[1]")
-
-        df = df.Define("missingEnergy", "FCCAnalyses::missingEnergy(240., ReconstructedParticles)")
-        df = df.Define("cosTheta_miss", "FCCAnalyses::get_cosTheta_miss(missingEnergy)")
-        df = df.Filter("cosTheta_miss < 0.98")
-
-        df = df.Define("acoplanarity", "FCCAnalyses::acoplanarity(muons)")
-        df = df.Define("acolinearity", "FCCAnalyses::acolinearity(muons)")
-
-
-        if doInference:
-            tmva_helper = TMVAHelperXGB("outputs/FCCee/higgs/mva/bdt_model_example.root", "bdt_model") # read the XGBoost training
-            df = tmva_helper.run_inference(df, col_name="mva_score") # by default, makes a new column mva_score
+        # if doInference:
+        #     tmva_helper = TMVAHelperXGB("outputs/FCCee/higgs/mva/bdt_model_example.root", "bdt_model") # read the XGBoost training
+        #     df = tmva_helper.run_inference(df, col_name="mva_score") # by default, makes a new column mva_score
 
         return df
 

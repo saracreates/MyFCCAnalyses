@@ -19,18 +19,16 @@ colors['ZH-6l'] = ROOT.kRed
 colors['llH-qqll'] = ROOT.kBlue+1
 colors['qqH-4l'] = ROOT.kGreen+2
 #colors['ZZll-6l'] = ROOT.kOrange+1
-colors['Z(Z)ll-6l'] = ROOT.kMagenta+1
-colors['qqZZ-4l'] = ROOT.kCyan+1
-colors['qqllZ-2l'] = ROOT.kBlack
+colors['llZ(Z)-4l'] = ROOT.kMagenta+1
+colors['qqZ(Z)-4l'] = ROOT.kCyan+1
 
 procs = {}
 procs['signal'] = {'ZH-6l':['wzp6_ee_llH_HZZ_llll_ecm240']} # 60 events
 procs['backgrounds'] =  {'llH-qqll':['wzp6_ee_llH_HZZ_qqll_ecm240'], # 5k?
                         'qqH-4l':['wzp6_ee_qqH_HZZ_llll_ecm240'], # 380 events 
                         #'ZZll-6l':['p8_ee_llZZ_Zll_ecm240'], # 1k events
-                        'Z(Z)ll-6l': ['p8_ee_llZZ_Zll_single_os_Z_ecm240'], # 9 events
-                        'qqZZ-4l': ['p8_ee_jjZZ_Zll_ecm240'], #
-                        'qqllZ-2l': ['p8_ee_jjllZ_Zll_ecm240'], #
+                        'llZ(Z)-4l': ['p8_ee_llZZ_Zll_single_os_Z_ecm240'], # 9 events
+                        'qqZ(Z)-4l': ['p8_ee_jjZZ_Zll_ecm240', 'p8_ee_jjllZ_Zll_ecm240'], #
                         }
 
 
@@ -39,9 +37,8 @@ legend['ZH-6l'] = 'ZH-6l'
 legend['llH-qqll'] = 'llH-qqll'
 legend['qqH-4l'] = 'qqH-4l'
 #legend['ZZll-6l'] = 'ZZll-6l'
-legend['Z(Z)ll-6l'] = 'Z(Z)ll-6l'
-legend['qqZZ-4l'] = 'jjZZ-4l'
-legend['qqllZ-2l'] = 'jjllZ-2l'
+legend['llZ(Z)-4l'] = 'llZ(Z)-4l'
+legend['qqZ(Z)-4l'] = 'qqZ(Z)-4l'
 
 
 
