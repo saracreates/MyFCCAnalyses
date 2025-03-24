@@ -19,6 +19,11 @@ processList = {
     'wzp6_ee_ccH_Htautau_ecm240':  {'fraction':1}, # c
     'wzp6_ee_bbH_Htautau_ecm240':  {'fraction':1}, # b
     'p8_ee_Zqq_ecm240':         {'fraction':0.01}, # q = u,d,s,c,b,t 
+
+    # # add other signal as bkg
+    'wzp6_ee_eeH_HZZ_ecm240': {'fraction': 1},
+    'wzp6_ee_mumuH_HZZ_ecm240': {'fraction': 1},
+    'wzp6_ee_nunuH_HZZ_ecm240': {'fraction': 1},
 }
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
@@ -437,12 +442,24 @@ def build_graph(df, dataset):
     # harder cut on recoil jj - doesn't help
 
     #########
-    ### CUT 12: recoil mass of the two jets must match Higgs mass
+    ### CUT 12: cut on angle between two leptons
+    #########
+
+    df = df.Define("dot_prod_ll", "FCCAnalyses::ZHfunctions::dot_prod_ll(l1, l2)")
+    results.append(df.Histo1D(("dot_prod_ll_cut12", "", *bin_dotprod), "dot_prod_ll"))
+
+    df = df.Filter("dot_prod_ll > -0.75")
+    df = df.Define("cut12", "12")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
+
+
+    #########
+    ### CUT 13: recoil mass of the two jets must match Higgs mass
     #########
 
     df = df.Filter("recoil_mass > 120 && recoil_mass < 132") # upper limit is harder (140 before)
-    df = df.Define("cut12", "12")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
+    df = df.Define("cut13", "13")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut13"))
     
 
 

@@ -1,16 +1,17 @@
 
 from addons.TMVAHelper.TMVAHelper import TMVAHelperXGB
+import os, copy
 
 processList = {
     # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
-    'wzp6_ee_qqH_HZZ_ecm240':    {'fraction':1}, # 0.001409 pb -> 15200 events
-    'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # 0.01148 pb  -> 186000 events
-    'p8_ee_ZZ_ecm240':          {'fraction':0.1},
-    'p8_ee_WW_ecm240':          {'fraction':0.01},
-    'wzp6_ee_qqH_Hbb_ecm240':  {'fraction':1},
-    'wzp6_ee_qqH_Htautau_ecm240':  {'fraction':1},
-    'p8_ee_Zqq_ecm240':         {'fraction':0.01},
+    'wzp6_ee_qqH_HZZ_llvv_ecm240': {'fraction':1, 'crossSection': 0.00015, 'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"}, # 
+    'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # q = u, d
 }
+
+
+'''
+NOTE: I will apply preselection cuts here to make the analysis orthogonal. I need to save every variable I did cuts on earlier and some additional one for better performance. Remember that one variable should have a single value. 
+'''
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
 prodTag     = "FCCee/winter2023/IDEA/"
@@ -22,7 +23,7 @@ procDict = "FCCee_procDict_winter2023_IDEA.json"
 includePaths = ["./../functions.h"]
 
 # Output directory
-outputDir   = f"outputs/ZZZ_qqllvv/mva/preselection/"
+outputDir   = f"outputs/mva/ZZZ_qqllvv/preselection/"
 
 ## latest particle transformer model, trained on 9M jets in winter2023 samples
 model_name = "fccee_flavtagging_edm4hep_wc_v1"
@@ -67,7 +68,7 @@ nCPUS       = -1
 #batchQueue  = "longlunch"
 #compGroup = "group_u_FCC.local_gen"
 
-doInference = False
+doInference = True
 
 class RDFanalysis():
 
@@ -85,29 +86,36 @@ class RDFanalysis():
 
         # get all the leptons from the collection
         df = df.Define("muons", "FCCAnalyses::ReconstructedParticle::get(Muon0, ReconstructedParticles)",)
-        df = df.Define("muons_p", "FCCAnalyses::ReconstructedParticle::get_p(muons)",)
         df = df.Define("electrons", "FCCAnalyses::ReconstructedParticle::get(Electron0, ReconstructedParticles)",)
-        df = df.Define("electrons_p", "FCCAnalyses::ReconstructedParticle::get_p(electrons)",)
 
         # compute the muon isolation and store muons with an isolation cut of 0df = df.25 in a separate column muons_sel_iso
         df = df.Define("muons_iso", "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.1)(muons, ReconstructedParticles)",)
         df = df.Define("muons_sel_iso", "FCCAnalyses::ZHfunctions::sel_iso(0.5)(muons, muons_iso)",)
         df = df.Define("muons_sel_q", "FCCAnalyses::ReconstructedParticle::get_charge(muons_sel_iso)",)
-        df = df.Define("muons_sel_p", "FCCAnalyses::ReconstructedParticle::get_p(muons_sel_iso)",)
-        df = df.Define("muons_sel_theta", "FCCAnalyses::ReconstructedParticle::get_theta(muons_sel_iso)",)
+
         df = df.Define("electrons_iso", "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.1)(electrons, ReconstructedParticles)",)
         df = df.Define("electrons_sel_iso", "FCCAnalyses::ZHfunctions::sel_iso(0.5)(electrons, electrons_iso)",)
         df = df.Define("electrons_sel_q", "FCCAnalyses::ReconstructedParticle::get_charge(electrons_sel_iso)",)
-        df = df.Define("electrons_sel_p", "FCCAnalyses::ReconstructedParticle::get_p(electrons_sel_iso)",)
-        df = df.Define("electrons_sel_theta", "FCCAnalyses::ReconstructedParticle::get_theta(electrons_sel_iso)",)
 
+        # VETO: two leptons that form pair
+        df = df.Filter("((muons_sel_iso.size() == 2 && Sum(muons_sel_q) == 0) || (electrons_sel_iso.size() == 2 && Sum(electrons_sel_q) == 0)) && (muons_sel_iso.size() + electrons_sel_iso.size() == 2)")
 
         # get the two leptons from Z decay
         df = df.Define("l1", "muons_sel_iso.size() == 2 ? muons_sel_iso[0] : electrons_sel_iso[0]")
         df = df.Define("l2", "muons_sel_iso.size() == 2 ? muons_sel_iso[1] : electrons_sel_iso[1]")
 
+        # save these params
+        df = df.Define("l1_p", "FCCAnalyses::ReconstructedParticle::get_p(Vec_rp{l1})[0]")
+        df = df.Define("l2_p", "FCCAnalyses::ReconstructedParticle::get_p(Vec_rp{l2})[0]")
+        df = df.Define("l1_theta", "FCCAnalyses::ReconstructedParticle::get_theta(Vec_rp{l1})[0]")
+        df = df.Define("l2_theta", "FCCAnalyses::ReconstructedParticle::get_theta(Vec_rp{l2})[0]")
+        # isolation value?
+
+
         df = df.Define("res_ll", "FCCAnalyses::ZHfunctions::get_two_lep_res(l1, l2)")
         df = df.Define("m_ll", "FCCAnalyses::ReconstructedParticle::get_mass(res_ll)[0]")
+        df = df.Define("recoil_ll", "FCCAnalyses::ZHfunctions::get_recoil_lep(240.0, l1, l2)")
+        df = df.Define("m_recoil_ll", "FCCAnalyses::ReconstructedParticle::get_mass(recoil_ll)[0]")
 
 
         ## here cluster jets in the events but first remove muons from the list of
@@ -219,15 +227,15 @@ class RDFanalysis():
         df = df.Define("dot_prod_lep", "FCCAnalyses::ZHfunctions::dot_prod_lep(missP, l1, l2)")
 
 
-        # if doInference:
-        #     tmva_helper = TMVAHelperXGB("outputs/FCCee/higgs/mva/bdt_model_example.root", "bdt_model") # read the XGBoost training
-        #     df = tmva_helper.run_inference(df, col_name="mva_score") # by default, makes a new column mva_score
+        if doInference:
+            tmva_helper = TMVAHelperXGB("outputs/mva/ZZZ_qqllvv/bdt_model_example.root", "bdt_model") # read the XGBoost training
+            df = tmva_helper.run_inference(df, col_name="mva_score") # by default, makes a new column mva_score
 
         return df
 
     # define output branches to be saved
     def output():
-        branchList = ["muon1_p", "muon2_p", "muon1_theta", "muon2_theta", "zmumu_p", "zmumu_m", "zmumu_recoil_m", "acoplanarity", "acolinearity", "cosTheta_miss"]
+        branchList = ["l1_p", "l2_p", "l1_theta", "l2_theta", "m_ll", "m_recoil_ll", "y23", "y34", "jet1_nconst_N2", "jet2_nconst_N2", "m_jj", "p_res_jj", "recoil_mass", "miss_p", "miss_e", "miss_pz", "miss_theta", "miss_pT", "recoil_mass_jjll", "Zll_costheta", "Zll_p", "Zll_pT", "Zjj_costheta", "Zjj_p", "Zjj_pT", "dot_prod_had", "dot_prod_lep"]
         if doInference:
             branchList.append("mva_score")
         return branchList

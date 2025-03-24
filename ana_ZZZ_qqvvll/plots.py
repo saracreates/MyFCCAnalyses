@@ -22,6 +22,10 @@ colors['ee-WW'] = ROOT.kOrange+1
 colors['qqH-Hbb'] = ROOT.kMagenta+1
 colors['qqH-Htautau'] = ROOT.kCyan+1
 colors['Zqq'] = ROOT.kBlack
+#colors['leplepH-HZZ'] = ROOT.kViolet+1
+colors['eeH-HZZ'] = ROOT.kViolet+1
+colors['mumuH-HZZ'] = ROOT.kViolet+2
+colors['nunuH-HZZ'] = ROOT.kViolet+3
 
 
 procs = {}
@@ -32,7 +36,11 @@ procs['backgrounds'] =  {'qqH-HWW':['wzp6_ee_qqH_HWW_ecm240', 'wzp6_ee_ssH_HWW_e
                         'ee-WW':['p8_ee_WW_ecm240'], 
                         'qqH-Hbb':['wzp6_ee_qqH_Hbb_ecm240', 'wzp6_ee_ssH_Hbb_ecm240', 'wzp6_ee_ccH_Hbb_ecm240', 'wzp6_ee_bbH_Hbb_ecm240'], 
                         'qqH-Htautau':['wzp6_ee_qqH_Htautau_ecm240', 'wzp6_ee_ssH_Htautau_ecm240', 'wzp6_ee_ccH_Htautau_ecm240', 'wzp6_ee_bbH_Htautau_ecm240'],
-                        'Zqq':['p8_ee_Zqq_ecm240'] 
+                        'Zqq':['p8_ee_Zqq_ecm240'],
+                        #'leplepH-HZZ': ['wzp6_ee_eeH_HZZ_ecm240', 'wzp6_ee_mumuH_HZZ_ecm240', 'wzp6_ee_nunuH_HZZ_ecm240'],
+                        'eeH-HZZ':['wzp6_ee_eeH_HZZ_ecm240'],
+                        'mumuH-HZZ':['wzp6_ee_mumuH_HZZ_ecm240'],
+                        'nunuH-HZZ':['wzp6_ee_nunuH_HZZ_ecm240'],
 }
 
 legend = {}
@@ -43,6 +51,10 @@ legend['ee-WW'] = 'ee-WW'
 legend['qqH-Hbb'] = 'qqH-Hbb'
 legend['qqH-Htautau'] = 'qqH-Htautau'
 legend['Zqq'] = 'Zqq'
+# legend['leplepH-HZZ'] = 'leplepH-HZZ'
+legend['eeH-HZZ'] = 'eeH-HZZ'
+legend['mumuH-HZZ'] = 'mumu-HZZ'
+legend['nunuH-HZZ'] = 'nunuH-HZZ'
 
 
 
@@ -74,7 +86,7 @@ hists["cutFlow"] = {
     "xmax":     15,
     "ymin":     1,
     "ymax":     1e9,
-    "xtitle":   ["All events", "1 lepton pair", "120 GeV < recoil_{jj} < 140 GeV", "80 GeV < recoil_{jjll} < 105 GeV", "20 GeV < p_{miss} < 100 GeV", "85 < m_{jj} < 105 GeV", "40 < p_{jj} < 55 GeV", " 10 < m_{ll} < 45 GeV", "10 < p_{T, miss} < 70 GeV", "cos(#theta)_{p_{miss}, p_{had}} < -0.4", "cos(#theta)_{p_{miss}, p_{lep}} < 0.95", "10 < p_{lep, max} < 40 GeV", "120 GeV < recoil_{jj} < 132 GeV"],
+    "xtitle":   ["All events", "1 lepton pair", "120 GeV < recoil_{jj} < 140 GeV", "80 GeV < recoil_{jjll} < 105 GeV", "20 GeV < p_{miss} < 100 GeV", "85 < m_{jj} < 105 GeV", "40 < p_{jj} < 55 GeV", " 10 < m_{ll} < 45 GeV", "10 < p_{T, miss} < 70 GeV", "cos(#theta)_{p_{miss}, p_{had}} < -0.4", "cos(#theta)_{p_{miss}, p_{lep}} < 0.95", "10 < p_{lep, max} < 40 GeV", "cos(#theta)_{p_{l1}, p_{l1}} > -0.75", "120 GeV < recoil_{jj} < 132 GeV"],
     "ytitle":   "Events ",
     # "scaleSig": 10
 }

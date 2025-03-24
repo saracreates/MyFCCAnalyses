@@ -321,6 +321,20 @@ namespace FCCAnalyses {
             return result;
         }
 
+        float dot_prod_ll(rp l1, rp l2){
+            // calculate the cosine of the angle between the two leptons
+
+            float dot_prod = l1.momentum.x * l2.momentum.x + l1.momentum.y * l2.momentum.y + l1.momentum.z * l2.momentum.z;
+            // norm it
+            float mag_l1 = std::sqrt(l1.momentum.x * l1.momentum.x + l1.momentum.y * l1.momentum.y + l1.momentum.z * l1.momentum.z);
+            float mag_l2 = std::sqrt(l2.momentum.x * l2.momentum.x + l2.momentum.y * l2.momentum.y + l2.momentum.z * l2.momentum.z);
+
+            float dot_prod_norm = dot_prod / (mag_l1 * mag_l2);
+
+            return dot_prod_norm;
+
+        }
+
         
     }
 }

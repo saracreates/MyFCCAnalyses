@@ -22,6 +22,10 @@ colors['ee-WW'] = ROOT.kOrange+1
 colors['qqH-Hbb'] = ROOT.kMagenta+1
 colors['qqH-Htautau'] = ROOT.kCyan+1
 colors['Zqq'] = ROOT.kBlack
+colors['leplepH-HZZ'] = ROOT.kViolet+1
+# colors['eeH-HZZ'] = ROOT.kViolet+1
+# colors['mumuH-HZZ'] = ROOT.kViolet+2
+# colors['nunuH-HZZ'] = ROOT.kViolet+3
 
 
 procs = {}
@@ -32,7 +36,11 @@ procs['backgrounds'] =  {'qqH-HWW':['wzp6_ee_qqH_HWW_ecm240', 'wzp6_ee_ssH_HWW_e
                         'ee-WW':['p8_ee_WW_ecm240'], 
                         'qqH-Hbb':['wzp6_ee_qqH_Hbb_ecm240', 'wzp6_ee_ssH_Hbb_ecm240', 'wzp6_ee_ccH_Hbb_ecm240', 'wzp6_ee_bbH_Hbb_ecm240'], 
                         'qqH-Htautau':['wzp6_ee_qqH_Htautau_ecm240', 'wzp6_ee_ssH_Htautau_ecm240', 'wzp6_ee_ccH_Htautau_ecm240', 'wzp6_ee_bbH_Htautau_ecm240'],
-                        'Zqq':['p8_ee_Zqq_ecm240'] 
+                        'Zqq':['p8_ee_Zqq_ecm240'],
+                        'leplepH-HZZ': ['wzp6_ee_eeH_HZZ_ecm240', 'wzp6_ee_mumuH_HZZ_ecm240', 'wzp6_ee_nunuH_HZZ_ecm240'],
+                        # 'eeH-HZZ':['wzp6_ee_eeH_HZZ_ecm240'],
+                        # 'mumuH-HZZ':['wzp6_ee_mumuH_HZZ_ecm240'],
+                        # 'nunuH-HZZ':['wzp6_ee_nunuH_HZZ_ecm240'],
 }
 
 
@@ -44,6 +52,10 @@ legend['ee-WW'] = 'ee-WW'
 legend['qqH-Hbb'] = 'qqH-Hbb'
 legend['qqH-Htautau'] = 'qqH-Htautau'
 legend['Zqq'] = 'Zqq'
+legend['leplepH-HZZ'] = 'leplepH-HZZ'
+# legend['eeH-HZZ'] = 'eeH-HZZ'
+# legend['mumuH-HZZ'] = 'mumu-HZZ'
+# legend['nunuH-HZZ'] = 'nunuH-HZZ'
 
 
 

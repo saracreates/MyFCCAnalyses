@@ -4,6 +4,7 @@ import os, copy
 processList = {
     # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
     # 'wzp6_ee_qqH_HZZ_ecm240':    {'fraction':1}, # 0.001409 pb -> 15200 events
+
     'wzp6_ee_qqH_HZZ_llvv_ecm240': {'fraction':1, 'crossSection': 0.00015, 'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"}, # 
     'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # q = u, d
     'wzp6_ee_ssH_HWW_ecm240':   {'fraction':1}, # s
@@ -20,6 +21,10 @@ processList = {
     'wzp6_ee_ccH_Htautau_ecm240':  {'fraction':1}, # c
     'wzp6_ee_bbH_Htautau_ecm240':  {'fraction':1}, # b
     'p8_ee_Zqq_ecm240':         {'fraction':0.01}, # q = u,d,s,c,b,t 
+    # # add other signal as bkg
+    'wzp6_ee_eeH_HZZ_ecm240': {'fraction': 1},
+    'wzp6_ee_mumuH_HZZ_ecm240': {'fraction': 1},
+    'wzp6_ee_nunuH_HZZ_ecm240': {'fraction': 1},
 }
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)

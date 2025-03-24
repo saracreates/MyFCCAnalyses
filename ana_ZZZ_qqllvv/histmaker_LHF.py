@@ -19,6 +19,10 @@ processList = {
     'wzp6_ee_ccH_Htautau_ecm240':  {'fraction':1}, # c
     'wzp6_ee_bbH_Htautau_ecm240':  {'fraction':1}, # b
     'p8_ee_Zqq_ecm240':         {'fraction':1}, # q = u,d,s,c,b,t 
+    # add other signal as bkg
+    'wzp6_ee_eeH_HZZ_ecm240': {'fraction': 1},
+    'wzp6_ee_mumuH_HZZ_ecm240': {'fraction': 1},
+    'wzp6_ee_nunuH_HZZ_ecm240': {'fraction': 1},
 }
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
