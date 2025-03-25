@@ -2,7 +2,7 @@ import ROOT
 
 # global parameters
 intLumi        = 1.
-intLumiLabel   = "L = 10.6 ab^{-1}"
+intLumiLabel   = "L = 10.8 ab^{-1}"
 ana_tex        = 'e^{+}e^{-}#rightarrow ZH; H#rightarrow ZZ; Z#rightarrow ll; l=e,#mu'
 delphesVersion = '3.4.2'
 energy         = 240.0
@@ -58,23 +58,19 @@ hists["higgs_mass"] = {
     "ytitle":   "Events / 100 MeV",
 }
 
-hists["recoil_mass"] = {
-    "input":    "recoil_mass",
-    "output":   "recoil_mass",
+hists["recoil_mass_cut4"] = {
+    "output":   "recoil_mass_cut4",
+    "input":    "recoil_mass_cut4",
     "logy":     False,
     "stack":    True,
     # "rebin":    100,
-    "xmin":     120,
-    "xmax":     135,
-    "ymin":     0,
-    "ymax":     2500,
-    "xtitle":   "Recoil (GeV)",
-    "ytitle":   "Events ",
+    # "xmin":     110,
+    # "xmax":     160,
+    # "ymin":     0,
+    # "ymax":     2500,
+    "xtitle":   "recoil mass m_{ll} (GeV)",
+    "ytitle":   "Events / 0.5 GeV",
 }
-
-#bins_recoil = (2000, 110, 180) # 1 MeV bins 
-#bins_higgs = (2000, 100, 135) # 100 MeV bins
-
 
 
 hists["cutFlow"] = {
@@ -87,6 +83,6 @@ hists["cutFlow"] = {
     "ymin":     1e4,
     "ymax":     1e11,
     "xtitle":   ["All events", "N(e) + N(#mu) >=6", "N(e_{iso}) + N(#mu_{iso}) = 6", "l pairs", "115 < m_{H} < 127", "122 < m_{recoil} < 160"], #"40 < p_{Z, prod} < 60"],
-    "ytitle":   "Events ",
+    "ytitle":   "Events",
     # "scaleSig": 10
 }

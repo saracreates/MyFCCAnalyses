@@ -68,6 +68,8 @@ bins_iso = (500, 0, 3)
 bins_higgs = (2000, 100, 135) # 100 MeV bins
 bins_Z = (2000, 0, 200) # 100 MeV bins
 
+bins_final_plot = (100, 110, 160) # 0.5 GeV bins
+
 
 
 # build_graph function that contains the analysis logic, cuts and histograms (mandatory)
@@ -240,8 +242,9 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
 
     # histograms after the fourth cut - hist on higgs mass 
+    bins_final_plot = (100, 110, 160) # 0.5 GeV bins
     results.append(df.Histo1D(("higgs_mass_cut4", "", *bins_higgs), "m_higgs"))
-    results.append(df.Histo1D(("recoil_mass_cut4", "", *bins_recoil), "m_recoil"))
+    results.append(df.Histo1D(("recoil_mass_cut4", "", *bins_final_plot), "m_recoil"))
     results.append(df.Histo1D(("m_Z_onshell_from_H_cut4", "", *bins_Z), "m_Z_onshell_from_H"))
     results.append(df.Histo1D(("m_Z_offshell_from_H_cut4", "", *bins_Z), "m_Z_offshell_from_H"))
     results.append(df.Histo1D(("m_Z_onshell_cut4", "", *bins_Z), "m_Z_onshell"))

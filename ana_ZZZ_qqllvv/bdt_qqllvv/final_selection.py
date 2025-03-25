@@ -1,5 +1,5 @@
 #Input directory where the files produced at the pre-selection level are
-inputDir   = f"outputs/mva/ZZZ_qqllvv/preselection/"
+inputDir   = f"outputs/mva/ZZZ_qqllvv/preselection_inference/"
 
 #Input directory where the files produced at the pre-selection level are
 #Optional: output directory, default is local running directory

@@ -1,12 +1,75 @@
 
 from addons.TMVAHelper.TMVAHelper import TMVAHelperXGB
 import os, copy
+# import argparse
 
-processList = {
-    # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
-    'wzp6_ee_qqH_HZZ_llvv_ecm240': {'fraction':1, 'crossSection': 0.00015, 'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"}, # 
-    'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # q = u, d
-}
+# # Create the argument parser
+# parser = argparse.ArgumentParser(description="Run the analysis with configurable doInference parameter")
+# parser.add_argument(
+#     '--doInference',
+#     type=bool,
+#     default=False,  # Default value
+#     help="Set to True to perform inference, False to skip it"
+# )
+
+# # Parse the arguments
+# args = parser.parse_args()
+
+# # Now use args.doInference to set the parameter
+# doInference = args.doInference
+
+doInference = True
+# Output directory
+outputDir   = f"outputs/mva/ZZZ_qqllvv/preselection_inference/"
+
+if doInference==False: # training
+    processList = {
+        # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
+        'wzp6_ee_qqH_HZZ_llvv_ecm240': {'fraction':1, 'crossSection': 0.00015, 'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023_training/IDEA/"}, # TRAINING
+        'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # q = u, d
+        'wzp6_ee_ssH_HWW_ecm240':   {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # s
+        'wzp6_ee_ccH_HWW_ecm240':   {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # c
+        'wzp6_ee_bbH_HWW_ecm240':   {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # b
+        'p8_ee_ZZ_ecm240':          {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"},
+        'p8_ee_WW_ecm240':          {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"},
+        'wzp6_ee_qqH_Hbb_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # q = u, d
+        'wzp6_ee_ssH_Hbb_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # s
+        'wzp6_ee_ccH_Hbb_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # c
+        'wzp6_ee_bbH_Hbb_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # b
+        'wzp6_ee_qqH_Htautau_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # q = u, d
+        'wzp6_ee_ssH_Htautau_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # s
+        'wzp6_ee_ccH_Htautau_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # c
+        'wzp6_ee_bbH_Htautau_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # b
+        'p8_ee_Zqq_ecm240':         {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # q = u,d,s,c,b,t 
+        # add other signal as bkg
+        'wzp6_ee_eeH_HZZ_ecm240': {'fraction': 1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"},
+        'wzp6_ee_mumuH_HZZ_ecm240': {'fraction': 1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"},
+        'wzp6_ee_nunuH_HZZ_ecm240': {'fraction': 1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"},
+    }
+else:
+    # ONLY load the fraction that is not used for training the BDT = do not use the last file
+    processList = {
+        'wzp6_ee_qqH_HZZ_llvv_ecm240': {'fraction': 1}, # bc it's trained on winter2023_training samples
+        'wzp6_ee_qqH_HWW_ecm240': {'fraction': 0.9},
+        'wzp6_ee_ssH_HWW_ecm240': {'fraction': 0.91},
+        'wzp6_ee_ccH_HWW_ecm240': {'fraction': 0.91},
+        'wzp6_ee_bbH_HWW_ecm240': {'fraction': 0.9},
+        'p8_ee_ZZ_ecm240': {'fraction': 0.99-0.9}, # very big
+        'p8_ee_WW_ecm240': {'fraction': 0.99-0.9}, # very big
+        'wzp6_ee_qqH_Hbb_ecm240': {'fraction': 0.8},
+        'wzp6_ee_ssH_Hbb_ecm240': {'fraction': 0.5},
+        'wzp6_ee_ccH_Hbb_ecm240': {'fraction': 0.5},
+        'wzp6_ee_bbH_Hbb_ecm240': {'fraction': 1.0},
+        'wzp6_ee_qqH_Htautau_ecm240': {'fraction': 0.5},
+        'wzp6_ee_ssH_Htautau_ecm240': {'fraction': 0.75},
+        'wzp6_ee_ccH_Htautau_ecm240': {'fraction': 0.75},
+        'wzp6_ee_bbH_Htautau_ecm240': {'fraction': 0.75},
+        'p8_ee_Zqq_ecm240': {'fraction': 0.99-0.9}, # very big
+        'wzp6_ee_eeH_HZZ_ecm240': {'fraction': 0.75},
+        'wzp6_ee_mumuH_HZZ_ecm240': {'fraction': 0.75},
+        'wzp6_ee_nunuH_HZZ_ecm240': {'fraction': 0.91},
+    }
+
 
 
 '''
@@ -22,8 +85,6 @@ procDict = "FCCee_procDict_winter2023_IDEA.json"
 # Additional/custom C++ functions, defined in header files
 includePaths = ["./../functions.h"]
 
-# Output directory
-outputDir   = f"outputs/mva/ZZZ_qqllvv/preselection/"
 
 ## latest particle transformer model, trained on 9M jets in winter2023 samples
 model_name = "fccee_flavtagging_edm4hep_wc_v1"
@@ -68,7 +129,6 @@ nCPUS       = -1
 #batchQueue  = "longlunch"
 #compGroup = "group_u_FCC.local_gen"
 
-doInference = True
 
 class RDFanalysis():
 
@@ -225,6 +285,16 @@ class RDFanalysis():
 
         df = df.Define("dot_prod_had", "FCCAnalyses::ZHfunctions::dot_prod_had(missP, jet1, jet2)")
         df = df.Define("dot_prod_lep", "FCCAnalyses::ZHfunctions::dot_prod_lep(missP, l1, l2)")
+
+        # Filter for orthogonality! 
+
+        # 0) recoil_jjll against my own qqvvll analysis
+        df = df.Filter("recoil_mass_jjll < 60")
+
+        # 1) recoil_jj against llvvqq, vvllqq 
+        df = df.Filter("recoil_mass < 140")
+
+        # 2) llqqvv is hard to distinguish from qqllvv, so I'll leave it as a background 
 
 
         if doInference:
