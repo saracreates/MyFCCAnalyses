@@ -1,24 +1,26 @@
 import os, copy
+from addons.TMVAHelper.TMVAHelper import TMVAHelperXGB
 
 # list of processes (mandatory)
 processList = {
     # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
     'wzp6_ee_qqH_HZZ_llvv_ecm240': {'fraction':1, 'crossSection': 0.00015, 'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"}, # 
-    'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # q = u, d
-    'wzp6_ee_ssH_HWW_ecm240':   {'fraction':1}, # s
-    'wzp6_ee_ccH_HWW_ecm240':   {'fraction':1}, # c
-    'wzp6_ee_bbH_HWW_ecm240':   {'fraction':1}, # b
     'p8_ee_ZZ_ecm240':          {'fraction':1},
-    'p8_ee_WW_ecm240':          {'fraction':1},
-    'wzp6_ee_qqH_Hbb_ecm240':  {'fraction':1}, # q = u, d
-    'wzp6_ee_ssH_Hbb_ecm240':  {'fraction':1}, # s
-    'wzp6_ee_ccH_Hbb_ecm240':  {'fraction':1}, # c
-    'wzp6_ee_bbH_Hbb_ecm240':  {'fraction':1}, # b
     'wzp6_ee_qqH_Htautau_ecm240':  {'fraction':1}, # q = u, d
     'wzp6_ee_ssH_Htautau_ecm240':  {'fraction':1}, # s
     'wzp6_ee_ccH_Htautau_ecm240':  {'fraction':1}, # c
     'wzp6_ee_bbH_Htautau_ecm240':  {'fraction':1}, # b
+    # no BDT trained on 
+    'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # q = u, d
+    'wzp6_ee_ssH_HWW_ecm240':   {'fraction':1}, # s
+    'wzp6_ee_ccH_HWW_ecm240':   {'fraction':1}, # c
+    'wzp6_ee_bbH_HWW_ecm240':   {'fraction':1}, # b
+    'p8_ee_WW_ecm240':          {'fraction':1},
     'p8_ee_Zqq_ecm240':         {'fraction':1}, # q = u,d,s,c,b,t 
+    'wzp6_ee_qqH_Hbb_ecm240':  {'fraction':1}, # q = u, d
+    'wzp6_ee_ssH_Hbb_ecm240':  {'fraction':1}, # s
+    'wzp6_ee_ccH_Hbb_ecm240':  {'fraction':1}, # c
+    'wzp6_ee_bbH_Hbb_ecm240':  {'fraction':1}, # b
     # add other signal as bkg
     'wzp6_ee_eeH_HZZ_ecm240': {'fraction': 1},
     'wzp6_ee_mumuH_HZZ_ecm240': {'fraction': 1},
@@ -91,7 +93,7 @@ bins_theta = (500, -5, 5)
 bins_eta = (600, -3, 3)
 bins_phi = (500, -5, 5)
 
-bins_count = (10, 0, 10)
+bins_count = (15, 0, 15)
 bins_charge = (10, -5, 5)
 bins_iso = (500, 0, 3)
 
@@ -181,8 +183,16 @@ def build_graph(df, dataset):
     df = df.Define("l1", "muons_sel_iso.size() == 2 ? muons_sel_iso[0] : electrons_sel_iso[0]")
     df = df.Define("l2", "muons_sel_iso.size() == 2 ? muons_sel_iso[1] : electrons_sel_iso[1]")
 
+    # save these params
+    df = df.Define("l1_p", "FCCAnalyses::ReconstructedParticle::get_p(Vec_rp{l1})[0]")
+    df = df.Define("l2_p", "FCCAnalyses::ReconstructedParticle::get_p(Vec_rp{l2})[0]")
+    df = df.Define("l1_theta", "FCCAnalyses::ReconstructedParticle::get_theta(Vec_rp{l1})[0]")
+    df = df.Define("l2_theta", "FCCAnalyses::ReconstructedParticle::get_theta(Vec_rp{l2})[0]")
+
     df = df.Define("res_ll", "FCCAnalyses::ZHfunctions::get_two_lep_res(l1, l2)")
     df = df.Define("m_ll", "FCCAnalyses::ReconstructedParticle::get_mass(res_ll)[0]")
+    df = df.Define("recoil_ll", "FCCAnalyses::ZHfunctions::get_recoil_lep(240.0, l1, l2)")
+    df = df.Define("m_recoil_ll", "FCCAnalyses::ReconstructedParticle::get_mass(recoil_ll)[0]")
 
     # plot m_ll
     results.append(df.Histo1D(("m_ll", "", *bins_m_ll), "m_ll"))
@@ -365,6 +375,7 @@ def build_graph(df, dataset):
 
     df = df.Define("dot_prod_had", "FCCAnalyses::ZHfunctions::dot_prod_had(missP, jet1, jet2)")
     df = df.Define("dot_prod_lep", "FCCAnalyses::ZHfunctions::dot_prod_lep(missP, l1, l2)")
+    df = df.Define("dot_prod_ll", "FCCAnalyses::ZHfunctions::dot_prod_ll(l1, l2)")
 
 
 
@@ -397,6 +408,56 @@ def build_graph(df, dataset):
     df = df.Filter("recoil_mass > 120 && recoil_mass < 140")
     df = df.Define("cut9", "9")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
+
+
+    doInference = True
+    if doInference:
+        # tmva_helper = TMVAHelperXGB("outputs/mva_multi/ZZZ_qqllvv/bdt_model_multi.root", "bdt_model") # read the XGBoost training
+        # df = tmva_helper.run_inference(df, col_name="mva_score") # by default, makes a new column mva_score
+        # df = df.Define("mva_score_ZZ", "mva_score[0]")
+        # df = df.Define("mva_score_Htautau", "mva_score[1]")
+        # df = df.Define("mva_score_signal", "mva_score[2]")
+
+        tmva_helper = TMVAHelperXGB("outputs/mva_multi/ZZZ_qqllvv/bdt_model_multi_all_bkg.root", "bdt_model") # read the XGBoost training
+        df = tmva_helper.run_inference(df, col_name="mva_score") # by default, makes a new column mva_score
+        df = df.Define("mva_score_ZZ", "mva_score[3]")
+        df = df.Define("mva_score_perm_sig", "mva_score[2]")
+        df = df.Define("mva_score_Htautau", "mva_score[1]")
+        df = df.Define("mva_score_signal", "mva_score[0]")
+
+        #########
+        ### CUT 10: cut on the mva score ZZ
+        #########
+        bins_mva = (100, 0, 1)
+        results.append(df.Histo1D(("mva_score_ZZ", "", *bins_mva), "mva_score_ZZ"))
+        results.append(df.Histo1D(("mva_score_Htautau", "", *bins_mva), "mva_score_Htautau"))
+        results.append(df.Histo1D(("mva_score_signal", "", *bins_mva), "mva_score_signal"))
+        results.append(df.Histo1D(("mva_score_perm_sig", "", *bins_mva), "mva_score_perm_sig"))
+
+
+        df = df.Filter("mva_score_ZZ < 0.5")
+        df = df.Define("cut10", "10")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
+
+
+        #########
+        ### CUT 11: cut on the mva score perm sig
+        #########
+
+        df = df.Filter("mva_score_perm_sig < 0.5")
+        df = df.Define("cut11", "11")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
+
+
+        ### save some hists for LHF
+
+        # signal score
+        results.append(df.Histo1D(("mva_score_signal_LHF", "", *bins_mva), "mva_score_signal"))
+        # m_ll 
+        bins_m_ll_LHF = (80, 80, 100)
+        results.append(df.Histo1D(("m_ll_LHF", "", *bins_m_ll_LHF), "m_ll"))
+
+    
 
 
 

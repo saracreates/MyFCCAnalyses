@@ -30,7 +30,7 @@ def load_process(fIn, variables, target=0, weight_sf=1.):
 print("Parse inputs")
 
 # configuration of signal, background, variables, files, ...
-variables = ["l1_p", "l2_p", "l1_theta", "l2_theta", "m_ll", "m_recoil_ll", "y23", "y34", "jet1_nconst_N2", "jet2_nconst_N2", "m_jj", "p_res_jj", "recoil_mass", "miss_p", "miss_e", "miss_pz", "miss_theta", "miss_pT", "recoil_mass_jjll", "Zll_costheta", "Zll_p", "Zll_pT", "Zjj_costheta", "Zjj_p", "Zjj_pT", "dot_prod_had", "dot_prod_lep"]
+variables = ["l1_p", "l2_p", "l1_theta", "l2_theta", "m_ll", "m_recoil_ll", "y23", "y34", "jet1_nconst_N2", "jet2_nconst_N2", "m_jj", "p_res_jj", "recoil_mass", "miss_p", "miss_e", "miss_pz", "miss_theta", "miss_pT", "recoil_mass_jjll", "Zll_costheta", "Zll_p", "Zll_pT", "Zjj_costheta", "Zjj_p", "Zjj_pT", "dot_prod_had", "dot_prod_lep", "dot_prod_ll"]
 weight_sf = 1e9
 sig_df = load_process("outputs/mva/ZZZ_qqllvv/preselection/wzp6_ee_qqH_HZZ_llvv_ecm240.root", variables, weight_sf=weight_sf, target=1)
 bkg_1 = load_process("outputs/mva/ZZZ_qqllvv/preselection/wzp6_ee_qqH_HWW_ecm240.root", variables, weight_sf=weight_sf) # not in training
@@ -40,10 +40,10 @@ bkg_4 = load_process("outputs/mva/ZZZ_qqllvv/preselection/wzp6_ee_bbH_HWW_ecm240
 bkg_5 = load_process("outputs/mva/ZZZ_qqllvv/preselection/p8_ee_ZZ_ecm240.root", variables, weight_sf=weight_sf) #yes
 bkg_6 = load_process("outputs/mva/ZZZ_qqllvv/preselection/p8_ee_WW_ecm240.root", variables, weight_sf=weight_sf) #yes 
 bkg_7 = load_process("outputs/mva/ZZZ_qqllvv/preselection/p8_ee_Zqq_ecm240.root", variables, weight_sf=weight_sf) #yes
-bkg_8 = load_process("outputs/mva/ZZZ_qqllvv/preselection/wzp6_ee_qqH_Hbb_ecm240.root", variables, weight_sf=weight_sf) #no
-bkg_9 = load_process("outputs/mva/ZZZ_qqllvv/preselection/wzp6_ee_ssH_Hbb_ecm240.root", variables, weight_sf=weight_sf) #no
-bkg_10 = load_process("outputs/mva/ZZZ_qqllvv/preselection/wzp6_ee_ccH_Hbb_ecm240.root", variables, weight_sf=weight_sf) #no
-bkg_11 = load_process("outputs/mva/ZZZ_qqllvv/preselection/wzp6_ee_bbH_Hbb_ecm240.root", variables, weight_sf=weight_sf) #no
+# bkg_8 = load_process("outputs/mva/ZZZ_qqllvv/preselection/wzp6_ee_qqH_Hbb_ecm240.root", variables, weight_sf=weight_sf) #no
+# bkg_9 = load_process("outputs/mva/ZZZ_qqllvv/preselection/wzp6_ee_ssH_Hbb_ecm240.root", variables, weight_sf=weight_sf) #no
+# bkg_10 = load_process("outputs/mva/ZZZ_qqllvv/preselection/wzp6_ee_ccH_Hbb_ecm240.root", variables, weight_sf=weight_sf) #no
+# bkg_11 = load_process("outputs/mva/ZZZ_qqllvv/preselection/wzp6_ee_bbH_Hbb_ecm240.root", variables, weight_sf=weight_sf) #no
 bkg_12 = load_process("outputs/mva/ZZZ_qqllvv/preselection/wzp6_ee_qqH_Htautau_ecm240.root", variables, weight_sf=weight_sf) # no
 bkg_13 = load_process("outputs/mva/ZZZ_qqllvv/preselection/wzp6_ee_ssH_Htautau_ecm240.root", variables, weight_sf=weight_sf) # no
 bkg_14 = load_process("outputs/mva/ZZZ_qqllvv/preselection/wzp6_ee_ccH_Htautau_ecm240.root", variables, weight_sf=weight_sf) # no
@@ -59,7 +59,7 @@ bkg_18 = load_process("outputs/mva/ZZZ_qqllvv/preselection/wzp6_ee_nunuH_HZZ_ecm
 
 
 # Concatenate the dataframes into a single dataframe
-data = pd.concat([sig_df, bkg_1, bkg_2, bkg_3, bkg_4, bkg_5, bkg_6, bkg_7, bkg_8, bkg_9, bkg_10, bkg_11, bkg_12, bkg_13, bkg_14, bkg_15, bkg_16, bkg_17, bkg_18], ignore_index=True)
+data = pd.concat([sig_df, bkg_1, bkg_2, bkg_3, bkg_4, bkg_5, bkg_6, bkg_7, bkg_12, bkg_13, bkg_14, bkg_15, bkg_16, bkg_17, bkg_18], ignore_index=True)
 
 
 # split data in train/test events

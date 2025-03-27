@@ -25,49 +25,52 @@ outputDir   = f"outputs/mva/ZZZ_qqllvv/preselection_inference/"
 if doInference==False: # training
     processList = {
         # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
-        'wzp6_ee_qqH_HZZ_llvv_ecm240': {'fraction':1, 'crossSection': 0.00015, 'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023_training/IDEA/"}, # TRAINING
+        'wzp6_ee_qqH_HZZ_llvv_ecm240': {'fraction':0.075, 'crossSection': 0.00015, 'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023_training/IDEA/"}, # TRAINING
+        # # load two files for training
         'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # q = u, d
         'wzp6_ee_ssH_HWW_ecm240':   {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # s
         'wzp6_ee_ccH_HWW_ecm240':   {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # c
         'wzp6_ee_bbH_HWW_ecm240':   {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # b
-        'p8_ee_ZZ_ecm240':          {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"},
-        'p8_ee_WW_ecm240':          {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"},
-        'wzp6_ee_qqH_Hbb_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # q = u, d
-        'wzp6_ee_ssH_Hbb_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # s
-        'wzp6_ee_ccH_Hbb_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # c
-        'wzp6_ee_bbH_Hbb_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # b
+        'p8_ee_ZZ_ecm240':          {'fraction':0.5, 'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023_training/IDEA/"},
+        'p8_ee_WW_ecm240':          {'fraction':1, 'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023_training/IDEA/"},
+        # no Hbb left after selection cuts
+        # 'wzp6_ee_qqH_Hbb_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # q = u, d
+        # 'wzp6_ee_ssH_Hbb_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # s
+        # 'wzp6_ee_ccH_Hbb_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # c
+        # 'wzp6_ee_bbH_Hbb_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # b
         'wzp6_ee_qqH_Htautau_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # q = u, d
         'wzp6_ee_ssH_Htautau_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # s
         'wzp6_ee_ccH_Htautau_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # c
         'wzp6_ee_bbH_Htautau_ecm240':  {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # b
-        'p8_ee_Zqq_ecm240':         {'fraction':1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"}, # q = u,d,s,c,b,t 
+        'p8_ee_Zqq_ecm240':         {'fraction':1, 'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023_training/IDEA/"}, # q = u,d,s,c,b,t 
         # add other signal as bkg
         'wzp6_ee_eeH_HZZ_ecm240': {'fraction': 1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"},
         'wzp6_ee_mumuH_HZZ_ecm240': {'fraction': 1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"},
-        'wzp6_ee_nunuH_HZZ_ecm240': {'fraction': 1, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/symlink_qqllvv_data"},
+        'wzp6_ee_nunuH_HZZ_ecm240': {'fraction': 1, 'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023_training/IDEA/"},
     }
 else:
     # ONLY load the fraction that is not used for training the BDT = do not use the last file
     processList = {
-        'wzp6_ee_qqH_HZZ_llvv_ecm240': {'fraction': 1}, # bc it's trained on winter2023_training samples
-        'wzp6_ee_qqH_HWW_ecm240': {'fraction': 0.9},
-        'wzp6_ee_ssH_HWW_ecm240': {'fraction': 0.91},
-        'wzp6_ee_ccH_HWW_ecm240': {'fraction': 0.91},
-        'wzp6_ee_bbH_HWW_ecm240': {'fraction': 0.9},
-        'p8_ee_ZZ_ecm240': {'fraction': 0.99-0.9}, # very big
-        'p8_ee_WW_ecm240': {'fraction': 0.99-0.9}, # very big
-        'wzp6_ee_qqH_Hbb_ecm240': {'fraction': 0.8},
-        'wzp6_ee_ssH_Hbb_ecm240': {'fraction': 0.5},
-        'wzp6_ee_ccH_Hbb_ecm240': {'fraction': 0.5},
-        'wzp6_ee_bbH_Hbb_ecm240': {'fraction': 1.0},
+        'wzp6_ee_qqH_HZZ_llvv_ecm240': {'fraction': 1, 'crossSection': 0.00015,'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"}, # bc it's trained on winter2023_training samples
+        'wzp6_ee_qqH_HWW_ecm240': {'fraction': 0.81},
+        'wzp6_ee_ssH_HWW_ecm240': {'fraction': 0.83},
+        'wzp6_ee_ccH_HWW_ecm240': {'fraction': 0.83},
+        'wzp6_ee_bbH_HWW_ecm240': {'fraction': 0.8},
+        'p8_ee_ZZ_ecm240': {'fraction': 1}, # very big
+        'p8_ee_WW_ecm240': {'fraction': 1}, # very big
+        # not trained on Hbb, so load all - will be cut away through the cuts already
+        # 'wzp6_ee_qqH_Hbb_ecm240': {'fraction': 1.0},
+        # 'wzp6_ee_ssH_Hbb_ecm240': {'fraction': 1.0},
+        # 'wzp6_ee_ccH_Hbb_ecm240': {'fraction': 1.0},
+        # 'wzp6_ee_bbH_Hbb_ecm240': {'fraction': 1.0},
         'wzp6_ee_qqH_Htautau_ecm240': {'fraction': 0.5},
         'wzp6_ee_ssH_Htautau_ecm240': {'fraction': 0.75},
         'wzp6_ee_ccH_Htautau_ecm240': {'fraction': 0.75},
         'wzp6_ee_bbH_Htautau_ecm240': {'fraction': 0.75},
-        'p8_ee_Zqq_ecm240': {'fraction': 0.99-0.9}, # very big
+        'p8_ee_Zqq_ecm240': {'fraction': 1}, # very big
         'wzp6_ee_eeH_HZZ_ecm240': {'fraction': 0.75},
         'wzp6_ee_mumuH_HZZ_ecm240': {'fraction': 0.75},
-        'wzp6_ee_nunuH_HZZ_ecm240': {'fraction': 0.91},
+        'wzp6_ee_nunuH_HZZ_ecm240': {'fraction': 1},
     }
 
 
@@ -83,7 +86,7 @@ prodTag     = "FCCee/winter2023/IDEA/"
 procDict = "FCCee_procDict_winter2023_IDEA.json"
 
 # Additional/custom C++ functions, defined in header files
-includePaths = ["./../functions.h"]
+includePaths = ["./../../functions.h"]
 
 
 ## latest particle transformer model, trained on 9M jets in winter2023 samples
@@ -285,6 +288,7 @@ class RDFanalysis():
 
         df = df.Define("dot_prod_had", "FCCAnalyses::ZHfunctions::dot_prod_had(missP, jet1, jet2)")
         df = df.Define("dot_prod_lep", "FCCAnalyses::ZHfunctions::dot_prod_lep(missP, l1, l2)")
+        df = df.Define("dot_prod_ll", "FCCAnalyses::ZHfunctions::dot_prod_ll(l1, l2)")
 
         # Filter for orthogonality! 
 
@@ -297,6 +301,27 @@ class RDFanalysis():
         # 2) llqqvv is hard to distinguish from qqllvv, so I'll leave it as a background 
 
 
+        # Filter - to already cut away obvious background
+        # like in cut and count... 
+
+        # 1) lepton pairs (already done)
+
+        # 2) rought cut on recoil_jj
+        df = df.Filter("recoil_mass > 100 && recoil_mass < 160")
+
+        # 3) rough cut on m_ll
+        df = df.Filter("m_ll < 100 && m_ll > 75") 
+
+        # 4) rough cut on m_jj
+        df = df.Filter("m_jj < 120 && m_jj > 70")
+
+        # 5) rough cut on p_jj
+        df = df.Filter("p_res_jj < 60 && p_res_jj > 30")
+
+        # 6) rough cut on recoil_mass_jjll
+        df = df.Filter("recoil_mass_jjll < 50 && recoil_mass_jjll > 10")
+
+
         if doInference:
             tmva_helper = TMVAHelperXGB("outputs/mva/ZZZ_qqllvv/bdt_model_example.root", "bdt_model") # read the XGBoost training
             df = tmva_helper.run_inference(df, col_name="mva_score") # by default, makes a new column mva_score
@@ -305,7 +330,7 @@ class RDFanalysis():
 
     # define output branches to be saved
     def output():
-        branchList = ["l1_p", "l2_p", "l1_theta", "l2_theta", "m_ll", "m_recoil_ll", "y23", "y34", "jet1_nconst_N2", "jet2_nconst_N2", "m_jj", "p_res_jj", "recoil_mass", "miss_p", "miss_e", "miss_pz", "miss_theta", "miss_pT", "recoil_mass_jjll", "Zll_costheta", "Zll_p", "Zll_pT", "Zjj_costheta", "Zjj_p", "Zjj_pT", "dot_prod_had", "dot_prod_lep"]
+        branchList = ["l1_p", "l2_p", "l1_theta", "l2_theta", "m_ll", "m_recoil_ll", "y23", "y34", "jet1_nconst_N2", "jet2_nconst_N2", "m_jj", "p_res_jj", "recoil_mass", "miss_p", "miss_e", "miss_pz", "miss_theta", "miss_pT", "recoil_mass_jjll", "Zll_costheta", "Zll_p", "Zll_pT", "Zjj_costheta", "Zjj_p", "Zjj_pT", "dot_prod_had", "dot_prod_lep", "dot_prod_ll"]
         if doInference:
             branchList.append("mva_score")
         return branchList

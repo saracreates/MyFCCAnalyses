@@ -19,7 +19,7 @@ colors['qqH-HZZ'] = ROOT.kRed
 colors['qqH-HWW'] = ROOT.kBlue+1
 colors['ee-ZZ'] = ROOT.kGreen+2
 colors['ee-WW'] = ROOT.kOrange+1
-colors['qqH-Hbb'] = ROOT.kBlack
+# colors['qqH-Hbb'] = ROOT.kBlack
 colors['qqH-Htautau'] = ROOT.kCyan+1
 colors['Zqq'] = ROOT.kMagenta+1
 colors['llH-HZZ'] = ROOT.kBlack
@@ -36,7 +36,7 @@ procs['signal'] = {'qqH-HZZ':[f'wzp6_ee_qqH_HZZ_llvv_ecm240_sel{i}_histo']}
 procs['backgrounds'] =  {'qqH-HWW':[f'wzp6_ee_qqH_HWW_ecm240_sel{i}_histo', f'wzp6_ee_ssH_HWW_ecm240_sel{i}_histo', f'wzp6_ee_ccH_HWW_ecm240_sel{i}_histo', f'wzp6_ee_bbH_HWW_ecm240_sel{i}_histo' ], 
                         'ee-ZZ':[f'p8_ee_ZZ_ecm240_sel{i}_histo'], 
                         'ee-WW':[f'p8_ee_WW_ecm240_sel{i}_histo'], 
-                        'qqH-Hbb':[f'wzp6_ee_qqH_Hbb_ecm240_sel{i}_histo', f'wzp6_ee_ssH_Hbb_ecm240_sel{i}_histo', f'wzp6_ee_ccH_Hbb_ecm240_sel{i}_histo', f'wzp6_ee_bbH_Hbb_ecm240_sel{i}_histo'], 
+                        #'qqH-Hbb':[f'wzp6_ee_qqH_Hbb_ecm240_sel{i}_histo', f'wzp6_ee_ssH_Hbb_ecm240_sel{i}_histo', f'wzp6_ee_ccH_Hbb_ecm240_sel{i}_histo', f'wzp6_ee_bbH_Hbb_ecm240_sel{i}_histo'], 
                         'qqH-Htautau':[f'wzp6_ee_qqH_Htautau_ecm240_sel{i}_histo', f'wzp6_ee_ssH_Htautau_ecm240_sel{i}_histo', f'wzp6_ee_ccH_Htautau_ecm240_sel{i}_histo', f'wzp6_ee_bbH_Htautau_ecm240_sel{i}_histo'],
                         'Zqq':[f'p8_ee_Zqq_ecm240_sel{i}_histo'], 
                         'llH-HZZ': [f'wzp6_ee_eeH_HZZ_ecm240_sel{i}_histo', f'wzp6_ee_mumuH_HZZ_ecm240_sel{i}_histo'],
@@ -51,7 +51,7 @@ legend['qqH-HZZ'] = 'qqH-HZZ'
 legend['qqH-HWW'] = 'qqH-HWW'
 legend['ee-ZZ'] = 'ee-ZZ'
 legend['ee-WW'] = 'ee-WW'
-legend['qqH-Hbb'] = 'qqH-Hbb'
+# legend['qqH-Hbb'] = 'qqH-Hbb'
 legend['qqH-Htautau'] = 'qqH-Htautau'
 legend['Zqq'] = 'Zqq'
 legend['llH-HZZ'] = 'llH-HZZ'
@@ -68,7 +68,7 @@ hists["mva_score"] = {
     "output":   "mva_score",
     "input":    "mva_score",
     "logy":     True,
-    # "stack":    True,
+    "stack":    False,
     # "rebin":    100,
     "xmin":     0,
     "xmax":     1,

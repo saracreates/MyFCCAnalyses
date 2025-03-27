@@ -40,7 +40,7 @@ procs['backgrounds'] =  {'qqH-HWW':['wzp6_ee_qqH_HWW_ecm240', 'wzp6_ee_ssH_HWW_e
                         'llH-HZZ': ['wzp6_ee_eeH_HZZ_ecm240', 'wzp6_ee_mumuH_HZZ_ecm240'],
                         # 'eeH-HZZ':['wzp6_ee_eeH_HZZ_ecm240'],
                         # 'mumuH-HZZ':['wzp6_ee_mumuH_HZZ_ecm240'],
-                        # 'nunuH-HZZ':['wzp6_ee_nunuH_HZZ_ecm240'], none left
+                        # 'nunuH-HZZ':['wzp6_ee_nunuH_HZZ_ecm240'], # none left
 }
 
 
@@ -76,6 +76,15 @@ hists["recoil_mass_LHF"] = {
     "ytitle":   "Events",
 }
 
+hists["mva_score_signal"] = {
+    "output":   "mva_score_signal",
+    "input":    "mva_score_signal",
+    "logy":     True,
+    "stack":    True,
+    "xtitles":  ["mva score for signal"],
+    "ytitle":   "Events",
+}
+
 
 hists["cutFlow"] = {
     "output":   "cutFlow",
@@ -86,7 +95,7 @@ hists["cutFlow"] = {
     "xmax":     9,
     "ymin":     1e4,
     "ymax":     1e11,
-    "xtitle":   ["All events", "1 lepton pair", "100 GeV < recoil_{jj} < 170 GeV", "80 GeV < m_{ll} < 100 GeV", "85 < m_{jj} < 105 GeV", "40 < p_{jj} < 55 GeV", "10 < recoil_{jjll} < 50 GeV", "5 < p_{T, miss} < 50 GeV", "cos(#theta)_{p_{miss}, p_{had}} < 0.3", "120 GeV < recoil_{jj} < 140 GeV"],
+    "xtitle":   ["All events", "1 lepton pair", "100 GeV < recoil_{jj} < 170 GeV", "80 GeV < m_{ll} < 100 GeV", "85 < m_{jj} < 105 GeV", "40 < p_{jj} < 55 GeV", "10 < recoil_{jjll} < 50 GeV", "5 < p_{T, miss} < 50 GeV", "cos(#theta)_{p_{miss}, p_{had}} < 0.3", "120 GeV < recoil_{jj} < 140 GeV", "score(ZZ) < 0.5"],
     "ytitle":   "Events ",
     # "scaleSig": 10
 }
