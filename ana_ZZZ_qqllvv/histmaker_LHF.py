@@ -6,10 +6,14 @@ processList = {
     # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
     'wzp6_ee_qqH_HZZ_llvv_ecm240': {'fraction':1, 'crossSection': 0.00015, 'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"}, # 
     'p8_ee_ZZ_ecm240':          {'fraction':1},
-    'wzp6_ee_qqH_Htautau_ecm240':  {'fraction':1}, # q = u, d
-    'wzp6_ee_ssH_Htautau_ecm240':  {'fraction':1}, # s
-    'wzp6_ee_ccH_Htautau_ecm240':  {'fraction':1}, # c
-    'wzp6_ee_bbH_Htautau_ecm240':  {'fraction':1}, # b
+    'wzp6_ee_qqH_Htautau_ecm240': {'fraction': 0.5}, # on other half of the data was the BDT trained...
+    'wzp6_ee_ssH_Htautau_ecm240': {'fraction': 0.75},
+    'wzp6_ee_ccH_Htautau_ecm240': {'fraction': 0.75},
+    'wzp6_ee_bbH_Htautau_ecm240': {'fraction': 0.75},
+    # signal permutation
+    'wzp6_ee_eeH_HZZ_ecm240': {'fraction': 0.75},
+    'wzp6_ee_mumuH_HZZ_ecm240': {'fraction': 0.75},
+    'wzp6_ee_nunuH_HZZ_ecm240': {'fraction': 1},
     # no BDT trained on 
     'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # q = u, d
     'wzp6_ee_ssH_HWW_ecm240':   {'fraction':1}, # s
@@ -21,10 +25,6 @@ processList = {
     'wzp6_ee_ssH_Hbb_ecm240':  {'fraction':1}, # s
     'wzp6_ee_ccH_Hbb_ecm240':  {'fraction':1}, # c
     'wzp6_ee_bbH_Hbb_ecm240':  {'fraction':1}, # b
-    # add other signal as bkg
-    'wzp6_ee_eeH_HZZ_ecm240': {'fraction': 1},
-    'wzp6_ee_mumuH_HZZ_ecm240': {'fraction': 1},
-    'wzp6_ee_nunuH_HZZ_ecm240': {'fraction': 1},
 }
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
@@ -298,11 +298,13 @@ def build_graph(df, dataset):
 
 
 
+
+
     #########
     ### CUT 2: rough cut on recoil mass of the two jets must match Higgs mass
     #########
 
-    df = df.Filter("recoil_mass > 100 && recoil_mass < 170")
+    df = df.Filter("recoil_mass > 120 && recoil_mass < 140")
     df = df.Define("cut2", "2")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
 
@@ -391,26 +393,7 @@ def build_graph(df, dataset):
 
 
 
-
-    ### SAVE HISTOGRAM TO THE THE LIKELIHOOD FIT HERE (RECOIL MASS)
-
-
-    bin_lhf = (70, 100, 170)
-    results.append(df.Histo1D(("recoil_mass_LHF", "", *bin_lhf), "recoil_mass"))
-
-
-
-
-    #########
-    ### CUT 9: cut on recoil mass of the two jets must match Higgs mass
-    #########
-
-    df = df.Filter("recoil_mass > 120 && recoil_mass < 140")
-    df = df.Define("cut9", "9")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
-
-
-    doInference = True
+    doInference = False
     if doInference:
         # tmva_helper = TMVAHelperXGB("outputs/mva_multi/ZZZ_qqllvv/bdt_model_multi.root", "bdt_model") # read the XGBoost training
         # df = tmva_helper.run_inference(df, col_name="mva_score") # by default, makes a new column mva_score
@@ -426,7 +409,7 @@ def build_graph(df, dataset):
         df = df.Define("mva_score_signal", "mva_score[0]")
 
         #########
-        ### CUT 10: cut on the mva score ZZ
+        ### CUT 9: cut on the mva score ZZ
         #########
         bins_mva = (100, 0, 1)
         results.append(df.Histo1D(("mva_score_ZZ", "", *bins_mva), "mva_score_ZZ"))
@@ -436,26 +419,34 @@ def build_graph(df, dataset):
 
 
         df = df.Filter("mva_score_ZZ < 0.5")
-        df = df.Define("cut10", "10")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
+        df = df.Define("cut9", "9")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
 
 
         #########
-        ### CUT 11: cut on the mva score perm sig
+        ### CUT 10: cut on the mva score perm sig
         #########
 
         df = df.Filter("mva_score_perm_sig < 0.5")
-        df = df.Define("cut11", "11")
-        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
+        df = df.Define("cut10", "10")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
 
 
         ### save some hists for LHF
 
         # signal score
         results.append(df.Histo1D(("mva_score_signal_LHF", "", *bins_mva), "mva_score_signal"))
-        # m_ll 
-        bins_m_ll_LHF = (80, 80, 100)
-        results.append(df.Histo1D(("m_ll_LHF", "", *bins_m_ll_LHF), "m_ll"))
+    # m_ll 
+    bins_m_ll_LHF = (80, 80, 100)
+    results.append(df.Histo1D(("m_ll_LHF", "", *bins_m_ll_LHF), "m_ll"))
+
+    #########
+    ### CUT 9: tighter cut on the m_ll value!
+    #########
+
+    df = df.Filter("m_ll > 88 && m_ll < 94")
+    df = df.Define("cut9", "9")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
 
     
 

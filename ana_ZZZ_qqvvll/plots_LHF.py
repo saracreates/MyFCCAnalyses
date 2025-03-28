@@ -85,7 +85,7 @@ hists["cutFlow"] = {
     "xmax":     15,
     "ymin":     1e4,
     "ymax":     1e11,
-    "xtitle":   ["All events", "1 lepton pair", "120 GeV < recoil_{jj} < 140 GeV", "80 GeV < recoil_{jjll} < 105 GeV", "20 GeV < p_{miss} < 100 GeV", "85 < m_{jj} < 105 GeV", "40 < p_{jj} < 55 GeV", " 10 < m_{ll} < 45 GeV", "10 < p_{T, miss} < 70 GeV", "cos(#theta)_{p_{miss}, p_{had}} < -0.4", "cos(#theta)_{p_{miss}, p_{lep}} < 0.95", "10 < p_{lep, max} < 40 GeV", "cos(#theta)_{p_{l1}, p_{l1}} > -0.75", "120 GeV < recoil_{jj} < 132 GeV"],
+    "xtitle":   ["All events", "1 lepton pair", "recoil_{ll}> 138 GeV", "120 GeV < recoil_{jj} < 140 GeV", "80 GeV < recoil_{jjll} < 105 GeV", "20 GeV < p_{miss} < 100 GeV", "85 < m_{jj} < 105 GeV", "40 < p_{jj} < 55 GeV", " 10 < m_{ll} < 45 GeV", "10 < p_{T, miss} < 70 GeV", "cos(#theta)_{p_{miss}, p_{had}} < -0.4", "cos(#theta)_{p_{miss}, p_{lep}} < 0.95", "10 < p_{lep, max} < 40 GeV", "cos(#theta)_{p_{l1}, p_{l1}} > -0.75", "120 GeV < recoil_{jj} < 140 GeV", "score(vvH) < 0.5", "score(ZZ) < 0.5", "score(HWW) < 0.5"],
     "ytitle":   "Events ",
     # "scaleSig": 10
 }

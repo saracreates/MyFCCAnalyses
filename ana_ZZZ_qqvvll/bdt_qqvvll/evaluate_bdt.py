@@ -10,17 +10,10 @@ from sklearn.metrics import roc_curve, auc
 from sklearn.preprocessing import label_binarize
 
 parser = argparse.ArgumentParser()
-# parser.add_argument("-i", "--input", type=str, default="outputs/mva_multi/ZZZ_qqllvv/bdt_model_multi.pkl", help="Input pkl file")
-# parser.add_argument("-o", "--outDir", type=str, default="outputs/mva_multi/ZZZ_qqllvv/plots_training", help="Output directory")
-# tick_names = ["ZZ", "Htautau", "signal"] 
 
-parser.add_argument("-i", "--input", type=str, default="outputs/mva_multi/ZZZ_qqllvv/bdt_model_multi_all_bkg.pkl", help="Input pkl file")
-parser.add_argument("-o", "--outDir", type=str, default="outputs/mva_multi/ZZZ_qqllvv/plots_training_all_bkg", help="Output directory")
-tick_names = ["signal", "Htautau", "llH;HZZ", "ZZ"]
-
-# parser.add_argument("-i", "--input", type=str, default="outputs/mva_multi/ZZZ_qqllvv/bdt_model_multi_all_bkg_large.pkl", help="Input pkl file")
-# parser.add_argument("-o", "--outDir", type=str, default="outputs/mva_multi/ZZZ_qqllvv/plots_training_all_bkg_large", help="Output directory")
-# tick_names = ["signal", "Htautau", "llH;HZZ", "ZZ"]
+parser.add_argument("-i", "--input", type=str, default="outputs/mva_multi/ZZZ_qqvvll/bdt_model_multi_all_bkg.pkl", help="Input pkl file")
+parser.add_argument("-o", "--outDir", type=str, default="outputs/mva_multi/ZZZ_qqvvll/plots_training_all_bkg", help="Output directory")
+tick_names = ["signal", "Htautau", "vvH;HZZ", "ZZ", "HWW"]
 
 args = parser.parse_args()
 
@@ -77,24 +70,6 @@ def plot_roc_multi():
     plt.grid()
     plt.savefig(f"{outDir}/roc.png")
     plt.savefig(f"{outDir}/roc.pdf")
-    plt.close()
-
-def plot_losses():
-    
-    train_losses = bdt.evals_result()['validation_0']['mlogloss']
-    test_losses = bdt.evals_result()['validation_1']['mlogloss']
-
-    # Plot the loss function
-    plt.figure(figsize=(8, 6))
-    plt.plot(train_losses, color='blue', label='Training Loss')
-    plt.plot(test_losses, color='red', label='Testing Loss')
-    plt.xlabel('Boosting Round')
-    plt.ylabel('Log Loss')
-    plt.title('XGBoost Loss Function')
-    plt.legend()
-    plt.grid()
-    plt.savefig(f"{outDir}/losses.png")
-    plt.savefig(f"{outDir}/losses.pdf")
     plt.close()
 
 
@@ -170,6 +145,24 @@ def plot_confusion_matrix():
     plt.title("Confusion Matrix")
     plt.savefig(f"{outDir}/confusion_matrix.png")
     plt.savefig(f"{outDir}/confusion_matrix.pdf")
+    plt.close()
+
+def plot_losses():
+    
+    train_losses = bdt.evals_result()['validation_0']['mlogloss']
+    test_losses = bdt.evals_result()['validation_1']['mlogloss']
+
+    # Plot the loss function
+    plt.figure(figsize=(8, 6))
+    plt.plot(train_losses, color='blue', label='Training Loss')
+    plt.plot(test_losses, color='red', label='Testing Loss')
+    plt.xlabel('Boosting Round')
+    plt.ylabel('Log Loss')
+    plt.title('XGBoost Loss Function')
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{outDir}/losses.png")
+    plt.savefig(f"{outDir}/losses.pdf")
     plt.close()
 
 if __name__ == "__main__":

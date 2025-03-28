@@ -4,26 +4,26 @@ import os, copy
 processList = {
     # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
     'wzp6_ee_qqH_HZZ_llvv_ecm240': {'fraction':1, 'crossSection': 0.00015, 'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"}, # 
-    'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # q = u, d
-    'wzp6_ee_ssH_HWW_ecm240':   {'fraction':1}, # s
-    'wzp6_ee_ccH_HWW_ecm240':   {'fraction':1}, # c
-    'wzp6_ee_bbH_HWW_ecm240':   {'fraction':1}, # b
-    'p8_ee_ZZ_ecm240':          {'fraction':0.1},
-    'p8_ee_WW_ecm240':          {'fraction':0.01},
-    'wzp6_ee_qqH_Hbb_ecm240':  {'fraction':1}, # q = u, d
-    'wzp6_ee_ssH_Hbb_ecm240':  {'fraction':1}, # s
-    'wzp6_ee_ccH_Hbb_ecm240':  {'fraction':1}, # c
-    'wzp6_ee_bbH_Hbb_ecm240':  {'fraction':1}, # b
-    'wzp6_ee_qqH_Htautau_ecm240':  {'fraction':1}, # q = u, d
-    'wzp6_ee_ssH_Htautau_ecm240':  {'fraction':1}, # s
-    'wzp6_ee_ccH_Htautau_ecm240':  {'fraction':1}, # c
-    'wzp6_ee_bbH_Htautau_ecm240':  {'fraction':1}, # b
-    'p8_ee_Zqq_ecm240':         {'fraction':0.01}, # q = u,d,s,c,b,t 
+    # 'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # q = u, d
+    # 'wzp6_ee_ssH_HWW_ecm240':   {'fraction':1}, # s
+    # 'wzp6_ee_ccH_HWW_ecm240':   {'fraction':1}, # c
+    # 'wzp6_ee_bbH_HWW_ecm240':   {'fraction':1}, # b
+    # 'p8_ee_ZZ_ecm240':          {'fraction':0.1},
+    # 'p8_ee_WW_ecm240':          {'fraction':0.01},
+    # 'wzp6_ee_qqH_Hbb_ecm240':  {'fraction':1}, # q = u, d
+    # 'wzp6_ee_ssH_Hbb_ecm240':  {'fraction':1}, # s
+    # 'wzp6_ee_ccH_Hbb_ecm240':  {'fraction':1}, # c
+    # 'wzp6_ee_bbH_Hbb_ecm240':  {'fraction':1}, # b
+    # 'wzp6_ee_qqH_Htautau_ecm240':  {'fraction':1}, # q = u, d
+    # 'wzp6_ee_ssH_Htautau_ecm240':  {'fraction':1}, # s
+    # 'wzp6_ee_ccH_Htautau_ecm240':  {'fraction':1}, # c
+    # 'wzp6_ee_bbH_Htautau_ecm240':  {'fraction':1}, # b
+    # 'p8_ee_Zqq_ecm240':         {'fraction':0.01}, # q = u,d,s,c,b,t 
 
     # # add other signal as bkg
-    'wzp6_ee_eeH_HZZ_ecm240': {'fraction': 1},
-    'wzp6_ee_mumuH_HZZ_ecm240': {'fraction': 1},
-    'wzp6_ee_nunuH_HZZ_ecm240': {'fraction': 1},
+    # 'wzp6_ee_eeH_HZZ_ecm240': {'fraction': 1},
+    # 'wzp6_ee_mumuH_HZZ_ecm240': {'fraction': 1},
+    # 'wzp6_ee_nunuH_HZZ_ecm240': {'fraction': 1},
 }
 
 # Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
@@ -183,6 +183,11 @@ def build_graph(df, dataset):
 
     df = df.Define("res_ll", "FCCAnalyses::ZHfunctions::get_two_lep_res(l1, l2)")
     df = df.Define("m_ll", "FCCAnalyses::ReconstructedParticle::get_mass(res_ll)[0]")
+    df = df.Define("recoil_ll", "FCCAnalyses::ZHfunctions::get_recoil_lep(240.0, l1, l2)")
+    df = df.Define("m_recoil_ll", "FCCAnalyses::ReconstructedParticle::get_mass(recoil_ll)[0]")
+
+    bins_recoil_ll = (2000, 110, 220)
+    results.append(df.Histo1D(("m_recoil_ll", "", *bins_recoil_ll), "m_recoil_ll"))
 
     # plot m_ll
     results.append(df.Histo1D(("m_ll", "", *bins_m_ll), "m_ll"))

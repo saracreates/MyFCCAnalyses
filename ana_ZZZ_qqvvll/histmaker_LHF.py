@@ -1,23 +1,25 @@
 import os, copy
+import os, copy
+from addons.TMVAHelper.TMVAHelper import TMVAHelperXGB
 
 # list of processes (mandatory)
 processList = {
     # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
     'wzp6_ee_qqH_HZZ_llvv_ecm240': {'fraction':1, 'crossSection': 0.00015, 'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"}, # 
-    'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # q = u, d
-    'wzp6_ee_ssH_HWW_ecm240':   {'fraction':1}, # s
-    'wzp6_ee_ccH_HWW_ecm240':   {'fraction':1}, # c
-    'wzp6_ee_bbH_HWW_ecm240':   {'fraction':1}, # b
+    'wzp6_ee_qqH_HWW_ecm240': {'fraction': 0.81}, # on the rest of the data the BDT was trained... 
+    'wzp6_ee_ssH_HWW_ecm240': {'fraction': 0.83},
+    'wzp6_ee_ccH_HWW_ecm240': {'fraction': 0.83},
+    'wzp6_ee_bbH_HWW_ecm240': {'fraction': 0.8},
     'p8_ee_ZZ_ecm240':          {'fraction':1},
     'p8_ee_WW_ecm240':          {'fraction':1},
     'wzp6_ee_qqH_Hbb_ecm240':  {'fraction':1}, # q = u, d
     'wzp6_ee_ssH_Hbb_ecm240':  {'fraction':1}, # s
     'wzp6_ee_ccH_Hbb_ecm240':  {'fraction':1}, # c
     'wzp6_ee_bbH_Hbb_ecm240':  {'fraction':1}, # b
-    'wzp6_ee_qqH_Htautau_ecm240':  {'fraction':1}, # q = u, d
-    'wzp6_ee_ssH_Htautau_ecm240':  {'fraction':1}, # s
-    'wzp6_ee_ccH_Htautau_ecm240':  {'fraction':1}, # c
-    'wzp6_ee_bbH_Htautau_ecm240':  {'fraction':1}, # b
+    'wzp6_ee_qqH_Htautau_ecm240': {'fraction': 0.5}, # on other half of the data was the BDT trained...
+    'wzp6_ee_ssH_Htautau_ecm240': {'fraction': 0.75},
+    'wzp6_ee_ccH_Htautau_ecm240': {'fraction': 0.75},
+    'wzp6_ee_bbH_Htautau_ecm240': {'fraction': 0.75},
     'p8_ee_Zqq_ecm240':         {'fraction':1}, # q = u,d,s,c,b,t
     # add other signal as bkg
     'wzp6_ee_eeH_HZZ_ecm240': {'fraction': 1},
@@ -91,7 +93,7 @@ bins_theta = (500, -5, 5)
 bins_eta = (600, -3, 3)
 bins_phi = (500, -5, 5)
 
-bins_count = (15, 0, 15)
+bins_count = (20, 0, 20)
 bins_charge = (10, -5, 5)
 bins_iso = (500, 0, 3)
 
@@ -153,8 +155,15 @@ def build_graph(df, dataset):
     df = df.Define("l1", "muons_sel_iso.size() == 2 ? muons_sel_iso[0] : electrons_sel_iso[0]")
     df = df.Define("l2", "muons_sel_iso.size() == 2 ? muons_sel_iso[1] : electrons_sel_iso[1]")
 
+    df = df.Define("l1_p", "FCCAnalyses::ReconstructedParticle::get_p(Vec_rp{l1})[0]")
+    df = df.Define("l2_p", "FCCAnalyses::ReconstructedParticle::get_p(Vec_rp{l2})[0]")
+    df = df.Define("l1_theta", "FCCAnalyses::ReconstructedParticle::get_theta(Vec_rp{l1})[0]")
+    df = df.Define("l2_theta", "FCCAnalyses::ReconstructedParticle::get_theta(Vec_rp{l2})[0]")
+
     df = df.Define("res_ll", "FCCAnalyses::ZHfunctions::get_two_lep_res(l1, l2)")
     df = df.Define("m_ll", "FCCAnalyses::ReconstructedParticle::get_mass(res_ll)[0]")
+    df = df.Define("recoil_ll", "FCCAnalyses::ZHfunctions::get_recoil_lep(240.0, l1, l2)")
+    df = df.Define("m_recoil_ll", "FCCAnalyses::ReconstructedParticle::get_mass(recoil_ll)[0]")
 
 
 
@@ -219,6 +228,10 @@ def build_graph(df, dataset):
     df = df.Define("y23", "std::sqrt(JetClusteringUtils::get_exclusive_dmerge(_jet_N2, 2))")  # dmerge from 3 to 2
     df = df.Define("y34", "std::sqrt(JetClusteringUtils::get_exclusive_dmerge(_jet_N2, 3))")  # dmerge from 4 to 3
 
+    i = 2
+    for j in range(1, 3):
+        df = df.Define(f"jet{j}_nconst_N{i}", f"jet_nconst_N{i}[{j-1}]")
+
 
 
     ### gives 800 events, I expect 644 signal events - so need to check that qs come not from Z from higgs -> use p = 53 GeV!!
@@ -247,71 +260,92 @@ def build_graph(df, dataset):
 
     df = df.Define("missP", "FCCAnalyses::ZHfunctions::missingParticle(240.0, ReconstructedParticles)")
     df = df.Define("miss_p", "FCCAnalyses::ReconstructedParticle::get_p(missP)[0]")
+    df = df.Define("miss_e", "FCCAnalyses::ReconstructedParticle::get_e(missP)[0]")
+    df = df.Define("miss_pz", "FCCAnalyses::ReconstructedParticle::get_pz(missP)[0]")
+    df = df.Define("miss_theta", "FCCAnalyses::ZHfunctions::get_cosTheta_miss(missP)")
+    df = df.Define("miss_pT", "FCCAnalyses::ZHfunctions::miss_pT(missP)")
+
+
+    # look at ll system
+    df = df.Define("Zll_costheta", "FCCAnalyses::ZHfunctions::get_cosTheta_miss(res_ll)")
+    df = df.Define("Zll_p", "FCCAnalyses::ReconstructedParticle::get_p(res_ll)[0]")
+    df = df.Define("Zll_pT", "FCCAnalyses::ReconstructedParticle::get_pt(res_ll)[0]")
+
+    # look at jj system
+    df = df.Define("Zjj_costheta", "FCCAnalyses::ZHfunctions::get_cosTheta_miss(res_jj)")
+    df = df.Define("Zjj_p", "FCCAnalyses::ReconstructedParticle::get_p(res_jj)[0]")
+    df = df.Define("Zjj_pT", "FCCAnalyses::ReconstructedParticle::get_pt(res_jj)[0]")
+
+
+    ### make analysis orthogonal to the llqqvv analysis
+    #########
+    ### CUT 2: recoil mass of the two leptons must be greater than 138 GeV
+    #########
+    df = df.Filter("m_recoil_ll > 138")
+    df = df.Define("cut2", "2")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
 
     #########
-    ### CUT 2: recoil mass of the two jets must match Higgs mass
+    ### CUT 3: recoil mass of the two jets must match Higgs mass
     #########
 
     df = df.Filter("recoil_mass > 100 && recoil_mass < 170")
-    df = df.Define("cut2", "2")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
+    df = df.Define("cut3", "3")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut3"))
 
     df = df.Define("recoil_jjll", "FCCAnalyses::ZHfunctions::get_recoil_from_lep_and_jets(240.0, jet1, jet2, l1, l2)")
     df = df.Define("recoil_mass_jjll", "FCCAnalyses::ReconstructedParticle::get_mass(recoil_jjll)[0]")
 
     #########
-    ### CUT 3: recoil Z from jets and leptons must match Z mass
+    ### CUT 4: recoil Z from jets and leptons must match Z mass
     #########
 
     df = df.Filter("recoil_mass_jjll > 80 && recoil_mass_jjll < 105") 
-    df = df.Define("cut3", "3")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut3"))
-
-
-    #########
-    ### CUT 4: missing momentum greater than 20 GeV but smaller than 100 GeV (be careful, so analysis remain orthogonal here - check paper!)
-    #########
-    df = df.Filter("miss_p > 20 && miss_p < 100")
     df = df.Define("cut4", "4")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
 
+
     #########
-    ### CUT 5: m_jj between 85 and 105 GeV - should cut away WW background
+    ### CUT 5: missing momentum greater than 20 GeV but smaller than 100 GeV (be careful, so analysis remain orthogonal here - check paper!)
     #########
-    df = df.Filter("m_jj > 85 && m_jj < 105")
+    df = df.Filter("miss_p > 20 && miss_p < 100")
     df = df.Define("cut5", "5")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5"))
 
+    #########
+    ### CUT 6: m_jj between 85 and 105 GeV - should cut away WW background
+    #########
+    df = df.Filter("m_jj > 85 && m_jj < 105")
+    df = df.Define("cut6", "6")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
+
 
     #########
-    ### CUT 6: p_jj > 43 GeV and < 55 GeV
+    ### CUT 7: p_jj > 43 GeV and < 55 GeV
     #########
 
     df = df.Filter("p_res_jj > 40 && p_res_jj < 55")
-    df = df.Define("cut6", "6")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6")) 
+    df = df.Define("cut7", "7")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7")) 
 
     #########
-    ### CUT 7: 10 < m_ll < 45 GeV
+    ### CUT 8: 10 < m_ll < 45 GeV
     #########
 
     df = df.Filter("m_ll > 10 && m_ll < 45")
-    df = df.Define("cut7", "7")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
-
-    #########
-    ### CUT 8: cut on pT_miss > 5 GeV and < 70 GeV
-    #########
-
-    df = df.Define("miss_pT", "FCCAnalyses::ZHfunctions::miss_pT(missP)")
-
-
-    df = df.Filter("miss_pT > 10 && miss_pT < 70")
     df = df.Define("cut8", "8")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
 
     #########
-    ### CUT 9: cos(theta)_{miss, had} < -0.4
+    ### CUT 9: cut on pT_miss > 5 GeV and < 70 GeV
+    #########
+
+    df = df.Filter("miss_pT > 10 && miss_pT < 70")
+    df = df.Define("cut9", "9")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
+
+    #########
+    ### CUT 10: cos(theta)_{miss, had} < -0.4
     #########
 
     # check out angles between jets/leptons and missing momentum
@@ -321,43 +355,41 @@ def build_graph(df, dataset):
 
 
     df = df.Filter("dot_prod_had < -0.4")
-    df = df.Define("cut9", "9")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
-
-
-
-    #########
-    ### CUT 10: cut on dot prod leptons to cut away Htautau background
-    #########
-
-    df = df.Filter("dot_prod_lep < 0.95")
     df = df.Define("cut10", "10")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
 
 
+
     #########
-    ### CUT 11: 10 < l_p_max < 40 GeV
+    ### CUT 11: cut on dot prod leptons to cut away Htautau background
     #########
 
-    df = df.Define("l1_p", "FCCAnalyses::ReconstructedParticle::get_p(Vec_rp{l1})[0]")
-    df = df.Define("l2_p", "FCCAnalyses::ReconstructedParticle::get_p(Vec_rp{l2})[0]")
+    df = df.Filter("dot_prod_lep < 0.95")
+    df = df.Define("cut11", "11")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
+
+
+    #########
+    ### CUT 12: 10 < l_p_max < 40 GeV
+    #########
+
     df = df.Define("p_lep_sorted", "FCCAnalyses::ZHfunctions::sort_by_momentum(l1_p, l2_p)")
     df = df.Define("l_p_max", "p_lep_sorted[0]")
 
     df = df.Filter("l_p_max > 10 && l_p_max < 40")
-    df = df.Define("cut11", "11")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
+    df = df.Define("cut12", "12")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
 
     #########
-    ### CUT 12: cut on dot product of leptons (aka angle between leptons)
+    ### CUT 13: cut on dot product of leptons (aka angle between leptons)
     #########
 
     df = df.Define("dot_prod_ll", "FCCAnalyses::ZHfunctions::dot_prod_ll(l1, l2)")
-    results.append(df.Histo1D(("dot_prod_ll_cut12", "", *bin_dotprod), "dot_prod_ll"))
+    results.append(df.Histo1D(("dot_prod_ll_cut13", "", *bin_dotprod), "dot_prod_ll"))
 
     df = df.Filter("dot_prod_ll > -0.75")
-    df = df.Define("cut12", "12")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
+    df = df.Define("cut13", "13")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut13"))
 
 
 
@@ -371,12 +403,59 @@ def build_graph(df, dataset):
 
 
     #########
-    ### CUT 13: cut on recoil mass
+    ### CUT 14: cut on recoil mass
     #########
 
     df = df.Filter("recoil_mass > 120 && recoil_mass < 140")
-    df = df.Define("cut13", "13")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut13"))
+    df = df.Define("cut14", "14")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut14"))
+
+
+    doInference = True
+    if doInference:
+        tmva_helper = TMVAHelperXGB("outputs/mva_multi/ZZZ_qqvvll/bdt_model_multi_all_bkg.root", "bdt_model") # read the XGBoost training
+        df = tmva_helper.run_inference(df, col_name="mva_score") # by default, makes a new column mva_score
+        # ["signal", "Htautau", "vvH;HZZ", "ZZ", "HWW"]
+        df = df.Define("mva_score_signal", "mva_score[0]")
+        df = df.Define("mva_score_Htautau", "mva_score[1]")
+        df = df.Define("mva_score_vvH", "mva_score[2]")
+        df = df.Define("mva_score_ZZ", "mva_score[3]")
+        df = df.Define("mva_score_HWW", "mva_score[4]")
+
+        bins_mva = (100, 0, 1)
+        results.append(df.Histo1D(("mva_score_signal", "", *bins_mva), "mva_score_signal"))
+        results.append(df.Histo1D(("mva_score_Htautau", "", *bins_mva), "mva_score_Htautau"))
+        results.append(df.Histo1D(("mva_score_vvH", "", *bins_mva), "mva_score_vvH"))
+        results.append(df.Histo1D(("mva_score_ZZ", "", *bins_mva), "mva_score_ZZ"))
+        results.append(df.Histo1D(("mva_score_HWW", "", *bins_mva), "mva_score_HWW"))
+
+        #########
+        ### CUT 15: cut on mva score - vvH
+        #########
+        df = df.Filter("mva_score_vvH < 0.5")
+        df = df.Define("cut15", "15")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut15"))
+
+        #########
+        ### CUT 16: cut on mva score - ZZ
+        #########
+        df = df.Filter("mva_score_ZZ < 0.5")
+        df = df.Define("cut16", "16")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut16"))
+
+        #########
+        ### CUT 17: cut on mva score - HWW
+        #########
+        df = df.Filter("mva_score_HWW < 0.5")
+        df = df.Define("cut17", "17")
+        results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut17"))
+
+
+        ### save some plots
+
+        results.append(df.Histo1D(("mva_score_signal_LHF", "", *bins_mva), "mva_score_signal"))
+        bins_miss_p = (80, 20, 100)
+        results.append(df.Histo1D(("miss_p_LHF", "", *bins_miss_p), "miss_p"))
 
 
     
