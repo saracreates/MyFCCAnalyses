@@ -308,44 +308,44 @@ def build_graph(df, dataset):
     #########
     ### CUT 5: missing momentum greater than 20 GeV but smaller than 100 GeV (be careful, so analysis remain orthogonal here - check paper!)
     #########
-    df = df.Filter("miss_p > 20 && miss_p < 100")
+    # df = df.Filter("miss_p > 20 && miss_p < 100")
+    # df = df.Define("cut5", "5")
+    # results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5"))
+
+    #########
+    ### CUT 5: m_jj between 85 and 105 GeV - should cut away WW background
+    #########
+    df = df.Filter("m_jj > 85 && m_jj < 105")
     df = df.Define("cut5", "5")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5"))
 
-    #########
-    ### CUT 6: m_jj between 85 and 105 GeV - should cut away WW background
-    #########
-    df = df.Filter("m_jj > 85 && m_jj < 105")
-    df = df.Define("cut6", "6")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
-
 
     #########
-    ### CUT 7: p_jj > 43 GeV and < 55 GeV
+    ### CUT 6: p_jj > 43 GeV and < 55 GeV
     #########
 
     df = df.Filter("p_res_jj > 40 && p_res_jj < 55")
-    df = df.Define("cut7", "7")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7")) 
+    df = df.Define("cut6", "6")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6")) 
 
     #########
-    ### CUT 8: 10 < m_ll < 45 GeV
+    ### CUT 7: 10 < m_ll < 45 GeV
     #########
 
     df = df.Filter("m_ll > 10 && m_ll < 45")
+    df = df.Define("cut7", "7")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
+
+    #########
+    ### CUT 8: cut on pT_miss > 5 GeV and < 70 GeV
+    #########
+
+    df = df.Filter("miss_pT > 10 && miss_pT < 70")
     df = df.Define("cut8", "8")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
 
     #########
-    ### CUT 9: cut on pT_miss > 5 GeV and < 70 GeV
-    #########
-
-    df = df.Filter("miss_pT > 10 && miss_pT < 70")
-    df = df.Define("cut9", "9")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
-
-    #########
-    ### CUT 10: cos(theta)_{miss, had} < -0.4
+    ### CUT 9: cos(theta)_{miss, had} < -0.4
     #########
 
     # check out angles between jets/leptons and missing momentum
@@ -355,41 +355,41 @@ def build_graph(df, dataset):
 
 
     df = df.Filter("dot_prod_had < -0.4")
+    df = df.Define("cut9", "9")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
+
+
+
+    #########
+    ### CUT 10: cut on dot prod leptons to cut away Htautau background
+    #########
+
+    df = df.Filter("dot_prod_lep < 0.95")
     df = df.Define("cut10", "10")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut10"))
 
 
-
     #########
-    ### CUT 11: cut on dot prod leptons to cut away Htautau background
-    #########
-
-    df = df.Filter("dot_prod_lep < 0.95")
-    df = df.Define("cut11", "11")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
-
-
-    #########
-    ### CUT 12: 10 < l_p_max < 40 GeV
+    ### CUT 11: 10 < l_p_max < 40 GeV
     #########
 
     df = df.Define("p_lep_sorted", "FCCAnalyses::ZHfunctions::sort_by_momentum(l1_p, l2_p)")
     df = df.Define("l_p_max", "p_lep_sorted[0]")
 
     df = df.Filter("l_p_max > 10 && l_p_max < 40")
-    df = df.Define("cut12", "12")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
+    df = df.Define("cut11", "11")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut11"))
 
     #########
-    ### CUT 13: cut on dot product of leptons (aka angle between leptons)
+    ### CUT 12: cut on dot product of leptons (aka angle between leptons)
     #########
 
     df = df.Define("dot_prod_ll", "FCCAnalyses::ZHfunctions::dot_prod_ll(l1, l2)")
-    results.append(df.Histo1D(("dot_prod_ll_cut13", "", *bin_dotprod), "dot_prod_ll"))
+    results.append(df.Histo1D(("dot_prod_ll_cut12", "", *bin_dotprod), "dot_prod_ll"))
 
     df = df.Filter("dot_prod_ll > -0.75")
-    df = df.Define("cut13", "13")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut13"))
+    df = df.Define("cut12", "12")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut12"))
 
 
 
@@ -403,15 +403,15 @@ def build_graph(df, dataset):
 
 
     #########
-    ### CUT 14: cut on recoil mass
+    ### CUT 13: cut on recoil mass
     #########
 
     df = df.Filter("recoil_mass > 120 && recoil_mass < 140")
-    df = df.Define("cut14", "14")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut14"))
+    df = df.Define("cut13", "13")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut13"))
 
 
-    doInference = True
+    doInference = False
     if doInference:
         tmva_helper = TMVAHelperXGB("outputs/mva_multi/ZZZ_qqvvll/bdt_model_multi_all_bkg.root", "bdt_model") # read the XGBoost training
         df = tmva_helper.run_inference(df, col_name="mva_score") # by default, makes a new column mva_score

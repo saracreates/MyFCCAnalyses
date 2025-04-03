@@ -44,17 +44,17 @@ procs['backgrounds'] =  {'qqH-HWW':['wzp6_ee_qqH_HWW_ecm240', 'wzp6_ee_ssH_HWW_e
 }
 
 legend = {}
-legend['qqH-HZZ'] = 'qqH-HZZ'
-legend['qqH-HWW'] = 'qqH-HWW'
+legend['qqH-HZZ'] = 'qqH(ZZ)'
+legend['qqH-HWW'] = 'qqH(WW)'
 legend['ee-ZZ'] = 'ee-ZZ'
 legend['ee-WW'] = 'ee-WW'
 # legend['qqH-Hbb'] = 'qqH-Hbb'
-legend['qqH-Htautau'] = 'qqH-Htautau'
-legend['Zqq'] = 'Zqq'
-# legend['leplepH-HZZ'] = 'leplepH-HZZ'
-# legend['eeH-HZZ'] = 'eeH-HZZ'
-# legend['mumuH-HZZ'] = 'mumu-HZZ'
-legend['nunuH-HZZ'] = 'nunuH-HZZ'
+legend['qqH-Htautau'] = 'qqH(#tau#tau)'
+legend['Zqq'] = 'Z(qq)'
+# legend['leplepH-HZZ'] = 'leplepH(ZZ)'
+# legend['eeH-HZZ'] = 'eeH(ZZ)'
+# legend['mumuH-HZZ'] = '#mu#muH(ZZ)'
+legend['nunuH-HZZ'] = '#nu#nuH(ZZ)'
 
 
 
@@ -72,7 +72,7 @@ hists["recoil_mass_LHF"] = {
     # "ymin":     0,
     # "ymax":     2500,
     "xtitle":   "recoil mass m_{qq} (GeV)",
-    "ytitle":   "Events",
+    "ytitle":   "Events / 1",
 }
 
 
@@ -85,7 +85,7 @@ hists["cutFlow"] = {
     "xmax":     15,
     "ymin":     1e4,
     "ymax":     1e11,
-    "xtitle":   ["All events", "1 lepton pair", "recoil_{ll}> 138 GeV", "120 GeV < recoil_{jj} < 140 GeV", "80 GeV < recoil_{jjll} < 105 GeV", "20 GeV < p_{miss} < 100 GeV", "85 < m_{jj} < 105 GeV", "40 < p_{jj} < 55 GeV", " 10 < m_{ll} < 45 GeV", "10 < p_{T, miss} < 70 GeV", "cos(#theta)_{p_{miss}, p_{had}} < -0.4", "cos(#theta)_{p_{miss}, p_{lep}} < 0.95", "10 < p_{lep, max} < 40 GeV", "cos(#theta)_{p_{l1}, p_{l1}} > -0.75", "120 GeV < recoil_{jj} < 140 GeV", "score(vvH) < 0.5", "score(ZZ) < 0.5", "score(HWW) < 0.5"],
+    "xtitle":   ["All events", "1 lepton pair", "recoil_{ll}> 138 GeV", "100 GeV < recoil_{jj} < 170 GeV", "80 GeV < recoil_{jjll} < 105 GeV", "85 < m_{jj} < 105 GeV", "40 < p_{jj} < 55 GeV", " 10 < m_{ll} < 45 GeV", "10 < p_{T, miss} < 70 GeV", "cos(#theta)_{p_{miss}, p_{had}} < -0.4", "cos(#theta)_{p_{miss}, p_{lep}} < 0.95", "10 < p_{lep, max} < 40 GeV", "cos(#theta)_{p_{l1}, p_{l1}} > -0.75", "120 GeV < recoil_{jj} < 140 GeV",],
     "ytitle":   "Events ",
     # "scaleSig": 10
 }

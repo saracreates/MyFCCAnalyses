@@ -6,13 +6,13 @@ processList = {
     # cross sections given on the webpage: https://fcc-physics-events.web.cern.ch/fcc-ee/delphes/winter2023/idea/ 
     'wzp6_ee_qqH_HZZ_llvv_ecm240': {'fraction':1, 'crossSection': 0.00015, 'inputDir': "/eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/"}, # 
     'p8_ee_ZZ_ecm240':          {'fraction':1},
-    'wzp6_ee_qqH_Htautau_ecm240': {'fraction': 0.5}, # on other half of the data was the BDT trained...
-    'wzp6_ee_ssH_Htautau_ecm240': {'fraction': 0.75},
-    'wzp6_ee_ccH_Htautau_ecm240': {'fraction': 0.75},
-    'wzp6_ee_bbH_Htautau_ecm240': {'fraction': 0.75},
+    'wzp6_ee_qqH_Htautau_ecm240': {'fraction': 1}, 
+    'wzp6_ee_ssH_Htautau_ecm240': {'fraction': 1},
+    'wzp6_ee_ccH_Htautau_ecm240': {'fraction': 1},
+    'wzp6_ee_bbH_Htautau_ecm240': {'fraction': 1},
     # signal permutation
-    'wzp6_ee_eeH_HZZ_ecm240': {'fraction': 0.75},
-    'wzp6_ee_mumuH_HZZ_ecm240': {'fraction': 0.75},
+    'wzp6_ee_eeH_HZZ_ecm240': {'fraction': 1},
+    'wzp6_ee_mumuH_HZZ_ecm240': {'fraction': 1},
     'wzp6_ee_nunuH_HZZ_ecm240': {'fraction': 1},
     # no BDT trained on 
     'wzp6_ee_qqH_HWW_ecm240':   {'fraction':1}, # q = u, d
@@ -304,7 +304,7 @@ def build_graph(df, dataset):
     ### CUT 2: rough cut on recoil mass of the two jets must match Higgs mass
     #########
 
-    df = df.Filter("recoil_mass > 120 && recoil_mass < 140")
+    df = df.Filter("recoil_mass > 100 && recoil_mass < 170")
     df = df.Define("cut2", "2")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
 
@@ -392,6 +392,19 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut8"))
 
 
+    # recoil mass for LHF
+    bin_lhf = (70, 100, 170)
+    results.append(df.Histo1D(("recoil_mass_LHF", "", *bin_lhf), "recoil_mass"))
+
+    #########
+    ### CUT 9: tighter cut on the recoil mass
+    #########
+
+    df = df.Filter("recoil_mass > 120 && recoil_mass < 140")
+    df = df.Define("cut9", "9")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
+
+
 
     doInference = False
     if doInference:
@@ -436,27 +449,9 @@ def build_graph(df, dataset):
 
         # signal score
         results.append(df.Histo1D(("mva_score_signal_LHF", "", *bins_mva), "mva_score_signal"))
-    # m_ll 
-    bins_m_ll_LHF = (80, 80, 100)
-    results.append(df.Histo1D(("m_ll_LHF", "", *bins_m_ll_LHF), "m_ll"))
 
-    #########
-    ### CUT 9: tighter cut on the m_ll value!
-    #########
-
-    df = df.Filter("m_ll > 88 && m_ll < 94")
-    df = df.Define("cut9", "9")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut9"))
 
     
-
-
-
-
-
-
-
-
 
 
 
