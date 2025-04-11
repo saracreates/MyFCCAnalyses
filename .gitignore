@@ -1,0 +1,5 @@
+# ROOT files
+*.root
+# ouput files (plots etc)
+outputs/
+
