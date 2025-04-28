@@ -13,15 +13,16 @@ from Juraj 10. April 2025:
 /eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/ccgamma/CLD_o2_v05/rec/00016896
 /eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/bbgamma/CLD_o2_v05/rec/00016899
 
-As these are not nice to link, I've created simlinks here: /afs/cern.ch/work/s/saaumill/public/tmp_simlink_fullsim/ 
+As these are not nice to link, I've created simlinks here: /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma_fullsim_simlink/
 This folder has folders with the names of the processes, and inside are the simlinks to the files.
 """
 
-input_base = "/afs/cern.ch/work/s/saaumill/public/tmp_simlink_fullsim/"
+input_base = "/afs/cern.ch/work/s/saaumill/public/analyses/Hgamma_fullsim_simlink/"
 
 # list of processes (mandatory)
 processList = {
     # 'p8_ee_Hgamma_ecm240':    {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': '/afs/cern.ch/work/l/lherrman/private/HiggsGamma/data'}, 
+    'reco_higgsgamma_test_REC.edm4hep': {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/tmp_fullsim_output/reco_higgsgamma"},
     'p8_ee_qqgamma_ecm240':    {'fraction':1, 'crossSection': 6.9, 'inputDir': input_base},  #what are the exact values here?
     'p8_ee_ccgamma_ecm240':    {'fraction':1, 'crossSection': 2.15, 'inputDir': input_base},  #what are the exact values here?
     'p8_ee_bbgamma_ecm240':    {'fraction':1, 'crossSection': 2.35, 'inputDir': input_base},  #what are the exact values here?

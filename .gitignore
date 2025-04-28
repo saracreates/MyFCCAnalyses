@@ -3,3 +3,6 @@
 # ouput files (plots etc)
 outputs/
 
+# cache files
+ana_ZHgamma/inclusive/__pycache__
+
