@@ -1,295 +1,498 @@
-# from Lena 11.April 2025, see: https://github.com/herrmannlena/FCCAnalyses/blob/higgsgamma/myanalysis/histmaker_recoil.py 
+# from Lena, 28. April 2025: https://github.com/herrmannlena/FCCAnalyses/blob/higgsgamma/myanalysis/plots_recoil.py 
 
-import os, copy
+import ROOT
 
-# list of processes (mandatory)
-processList = {
-    'p8_ee_Hgamma_ecm240':    {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': '/afs/cern.ch/work/l/lherrman/private/HiggsGamma/data'}, 
-    'p8_ee_qqgamma_ecm240':    {'fraction':1, 'crossSection': 6.9, 'inputDir': '/afs/cern.ch/work/l/lherrman/private/HiggsGamma/data'},  #what are the exact values here?
-    'p8_ee_ccgamma_ecm240':    {'fraction':1, 'crossSection': 2.15, 'inputDir': '/afs/cern.ch/work/l/lherrman/private/HiggsGamma/data'},  #what are the exact values here?
-    'p8_ee_bbgamma_ecm240':    {'fraction':1, 'crossSection': 2.35, 'inputDir': '/afs/cern.ch/work/l/lherrman/private/HiggsGamma/data'},  #what are the exact values here?
-    'p8_ee_ZH_ecm240':    {'fraction':1, 'crossSection': 0.2, 'inputDir': '/afs/cern.ch/work/l/lherrman/private/HiggsGamma/data'},  #what are the exact values here?
-    'p8_ee_WW_ecm240':    {'fraction':1},  
-    'p8_ee_ZZ_ecm240':    {'fraction':1}, 
-    'p8_ee_eegamma_ecm240':    {'fraction':1, 'crossSection': 190, 'inputDir': '/afs/cern.ch/work/l/lherrman/private/HiggsGamma/data'},  #what are the exact values here?
-    'p8_ee_tautaugamma_ecm240':    {'fraction':1, 'crossSection': 0.77, 'inputDir': '/afs/cern.ch/work/l/lherrman/private/HiggsGamma/data'},  #what are the exact values here?
-    'p8_ee_mumugamma_ecm240':    {'fraction':1, 'crossSection': 0.8, 'inputDir': '/afs/cern.ch/work/l/lherrman/private/HiggsGamma/data'},  #what are the exact values here?
+# global parameters
+intLumi        = 1.
+intLumiLabel   = "L = 10.8 ab^{-1}"
+ana_tex        = 'e^{+}e^{-} #rightarrow #gamma H'
+delphesVersion = '3.4.2'
+energy         = 240.0
+collider       = 'FCC-ee'
+formats        = ['png','pdf']
+
+outdir         = '/afs/cern.ch/work/s/saaumill/public/MyFCCAnalyses/outputs/plots/ZHgamma/' 
+inputDir       = '/afs/cern.ch/work/s/saaumill/public/MyFCCAnalyses/outputs/histmaker_fullsim/ZHgamma' 
+
+plotStatUnc    = True
+
+colors = {}
+colors['AH'] = ROOT.kRed
+colors['Acc'] = ROOT.kBlue+1
+colors['Aqq'] = ROOT.kGreen+2
+colors['Abb'] = ROOT.kYellow+3
+colors['WW'] = ROOT.kCyan
+colors['ZZ'] = ROOT.kAzure-9
+colors['Aee'] = ROOT.kViolet+3
+colors['Atautau'] = ROOT.kOrange
+colors['Amumu'] = ROOT.kMagenta
+colors['ZH'] = ROOT.kGray+2
+
+#procs = {}
+#procs['signal'] = {'ZH':['wzp6_ee_mumuH_ecm240']}
+#procs['backgrounds'] =  {'WW':['p8_ee_WW_ecm240'], 'ZZ':['p8_ee_ZZ_ecm240']}
+procs = {}
+
+
+#procs['signal'] = {'AH':['p8_ee_Hgamma_ecm240']}
+procs['signal'] = {'AH':['p8_ee_qqgamma_ecm240']} # for testing purpose
+
+procs['backgrounds'] =  {'Aqq':['p8_ee_qqgamma_ecm240'], 
+                        'Acc':['p8_ee_ccgamma_ecm240'], 
+                        'Abb':['p8_ee_bbgamma_ecm240'], 
+                        'Atautau':['p8_ee_tautaugamma_ecm240'], 
+                        'Amumu':['p8_ee_mumugamma_ecm240'], 
+                        'Aee':['p8_ee_eegamma_ecm240'], 
+                        # 'WW':['p8_ee_WW_ecm240'], 
+                        # 'ZZ':['p8_ee_ZZ_ecm240'], 
+                        'ZH':['p8_ee_ZH_ecm240']}
+
+legend = {}
+legend['AH'] = '#gamma H'
+legend['Aqq'] = '#gamma q#bar{q}'
+legend['Acc'] = '#gamma c#bar{c}'
+legend['Abb'] = '#gamma b#bar{b}'
+legend['WW'] = 'WW'
+legend['ZZ'] = 'ZZ'
+legend['Aee'] = '#gamma e^{+} e^{-}'
+legend['Atautau'] = '#gamma #tau^{+} #tau^{-}'
+legend['Amumu'] = '#gamma #mu^{+} #mu^{-}'
+legend['ZH'] = 'ZH'
+
+
+hists = {}
+hists2D = {}
+
+
+
+
+
+hists["cutFlow"] = {
+    "input":   "cutFlow",
+    "output":   "cutFlow",
+    "logy":     True,
+    "stack":   True,
+    "xmin":     0,
+    "xmax":     7,
+    "ymin":     1e4,
+    "ymax":     1e11,
+    #"xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 5"],
+    "xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 5", "110 < m_{recoil} < 140 ", "123.5  < m_{recoil} < 126.5 "],
+    "ytitle":   "Events ",
 }
 
-ecm= 240
-# Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics (mandatory)
-prodTag     = "FCCee/winter2023/IDEA/"
 
-# Link to the dictonary that contains all the cross section informations etc... (mandatory)
-procDict = "FCCee_procDict_winter2023_IDEA.json"
-
-# additional/custom C++ functions, defined in header files (optional)
-includePaths = ["../tutorial/functions.h"]
-
-# Define the input dir (optional)
-#inputDir    = "outputs/FCCee/higgs/mH-recoil/mumu/stage1"
-#inputDir    = "/afs/cern.ch/work/l/lherrman/private/HiggsGamma/data"
-
-#Optional: output directory, default is local running directory
-outputDir   = "/afs/cern.ch/work/l/lherrman/private/HiggsGamma/analysis/FCCAnalyses/myanalysis/outputsl/histmaker/recoil/"
+hists["gamma_recoil_m_cut_3"] = {
+    "input":   "gamma_recoil_m_cut_3",
+    "output":   "gamma_recoil_m_cut_3",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     100,
+    "xmax":     170,
+    "xtitle":   "Recoil (GeV)",
+    "ytitle":   "Events ",
+    "scaleSig": 1000,
+    "density": False
+}
 
 
-# optional: ncpus, default is 4, -1 uses all cores available
-nCPUS       = -1
-
-# scale the histograms with the cross-section and integrated luminosity
-doScale = True
-intLumi = 10800000  # 10.8 /ab
-
-
-# define some binning for various histograms
-bins_a_p = (100, 0, 500) # 100 MeV bins
-bins_a_n = (10, 0, 10) # 100 MeV bins
-
-bins_count = (10, 0, 10)
-
-
-##?| name of collections in EDM root files
-collections = {
-    "GenParticles": "Particle",
-    "PFParticles": "ReconstructedParticles",
-    "PFTracks": "EFlowTrack",
-    "PFPhotons": "EFlowPhoton",
-    "PFNeutralHadrons": "EFlowNeutralHadron",
-    # "TrackState": "EFlowTrack_1",
-    "TrackState": "_EFlowTrack_trackStates",
-    "TrackerHits": "TrackerHits",
-    "CalorimeterHits": "CalorimeterHits",
-    # "dNdx": "EFlowTrack_2",
-    "dNdx": "_EFlowTrack_dxQuantities",
-    "PathLength": "EFlowTrack_L",
-    "Bz": "magFieldBz",
-    "Electrons": "Electron",
-    "Muons": "Muon",
+hists["gamma_recoil_m_cut_4"] = {
+    "input":   "gamma_recoil_m_cut_4",
+    "output":   "gamma_recoil_m_cut_4",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     80,
+    "xmax":     200,
+    "xtitle":   "Recoil (GeV)",
+    "ytitle":   "Events ",
+   # "scaleSig": 1000,
+    "density": True
 }
 
 
 
-# build_graph function that contains the analysis logic, cuts and histograms (mandatory)
-def build_graph(df, dataset):
+hists["gamma_recoil_m_norm_cut_4"] = {
+    "input":   "gamma_recoil_m_cut_4",
+    "output":   "gamma_recoil_m_norm_cut_4",
+    "logy":     False,
+    "stack":    False,
+    "xmin":     80,
+    "xmax":     150,
+    "xtitle":   "Recoil (GeV)",
+    "ytitle":   "Events ",
+   # "scaleSig": 1000,
+    "density": True
 
-    results = []
-    df = df.Define("weight", "1.0")
-    weightsum = df.Sum("weight")
-    
+}
 
-    df = df.Alias("Photon0", "Photon#0.index")
-    df = df.Define(
-            "photons_all",
-            "FCCAnalyses::ReconstructedParticle::get(Photon0, ReconstructedParticles)",
-        )
+hists["gamma_recoil_m_signal_cut"] = {
+    "input":   "gamma_recoil_m_signal_cut",
+    "output":   "gamma_recoil_m_signal_cut",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     110,
+    "xmax":     150,
+    "xtitle":   "Recoil (GeV)",
+    "ytitle":   "Events ",
+    "density": False,
+    "scaleSig": 1000,
 
-    df = df.Alias("Electron0", "Electron#0.index")
-    df = df.Define(
-            "electrons_all",
-            "FCCAnalyses::ReconstructedParticle::get(Electron0, ReconstructedParticles)",
-        )
+}
+"""
+hists["gamma_recoil_m_signal_cut"] = {
+    "input":   "gamma_recoil_m_signal_cut",
+    "output":   "gamma_recoil_m_signal_cut",
+    "logy":     False,
+    "stack":    True,
+    #"xmin":     110,
+    "xmin":     116,
+    "xmax":     150,
+    "xtitle":   "Recoil (GeV)",
+    "ytitle":   "Events ",
+    "density": False
 
-    
+}
+"""
+hists["gamma_recoil_m_tight_cut"] = {
+    "input":   "gamma_recoil_m_tight_cut",
+    "output":   "gamma_recoil_m_tight_cut",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     115,
+    "xmax":     150,
+    "xtitle":   "Recoil (GeV)",
+    "ytitle":   "Events ",
+    "scaleSig": 1000,
+    "density": False
 
+}
 
-    df = df.Define("photons_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_all)") 
-    df = df.Define("photons_n","FCCAnalyses::ReconstructedParticle::get_n(photons_all)")  #number of photons per event
-    df = df.Define("photons_cos_theta","cos(FCCAnalyses::ReconstructedParticle::get_theta(photons_all))")
-    
-
-    df = df.Define("electrons_p", "FCCAnalyses::ReconstructedParticle::get_p(electrons_all)") 
-    df = df.Define("electrons_n","FCCAnalyses::ReconstructedParticle::get_n(electrons_all)")  #number of photons per event
-    df = df.Define("electrons_cos_theta","cos(FCCAnalyses::ReconstructedParticle::get_theta(electrons_all))")
-
-
-
-    # order the cos theta values, and return arrays, when filter require length 2 for cut!
-
-    # get cos theta from electrons
-    df = df.Define("electrons_ordered_cos_theta","FCCAnalyses::ZHfunctions::ee_costheta_max(electrons_cos_theta)")
-   
-    #print and check
-    #df = df.Define("photons_print", "FCCAnalyses::ZHfunctions::print_momentum(electrons_all)")
-    #results.append(df.Histo1D(("photons_print", "", 100, 0, 100), "photons_print"))
-
-
-    #########
-    ### CUT 0: all events
-    #########
-    df = df.Define("cut0", "0")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut0"))
-
-
-    #Baseline selection
-    results.append(df.Histo1D(("photons_p_cut_0", "", 130, 0, 130), "photons_p"))
-    results.append(df.Histo1D(("photons_n_cut_0", "", *bins_a_n), "photons_n"))
-    results.append(df.Histo1D(("photons_cos_theta_cut_0", "", 50, -1, 1), "photons_cos_theta"))
-
-    results.append(df.Histo1D(("electrons_p_baseline", "", 130, 0, 130), "electrons_p"))
-    results.append(df.Histo1D(("electrons_n_baseline", "", *bins_a_n), "electrons_n"))
-    results.append(df.Histo1D(("electrons_cos_theta", "", 50, -1, 1), "electrons_ordered_cos_theta"))
-
-   
-
-    #isolation cut
-    df = df.Define("photons_iso", "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.5)(photons_all, ReconstructedParticles)")  # is this correct?
-    df = df.Define("photons_sel_iso","FCCAnalyses::ZHfunctions::sel_iso(0.2)(photons_all, photons_iso)",) # and this??
-   
-    df = df.Define("photons_iso_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_sel_iso)") 
-    df = df.Define("photons_iso_n","FCCAnalyses::ReconstructedParticle::get_n(photons_sel_iso)")  #number of photons per event
-    df = df.Define("photons_iso_cos_theta","cos(FCCAnalyses::ReconstructedParticle::get_theta(photons_sel_iso))")
-
-    results.append(df.Histo1D(("photon_isolation", "", 50, 0, 10), "photons_iso"))
-
-     
-    #########
-    ### CUT 1: Photons must be isolated
-    #########
-    
-    df = df.Filter("photons_sel_iso.size()>0 ")  
-    df = df.Define("cut1", "1")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut1"))
-    
-    results.append(df.Histo1D(("photons_p_cut_1", "",  130, 0, 130), "photons_iso_p"))
-    results.append(df.Histo1D(("photons_n_cut_1", "", *bins_a_n), "photons_iso_n"))
-    results.append(df.Histo1D(("photons_cos_theta_cut_1", "", 50, -1, 1), "photons_iso_cos_theta"))
-    results.append(df.Histo1D(("electrons_cos_theta_cut_1", "", 50, -1, 1), "electrons_ordered_cos_theta"))
- 
-    
-
-    #sort in p  and select highest energetic one
-    df = df.Define("iso_highest_p","FCCAnalyses::ZHfunctions::sort_by_energy(photons_sel_iso)")
-
-    #print and check
-    #df = df.Define("photons_print", "FCCAnalyses::ZHfunctions::print_momentum(iso_highest_p)")
-    #results.append(df.Histo1D(("photons_print", "", 100, 0, 100), "photons_print"))
+hists["electrons_p_baseline"] = {
+    "input":   "electrons_p_baseline",
+    "output":   "electrons_p_baseline",
+    "logy":     True,
+    "stack":    False,
+    "xmin":     0,
+    "xmax":     130,
+    "xtitle":   "electrons_p_baseline",
+    "ytitle":   "Events ",
+    "density": False,
+    "density": True
+}
 
 
-
-    #energy cut
-    df = df.Define("photons_boosted", "FCCAnalyses::ReconstructedParticle::sel_p(60,100)(iso_highest_p)") # looked okay from photons all
-    #df = df.Define("photons_boosted", "FCCAnalyses::ReconstructedParticle::sel_p(60,100)(iso_highest_p)")
-
-    df = df.Define("photons_boosted_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_boosted)") # is this correct?
-    df = df.Define("photons_boosted_n","FCCAnalyses::ReconstructedParticle::get_n(photons_boosted)") 
-    df = df.Define("photons_boosted_cos_theta","cos(FCCAnalyses::ReconstructedParticle::get_theta(photons_boosted))")
-
-    
-    #########
-    ### CUT 2: Photons energy > 50
-    #########
-    
-    df = df.Filter("photons_boosted.size()>0 ")  
-    df = df.Define("cut2", "2")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut2"))
-    
-    results.append(df.Histo1D(("photons_p_cut_2", "",  130, 0, 130), "photons_boosted_p"))
-    results.append(df.Histo1D(("photons_n_cut_2", "", *bins_a_n), "photons_boosted_n"))
-    results.append(df.Histo1D(("photons_cos_theta_cut_2", "", 50, -1, 1), "photons_boosted_cos_theta"))
-    results.append(df.Histo1D(("electrons_cos_theta_cut_2", "", 50, -1, 1), "electrons_ordered_cos_theta"))
- 
-
-    
-     #########
-    ### CUT 3: Cos Theta cut
-    #########
-    df = df.Filter("ROOT::VecOps::All(abs(photons_boosted_cos_theta) < 0.9) ") 
-   
-    df = df.Define("cut3", "3")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut3"))
-    
-    results.append(df.Histo1D(("photons_p_cut_3", "", 130, 0, 130), "photons_boosted_p"))
-    results.append(df.Histo1D(("photons_n_cut_3", "", *bins_a_n), "photons_boosted_n"))
-    results.append(df.Histo1D(("photons_cos_theta_cut_3", "", 50, -1, 1), "photons_boosted_cos_theta"))
-    results.append(df.Histo1D(("electrons_cos_theta_cut_3", "", 50, -1, 1), "electrons_ordered_cos_theta"))
+hists["photons_p_cut_0"] = {
+    "input":   "photons_p_cut_0",
+    "output":   "photons_p_cut_0",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     130,
+    "xtitle":   "photons_p_cut_0",
+    "ytitle":   "Events ",
+    "density": False,
+    "density": True
+}
 
 
-    df = df.Define("recopart_no_gamma", "FCCAnalyses::ReconstructedParticle::remove(ReconstructedParticles, photons_boosted)",)
-    df = df.Define("recopart_no_gamma_n","FCCAnalyses::ReconstructedParticle::get_n(recopart_no_gamma)") 
-   
- 
-    results.append(df.Histo1D(("recopart_no_gamma_n_cut_0", "", 60, 0, 60), "recopart_no_gamma_n"))
+hists["photons_p_cut_1"] = {
+    "input":   "photons_p_cut_1",
+    "output":   "photons_p_cut_1",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     130,
+    "xtitle":   "p(\gamma) [GeV]",
+    "ytitle":   "Normalized Events",
+    "density": True,
+}
 
-    """
-    #########
-    ### CUT 4: Cos Theta cut on ee to reduce bhabhar
-    #########
-    df = df.Filter("electrons_ordered_cos_theta.size()<2 || (abs(electrons_ordered_cos_theta)[0]<0.8 && abs(electrons_ordered_cos_theta)[1]<0.8)") 
-    
-    df = df.Define("cut4", "4")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
- 
-    results.append(df.Histo1D(("photons_p_cut_4", "", 130, 0, 130), "photons_boosted_p"))
-    results.append(df.Histo1D(("photons_n_cut_4", "", *bins_a_n), "photons_boosted_n"))
-    results.append(df.Histo1D(("photons_cos_theta_cut_4", "", 50, -1, 1), "photons_boosted_cos_theta"))
-    results.append(df.Histo1D(("electrons_cos_theta_cut_4", "", 50, -1, 1), "electrons_ordered_cos_theta"))
-    """
+hists["photons_p_cut_2"] = {
+    "input":   "photons_p_cut_2",
+    "output":   "photons_p_cut_2",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     130,
+    "xtitle":   "photons_p_cut_2",
+    "ytitle":   "Events ",
+    "density": False,
+    "scaleSig": 1000,
+    "density": False
+}
 
-     # recoil plot
-    df = df.Define("gamma_recoil", "FCCAnalyses::ReconstructedParticle::recoilBuilder(240)(photons_boosted)") 
-    df = df.Define("gamma_recoil_m", "FCCAnalyses::ReconstructedParticle::get_mass(gamma_recoil)[0]") # recoil mass
-    results.append(df.Histo1D(("gamma_recoil_m_cut_3", "", 170, 80, 250), "gamma_recoil_m"))
-    
-    #########
-    ### CUT 4: require at least 6 reconstructed particles (except gamma)
-    #########
-    df = df.Filter(" recopart_no_gamma_n > 5") 
-    
-    df = df.Define("cut4", "4")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut4"))
- 
-    results.append(df.Histo1D(("recopart_no_gamma_n_cut_4", "", 60, 0, 60), "recopart_no_gamma_n"))
-    
+hists["photons_p_cut_3"] = {
+    "input":   "photons_p_cut_3",
+    "output":   "photons_p_cut_3",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     130,
+    "xtitle":   "photons_p_cut_3",
+    "ytitle":   "Events ",
+    "density": False,
+    "scaleSig": 1000,
+    "density": False
+}
+"""
+hists["photons_p_cut_4"] = {
+    "input":   "photons_p_cut_4",
+    "output":   "photons_p_cut_4",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     130,
+    "xtitle":   "photons_p_cut_4",
+    "ytitle":   "Events ",
+    "density": False,
+    "scaleSig": 1000,
+    "density": True
+}
+"""
+hists["electrons_n_baseline"] = {
+    "input":   "electrons_n_baseline",
+    "output":   "electrons_n_baseline",
+    "logy":     False,
+    "stack":    False,
+    "xmin":     0,
+    "xmax":     10,
+    "xtitle":   "electrons_n_baseline",
+    "ytitle":   "Events ",
+    "density": True
+}
 
-    
-    results.append(df.Histo1D(("gamma_recoil_m_cut_4", "", 170, 80, 250), "gamma_recoil_m"))
-   
+hists["photons_n_cut_0"] = {
+    "input":   "photons_n_cut_0",
+    "output":   "photons_n_cut_0",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     10,
+    "xtitle":   "photons_n_cut_0",
+    "ytitle":   "Events ",
+    "density": True
+}
+
+hists["photons_n_cut_1"] = {
+    "input":   "photons_n_cut_1",
+    "output":   "photons_n_cut_1",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     10,
+    "xtitle":   "photons_n_cut_1",
+    "ytitle":   "Events ",
+    "density": True
+}
+
+hists["photons_n_cut_2"] = {
+    "input":   "photons_n_cut_2",
+    "output":   "photons_n_cut_2",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     10,
+    "xtitle":   "photons_n_cut_2",
+    "ytitle":   "Events ",
+    "density": True
+}
+
+hists["photons_n_cut_3"] = {
+    "input":   "photons_n_cut_3",
+    "output":   "photons_n_cut_3",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     10,
+    "xtitle":   "photons_n_cut_3",
+    "ytitle":   "Events ",
+    "density": True
+}
+"""
+hists["photons_n_cut_4"] = {
+    "input":   "photons_n_cut_4",
+    "output":   "photons_n_cut_4",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     10,
+    "xtitle":   "photons_n_cut_4",
+    "ytitle":   "Events ",
+    "density": True
+}
+"""
+hists["recopart_no_gamma_n_cut_0"] = {
+    "input":   "recopart_no_gamma_n_cut_0",
+    "output":   "recopart_no_gamma_n_cut_0",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     60,
+    "xtitle":   "# reco particles",
+    "ytitle":   "Normalized Events",
+    "density": True
+}
+
+hists["recopart_no_gamma_n_cut_4"] = {
+    "input":   "recopart_no_gamma_n_cut_4",
+    "output":   "recopart_no_gamma_n_cut_4",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     60,
+    "xtitle":   "recopart_no_gamma_n_cut_4",
+    "ytitle":   "Events ",
+    "density": False
+}
+
+hists["photon_isolation"] = {
+    "input":   "photon_isolation",
+    "output":   "photon_isolation",
+    "logy":     True,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     10,
+    "xtitle":   "iso(\gamma)_{\Delta R< 0.5}",
+    "ytitle":   "Normalized Events ",
+    "density": True
+}
 
 
-    #########
-    ### CUT 5: gamma recoil cut
-    #########
-    df = df.Filter("110 < gamma_recoil_m && gamma_recoil_m < 150") 
-    #df = df.Filter("115 < gamma_recoil_m && gamma_recoil_m < 170") 
+hists["photons_cos_theta_cut_0"] = {
+    "input":   "photons_cos_theta_cut_0",
+    "output":   "photons_cos_theta_cut_0",
+    "logy":     False,
+    "stack":    False,
+    "xmin":     -1,
+    "xmax":     1,
+    "xtitle":   "photons_cos_theta_cut_0",
+    "ytitle":   "Events ",
+     "scaleSig": 10000,
+     "density": True
+}
 
-    df = df.Define("cut5", "5")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut5"))
 
-    results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 40, 110, 150), "gamma_recoil_m"))
-    #results.append(df.Histo1D(("gamma_recoil_m_signal_cut", "", 64, 116, 170), "gamma_recoil_m"))
-   
-    #########
-    ### CUT 6: gamma recoil cut tight
-    #########
-    #df = df.Filter("123.5 < gamma_recoil_m && gamma_recoil_m < 126.5") 
-    df = df.Filter("123.5 < gamma_recoil_m && gamma_recoil_m < 126.5") 
 
-    df = df.Define("cut6", "6")
-    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
+hists["photons_cos_theta_cut_1"] = {
+    "input":   "photons_cos_theta_cut_1",
+    "output":   "photons_cos_theta_cut_1",
+    "logy":     False,
+    "stack":    False,
+    "xmin":     -1,
+    "xmax":     1,
+    "xtitle":   "photons_cos_theta_cut_1",
+    "ytitle":   "Events ",
+     "scaleSig": 10000,
+     "density": True
+}
 
-    results.append(df.Histo1D(("gamma_recoil_m_tight_cut", "", 70, 80, 150), "gamma_recoil_m"))
+hists["photons_cos_theta_cut_2"] = {
+    "input":   "photons_cos_theta_cut_2",
+    "output":   "photons_cos_theta_cut_2",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     -1,
+    "xmax":     1,
+    "xtitle":   "cos(\Theta)_{\gamma}",
+    "ytitle":   "Normalized Events",
+   #  "scaleSig": 10000,
+     "density": True
+}
 
-   
-    #define further variables for plotting
-    #df = df.Define("photons_all_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_all)")
-    #df = df.Define("photons_boosted_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_boosted)")
-    #df = df.Define("photons_boosted_n","FCCAnalyses::ReconstructedParticle::get_n(photons_boosted)")  #number of photons per event
-    
-   
-    #select highest energetic photon
 
-    ########################
-    # Final histograms
-    ########################
-    #results.append(df.Histo1D(("photons_all_p", "", 100, 0, 100), "photons_all_p"))
-   # results.append(df.Histo1D(("photons_boosted_p", "", *bins_a_p), "photons_boosted_p"))
-    #results.append(df.Histo1D(("photons_n", "", *bins_a_n), "photons_n"))
-    #results.append(df.Histo1D(("photons_boosted_n", "", *bins_a_n), "photons_boosted_n"))
-    
-    #results.append(df.Histo1D(("zmumu_recoil_m", "", *bins_recoil), "zmumu_recoil_m"))   # see how recoil determined
-   
-    #need to select the highest energetic photon
+hists["photons_cos_theta_cut_3"] = {
+    "input":   "photons_cos_theta_cut_3",
+    "output":   "photons_cos_theta_cut_3",
+    "logy":     False,
+    "stack":    False,
+    "xmin":     -1,
+    "xmax":     1,
+    "xtitle":   "photons_cos_theta_cut_3",
+    "ytitle":   "Events ",
+     "scaleSig": 10000,
+     "density": True
+}
+"""
+hists["photons_cos_theta_cut_4"] = {
+    "input":   "photons_cos_theta_cut_4",
+    "output":   "photons_cos_theta_cut_4",
+    "logy":     False,
+    "stack":    False,
+    "xmin":     -1,
+    "xmax":     1,
+    "xtitle":   "photons_cos_theta_cut_4",
+    "ytitle":   "Events ",
+     "scaleSig": 10000,
+     "density": True
+}
+"""
+"""
+hists["photons_boosted_p"] = {
+    "input":   "photons_boosted_p",
+    "output":   "photons_boosted_p",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     100,
+    "xtitle":   "photons_boosted_p",
+    "ytitle":   "Events ",
+    "density": True
+}
 
-    return results, weightsum
 
+
+hists["photons_boosted_n"] = {
+    "input":   "photons_boosted_n",
+    "output":   "photons_boosted_n",
+    "logy":     False,
+    "stack":    True,
+    "xmin":     0,
+    "xmax":     10,
+    "xtitle":   "photons_boosted_n",
+    "ytitle":   "Events ",
+}
+"""
+
+
+"""
+
+
+
+hists["zmumu_recoil_m"] = {
+    "output":   "zmumu_recoil_m",
+    "logy":     False,
+    "stack":    True,
+    "rebin":    100,
+    "xmin":     120,
+    "xmax":     140,
+    "ymin":     0,
+    "ymax":     2500,
+    "xtitle":   "Recoil (GeV)",
+    "ytitle":   "Events / 100 MeV",
+}
+
+hists["zmumu_p"] = {
+    "output":   "zmumu_p",
+    "logy":     False,
+    "stack":    True,
+    "rebin":    2,
+    "xmin":     0,
+    "xmax":     80,
+    "ymin":     0,
+    "ymax":     2000,
+    "xtitle":   "p(#mu^{#plus}#mu^{#minus}) (GeV)",
+    "ytitle":   "Events ",
+}
+
+hists["zmumu_m"] = {
+    "output":   "zmumu_m",
+    "logy":     False,
+    "stack":    True,
+    "rebin":    2,
+    "xmin":     86,
+    "xmax":     96,
+    "ymin":     0,
+    "ymax":     3000,
+    "xtitle":   "m(#mu^{#plus}#mu^{#minus}) (GeV)",
+    "ytitle":   "Events ",
+}"""
