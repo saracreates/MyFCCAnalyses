@@ -13,7 +13,66 @@
 #include "ReconstructedParticle2MC.h"
 
 
-namespace FCCAnalyses { namespace ZHfunctions {
+namespace FCCAnalyses { 
+    
+    Vec_rp unBoostCrossingAngle(Vec_rp in, float angle) {
+        Vec_rp result;
+        float ta = std::tan(angle);
+        for (size_t i=0; i < in.size(); ++i) {
+            auto & p = in[i];
+            edm4hep::ReconstructedParticleData newp = p;
+            float e = p.energy;
+            float px = p.momentum.x;
+            float e_prime = e * sqrt(1 + ta*ta) + px * ta;
+            float px_prime = px * sqrt(1 + ta*ta) + e * ta;
+            newp.momentum.x = px_prime;
+            newp.energy = e_prime;
+            result.push_back(newp);
+        }
+        return result;
+    }
+
+    Vec_mc unBoostCrossingAngle(Vec_mc in, float angle) {
+        Vec_mc result;
+        float ta = std::tan(angle);
+        for (size_t i=0; i < in.size(); ++i) {
+            auto & p = in[i];
+            TLorentzVector mc_;
+            mc_.SetXYZM(p.momentum.x, p.momentum.y, p.momentum.z, p.mass);
+            edm4hep::MCParticleData newp = p;
+            float e = mc_.Energy();
+            float px = p.momentum.x;
+            float px_prime = px * sqrt(1 + ta*ta) + e * ta;
+            newp.momentum.x = px_prime;
+            result.push_back(newp);
+        }
+        return result;
+    }
+
+    Vec_rp sel_type(int type, Vec_rp in) {
+        Vec_rp res;
+        for(auto &p : in) {
+            if(std::abs(p.PDG) == type) {
+            //if(std::abs(p.PDG) == type) {
+                res.push_back(p);
+            }
+        }
+        return res;
+    }
+    
+    Vec_mc sel_type(int type, Vec_mc in) {
+        Vec_mc res;
+        for(auto &p : in) {
+            if(std::abs(p.PDG) == type) {
+                res.push_back(p);
+            }
+        }
+        return res;
+    }
+        
+    
+    
+    namespace ZHfunctions {
 
 
 // build the Z resonance based on the available leptons. Returns the best lepton pair compatible with the Z mass and recoil at 125 GeV

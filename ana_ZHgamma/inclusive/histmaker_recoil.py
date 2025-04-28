@@ -12,21 +12,26 @@ from Juraj 10. April 2025:
 /eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/qqgamma/CLD_o2_v05/rec/00016893
 /eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/ccgamma/CLD_o2_v05/rec/00016896
 /eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/bbgamma/CLD_o2_v05/rec/00016899
+
+As these are not nice to link, I've created simlinks here: /afs/cern.ch/work/s/saaumill/public/tmp_simlink_fullsim/ 
+This folder has folders with the names of the processes, and inside are the simlinks to the files.
 """
+
+input_base = "/afs/cern.ch/work/s/saaumill/public/tmp_simlink_fullsim/"
 
 # list of processes (mandatory)
 processList = {
     # 'p8_ee_Hgamma_ecm240':    {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': '/afs/cern.ch/work/l/lherrman/private/HiggsGamma/data'}, 
-    'qqgamma_rec_16893_1':    {'fraction':1, 'crossSection': 6.9, 'inputDir': '/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/qqgamma/CLD_o2_v05/rec/00016893/000'},  #what are the exact values here?
-    'ccgamma_rec_16896_1':    {'fraction':1, 'crossSection': 2.15, 'inputDir': '/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/ccgamma/CLD_o2_v05/rec/00016896/000'},  #what are the exact values here?
-    'bbgamma_rec_16899_1':    {'fraction':1, 'crossSection': 2.35, 'inputDir': '/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/bbgamma/CLD_o2_v05/rec/00016899/000'},  #what are the exact values here?
+    'p8_ee_qqgamma_ecm240':    {'fraction':1, 'crossSection': 6.9, 'inputDir': input_base},  #what are the exact values here?
+    'p8_ee_ccgamma_ecm240':    {'fraction':1, 'crossSection': 2.15, 'inputDir': input_base},  #what are the exact values here?
+    'p8_ee_bbgamma_ecm240':    {'fraction':1, 'crossSection': 2.35, 'inputDir': input_base},  #what are the exact values here?
     # ZH
-    '000':              {'fraction':1, 'crossSection': 0.2, 'inputDir': '/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/ZH/CLD_o2_v05/rec/00016881/'},  #what are the exact values here?
+    'p8_ee_ZH_ecm240':              {'fraction':1, 'crossSection': 0.2, 'inputDir': input_base},  #what are the exact values here?
     # 'p8_ee_WW_ecm240':    {'fraction':1},  
     # 'p8_ee_ZZ_ecm240':    {'fraction':1}, 
-    'eegamma_rec_16884_1':    {'fraction':1, 'crossSection': 190, 'inputDir': '/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/eegamma/CLD_o2_v05/rec/00016884/000'},  #what are the exact values here?
-    'tautaugamma_rec_16890_1':    {'fraction':1, 'crossSection': 0.77, 'inputDir': '/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/tautaugamma/CLD_o2_v05/rec/00016890/000'},  #what are the exact values here?
-    'mumugamma_rec_16887_1':    {'fraction':1, 'crossSection': 0.8, 'inputDir': '/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/mumugamma/CLD_o2_v05/rec/00016887/000'},  #what are the exact values here?
+    'p8_ee_eegamma_ecm240':    {'fraction':1, 'crossSection': 190, 'inputDir': input_base},  #what are the exact values here?
+    'p8_ee_tautaugamma_ecm240':    {'fraction':1, 'crossSection': 0.77, 'inputDir': input_base},  #what are the exact values here?
+    'p8_ee_mumugamma_ecm240':    {'fraction':1, 'crossSection': 0.8, 'inputDir': input_base},  #what are the exact values here?
 }
 
 ecm= 240
@@ -44,7 +49,7 @@ includePaths = ["../functions.h"]
 #inputDir    = "/afs/cern.ch/work/l/lherrman/private/HiggsGamma/data"
 
 #Optional: output directory, default is local running directory
-outputDir   = "./outputs/histmaker_fullsim/ZHgamma/"
+outputDir   = "/afs/cern.ch/work/s/saaumill/public/MyFCCAnalyses/outputs/histmaker_fullsim/ZHgamma/"
 
 
 # optional: ncpus, default is 4, -1 uses all cores available
@@ -89,21 +94,15 @@ def build_graph(df, dataset):
     results = []
     df = df.Define("weight", "1.0")
     weightsum = df.Sum("weight")
-    
 
-    df = df.Alias("Photon0", "Photon_objIdx.index")
-    df = df.Define(
-            "photons_all",
-            "FCCAnalyses::ReconstructedParticle::get(Photon0, ReconstructedParticles)",
-        )
+    # full sim defines
 
-    df = df.Alias("Electron0", "Electron_objIdx.index")
-    df = df.Define(
-            "electrons_all",
-            "FCCAnalyses::ReconstructedParticle::get(Electron0, ReconstructedParticles)",
-        )
+    # in FullSim, both the reco and gen particles are produced with a crossing angle
+    df = df.Define("ReconstructedParticles", "FCCAnalyses::unBoostCrossingAngle(PandoraPFOs, -0.015)")
+    df = df.Define("Particle", "FCCAnalyses::unBoostCrossingAngle(MCParticles, -0.015)")
 
-    
+    df = df.Define("photons_all", "FCCAnalyses::sel_type(22, ReconstructedParticles)")
+    df = df.Define("electrons_all", f"FCCAnalyses::sel_type(11, ReconstructedParticles)")
 
 
     df = df.Define("photons_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_all)") 
