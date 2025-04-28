@@ -1,0 +1,47 @@
+imax *
+jmax *
+kmax *
+---------------
+shapes HZZ * /afs/cern.ch/work/s/saaumill/public/FCCAnalyses/outputs/histmaker_LHF/ZZZqqllvv/wzp6_ee_qqH_HZZ_llvv_ecm240.root recoil_mass_LHF
+shapes WW * /afs/cern.ch/work/s/saaumill/public/FCCAnalyses/outputs/histmaker_LHF/ZZZqqllvv/p8_ee_WW_ecm240.root recoil_mass_LHF
+shapes ZZ * /afs/cern.ch/work/s/saaumill/public/FCCAnalyses/outputs/histmaker_LHF/ZZZqqllvv/p8_ee_ZZ_ecm240.root recoil_mass_LHF
+shapes eeHZZ * /afs/cern.ch/work/s/saaumill/public/FCCAnalyses/outputs/histmaker_LHF/ZZZqqllvv/wzp6_ee_eeH_HZZ_ecm240.root recoil_mass_LHF
+shapes mumuHZZ * /afs/cern.ch/work/s/saaumill/public/FCCAnalyses/outputs/histmaker_LHF/ZZZqqllvv/wzp6_ee_mumuH_HZZ_ecm240.root recoil_mass_LHF
+shapes qqHtautau * /afs/cern.ch/work/s/saaumill/public/FCCAnalyses/outputs/histmaker_LHF/ZZZqqllvv/wzp6_ee_qqH_Htautau_ecm240.root recoil_mass_LHF
+shapes ssHtautau * /afs/cern.ch/work/s/saaumill/public/FCCAnalyses/outputs/histmaker_LHF/ZZZqqllvv/wzp6_ee_ssH_Htautau_ecm240.root recoil_mass_LHF
+shapes ccHtautau * /afs/cern.ch/work/s/saaumill/public/FCCAnalyses/outputs/histmaker_LHF/ZZZqqllvv/wzp6_ee_ccH_Htautau_ecm240.root recoil_mass_LHF
+shapes bbHtautau * /afs/cern.ch/work/s/saaumill/public/FCCAnalyses/outputs/histmaker_LHF/ZZZqqllvv/wzp6_ee_bbH_Htautau_ecm240.root recoil_mass_LHF
+shapes qqHWW * /afs/cern.ch/work/s/saaumill/public/FCCAnalyses/outputs/histmaker_LHF/ZZZqqllvv/wzp6_ee_qqH_HWW_ecm240.root recoil_mass_LHF
+shapes ssHWW * /afs/cern.ch/work/s/saaumill/public/FCCAnalyses/outputs/histmaker_LHF/ZZZqqllvv/wzp6_ee_ssH_HWW_ecm240.root recoil_mass_LHF
+shapes ccHWW * /afs/cern.ch/work/s/saaumill/public/FCCAnalyses/outputs/histmaker_LHF/ZZZqqllvv/wzp6_ee_ccH_HWW_ecm240.root recoil_mass_LHF
+shapes bbHWW * /afs/cern.ch/work/s/saaumill/public/FCCAnalyses/outputs/histmaker_LHF/ZZZqqllvv/wzp6_ee_bbH_HWW_ecm240.root recoil_mass_LHF
+shapes Zqq * /afs/cern.ch/work/s/saaumill/public/FCCAnalyses/outputs/histmaker_LHF/ZZZqqllvv/p8_ee_Zqq_ecm240.root recoil_mass_LHF
+shapes data_obs * /afs/cern.ch/work/s/saaumill/public/FCCAnalyses/outputs/histmaker_LHF/ZZZqqllvv/wzp6_ee_qqH_HZZ_llvv_ecm240.root recoil_mass_LHF
+---------------
+---------------
+#bin            bin1
+observation     -1
+------------------------------
+bin          bin1 bin1 bin1 bin1 bin1 bin1 bin1 bin1 bin1 bin1 bin1 bin1 bin1 bin1
+process      HZZ WW ZZ eeHZZ mumuHZZ qqHtautau ssHtautau ccHtautau bbHtautau qqHWW ssHWW ccHWW bbHWW Zqq
+process      0 1 2 3 4 5 6 7 8 9 10 11 12 13
+rate         -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+--------------------------------
+#bkg lnU      -              1.5
+#HWW_norm rateParam bin1 WW 1
+#ZZ_norm rateParam bin1 ZZ 1
+#Zqq_norm rateParam bin1 Zqq 1
+
+WW_norm lnN - 1.05 - - - - - - - - - - - - 
+ZZ_norm lnN - - 1.05 - - - - - - - - - - - 
+eeHZZ_norm lnN - - - 1.05 - - - - - - - - - - 
+mumuHZZ_norm lnN - - - - 1.05 - - - - - - - - - 
+qqHtautau_norm lnN - - - - - 1.05 - - - - - - - - 
+ssHtautau_norm lnN - - - - - - 1.05 - - - - - - - 
+ccHtautau_norm lnN - - - - - - - 1.05 - - - - - - 
+bbHtautau_norm lnN - - - - - - - - 1.05 - - - - - 
+qqHWW_norm lnN - - - - - - - - - 1.05 - - - - 
+ssHWW_norm lnN - - - - - - - - - - 1.05 - - - 
+ccHWW_norm lnN - - - - - - - - - - - 1.05 - - 
+bbHWW_norm lnN - - - - - - - - - - - - 1.05 - 
+Zqq_norm lnN - - - - - - - - - - - - - 1.05 
