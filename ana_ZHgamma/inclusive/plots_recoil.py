@@ -34,8 +34,8 @@ colors['ZH'] = ROOT.kGray+2
 procs = {}
 
 
-#procs['signal'] = {'AH':['p8_ee_Hgamma_ecm240']}
-procs['signal'] = {'AH':['reco_higgsgamma_test_REC.edm4hep']} # for testing purpose
+procs['signal'] = {'AH':['p8_ee_Hgamma_ecm240']}
+# procs['signal'] = {'AH':['reco_higgsgamma_test_REC.edm4hep']} # for testing purpose
 
 procs['backgrounds'] =  {'Aqq':['p8_ee_qqgamma_ecm240'], 
                         'Acc':['p8_ee_ccgamma_ecm240'], 

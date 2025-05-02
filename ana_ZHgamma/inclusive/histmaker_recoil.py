@@ -21,8 +21,8 @@ input_base = "/afs/cern.ch/work/s/saaumill/public/analyses/Hgamma_fullsim_simlin
 
 # list of processes (mandatory)
 processList = {
-    # 'p8_ee_Hgamma_ecm240':    {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': '/afs/cern.ch/work/l/lherrman/private/HiggsGamma/data'}, 
-    'reco_higgsgamma_test_REC.edm4hep': {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/tmp_fullsim_output/reco_higgsgamma"},
+    'p8_ee_Hgamma_ecm240':    {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': input_base},  #what are the exact values here?
+    #'reco_higgsgamma_test_REC.edm4hep': {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/tmp_fullsim_output/reco_higgsgamma"},
     'p8_ee_qqgamma_ecm240':    {'fraction':1, 'crossSection': 6.9, 'inputDir': input_base},  #what are the exact values here?
     'p8_ee_ccgamma_ecm240':    {'fraction':1, 'crossSection': 2.15, 'inputDir': input_base},  #what are the exact values here?
     'p8_ee_bbgamma_ecm240':    {'fraction':1, 'crossSection': 2.35, 'inputDir': input_base},  #what are the exact values here?
