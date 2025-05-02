@@ -11,9 +11,13 @@
 #include "edm4hep/MCParticleData.h"
 #include "edm4hep/ParticleIDData.h"
 #include "ReconstructedParticle2MC.h"
+#include <edm4hep/utils/ParticleIDUtils.h>
+#include <edm4hep/ParticleIDCollection.h>
 
 
 namespace FCCAnalyses { 
+
+    // full sim functions
     
     Vec_rp unBoostCrossingAngle(Vec_rp in, float angle) {
         Vec_rp result;
@@ -69,6 +73,27 @@ namespace FCCAnalyses {
         }
         return res;
     }
+
+    // exclusive bb functions 
+    Vec_f get_bscores(ROOT::VecOps::RVec<edm4hep::ParticleIDData> b_tags_coll) {
+        // check size of the b-tag collection - must be 2
+        if(b_tags_coll.size() != 2) {
+            std::cout << "ERROR: Expected two b-tag collections! " << std::endl;
+            exit(1);
+        }
+
+        Vec_f result;
+        result.reserve(2); // two b scores 
+
+        for (const auto b_tags : b_tags_coll) {
+            // std::cout << "jet likelihood: " << b_tags.likelihood << std::endl;
+            // std::cout << "jet pdg: " << b_tags.PDG << std::endl;
+            result.emplace_back(b_tags.likelihood);
+        }
+
+        return result;
+    }
+
         
     
     
