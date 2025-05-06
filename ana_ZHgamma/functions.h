@@ -94,6 +94,42 @@ namespace FCCAnalyses {
         return result;
     }
 
+    Vec_rp get_jet_res(Vec_rp in){
+        // check if there are two jets
+        if(in.size() != 2) {
+            std::cout << "ERROR: Expected two jets! " << std::endl;
+            exit(1);
+        }
+        TLorentzVector jet1;
+        jet1.SetXYZM(in[0].momentum.x, in[0].momentum.y, in[0].momentum.z, in[0].mass);
+        TLorentzVector jet2;
+        jet2.SetXYZM(in[1].momentum.x, in[1].momentum.y, in[1].momentum.z, in[1].mass);
+        TLorentzVector res = jet1 + jet2;
+
+        edm4hep::ReconstructedParticleData jet_res;
+        jet_res.momentum.x = res.Px();
+        jet_res.momentum.y = res.Py();
+        jet_res.momentum.z = res.Pz();
+        jet_res.mass = res.M();
+
+        Vec_rp result;
+        result.reserve(1);
+        result.emplace_back(jet_res);
+        return result;
+    }
+
+
+    ROOT::VecOps::RVec<TLorentzVector> return_p4_jets(Vec_rp in) {
+        ROOT::VecOps::RVec<TLorentzVector> result;
+        result.reserve(in.size());
+        for (size_t i = 0; i < in.size(); ++i) {
+            auto & p = in[i];
+            TLorentzVector tlv;
+            tlv.SetXYZM(p.momentum.x, p.momentum.y, p.momentum.z, p.mass);
+            result.emplace_back(tlv);
+        }
+        return result;
+    }
         
     
     

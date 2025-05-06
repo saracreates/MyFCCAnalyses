@@ -276,7 +276,8 @@ def build_graph(df, dataset):
     ### CUT 6: gamma recoil cut tight
     #########
     #df = df.Filter("123.5 < gamma_recoil_m && gamma_recoil_m < 126.5") 
-    df = df.Filter("123.5 < gamma_recoil_m && gamma_recoil_m < 126.5") 
+    df = df.Filter("114 < gamma_recoil_m && gamma_recoil_m < 128")
+
 
     df = df.Define("cut6", "6")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))

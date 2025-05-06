@@ -25,15 +25,15 @@ input_base = "/afs/cern.ch/work/s/saaumill/public/analyses/Hgamma_fullsim_simlin
 processList = {
     'p8_ee_Hgamma_ecm240':    {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': input_base},  #what are the exact values here?
     # #'reco_higgsgamma_test_REC.edm4hep': {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/tmp_fullsim_output/reco_higgsgamma"},
-    'p8_ee_qqgamma_ecm240':    {'fraction':1, 'crossSection': 6.9, 'inputDir': input_base},  #what are the exact values here?
-    'p8_ee_ccgamma_ecm240':    {'fraction':1, 'crossSection': 2.15, 'inputDir': input_base},  #what are the exact values here?
-    'p8_ee_bbgamma_ecm240':    {'fraction':1, 'crossSection': 2.35, 'inputDir': input_base},  #what are the exact values here?
-    'p8_ee_ZH_ecm240':              {'fraction':1, 'crossSection': 0.2, 'inputDir': input_base},  #what are the exact values here?
-    # 'p8_ee_WW_ecm240':    {'fraction':1},  
-    # 'p8_ee_ZZ_ecm240':    {'fraction':1}, 
-    'p8_ee_eegamma_ecm240':    {'fraction':1, 'crossSection': 190, 'inputDir': input_base},  #what are the exact values here?
-    'p8_ee_tautaugamma_ecm240':    {'fraction':1, 'crossSection': 0.77, 'inputDir': input_base},  #what are the exact values here?
-    'p8_ee_mumugamma_ecm240':    {'fraction':1, 'crossSection': 0.8, 'inputDir': input_base},  #what are the exact values here?
+    # 'p8_ee_qqgamma_ecm240':    {'fraction':1, 'crossSection': 6.9, 'inputDir': input_base},  #what are the exact values here?
+    # 'p8_ee_ccgamma_ecm240':    {'fraction':1, 'crossSection': 2.15, 'inputDir': input_base},  #what are the exact values here?
+    # 'p8_ee_bbgamma_ecm240':    {'fraction':1, 'crossSection': 2.35, 'inputDir': input_base},  #what are the exact values here?
+    # 'p8_ee_ZH_ecm240':              {'fraction':1, 'crossSection': 0.2, 'inputDir': input_base},  #what are the exact values here?
+    # # 'p8_ee_WW_ecm240':    {'fraction':1},  
+    # # 'p8_ee_ZZ_ecm240':    {'fraction':1}, 
+    # 'p8_ee_eegamma_ecm240':    {'fraction':1, 'crossSection': 190, 'inputDir': input_base},  #what are the exact values here?
+    # 'p8_ee_tautaugamma_ecm240':    {'fraction':1, 'crossSection': 0.77, 'inputDir': input_base},  #what are the exact values here?
+    # 'p8_ee_mumugamma_ecm240':    {'fraction':1, 'crossSection': 0.8, 'inputDir': input_base},  #what are the exact values here?
 }
 
 ecm= 240
@@ -240,7 +240,7 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("electrons_cos_theta_cut_4", "", 50, -1, 1), "electrons_ordered_cos_theta"))
     """
 
-     # recoil plot
+    # recoil plot
     df = df.Define("gamma_recoil", "FCCAnalyses::ReconstructedParticle::recoilBuilder(240)(photons_boosted)") 
     df = df.Define("gamma_recoil_m", "FCCAnalyses::ReconstructedParticle::get_mass(gamma_recoil)[0]") # recoil mass
     results.append(df.Histo1D(("gamma_recoil_m_cut_3", "", 170, 80, 250), "gamma_recoil_m"))
@@ -299,6 +299,30 @@ def build_graph(df, dataset):
     df = df.Filter("b_tags_sum > 1") # cut on btag score 
     df = df.Define("cut6", "6")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut6"))
+
+    results.append(df.Histo1D(("gamma_recoil_m_LHF", "", 40, 110, 150), "gamma_recoil_m"))
+
+    # look at inv mass of two b system?
+
+    df = df.Define("jets", "FCCAnalyses::get_jet_res(RefinedVertexJets)") 
+
+    df = df.Define("jets_p", "FCCAnalyses::ReconstructedParticle::get_p(jets)[0]")
+    results.append(df.Histo1D(("jets_p", "", 100, 0, 240), "jets_p"))
+
+    df = df.Define("jets_m", "FCCAnalyses::ReconstructedParticle::get_mass(jets)[0]") # recoil mass
+    results.append(df.Histo1D(("jets_m", "", 100, 0, 240), "jets_m"))
+
+    df = df.Define("jets_p4", "FCCAnalyses::return_p4_jets(RefinedVertexJets)") # recoil mass
+    df = df.Define("m_jj", "JetConstituentsUtils::InvariantMass(jets_p4[0], jets_p4[1])")
+    results.append(df.Histo1D(("m_jj", "", 100, 0, 240), "m_jj"))
+
+
+    ########
+    ### Cut 7: tighter cut around recoil mass
+    ########
+    df = df.Filter("114 < gamma_recoil_m && gamma_recoil_m < 128")
+    df = df.Define("cut7", "7")
+    results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
 
 
    

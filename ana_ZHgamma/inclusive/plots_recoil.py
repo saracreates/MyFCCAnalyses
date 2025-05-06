@@ -77,7 +77,7 @@ hists["cutFlow"] = {
     "ymin":     1e4,
     "ymax":     1e11,
     #"xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 5"],
-    "xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 9", "110 < m_{recoil} < 140 ", "123.5  < m_{recoil} < 126.5 "],
+    "xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 9", "110 < m_{recoil} < 140 ", "114 < m_{recoil} < 128 "],
     "ytitle":   "Events ",
 }
 
