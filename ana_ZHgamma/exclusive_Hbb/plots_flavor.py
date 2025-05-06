@@ -12,8 +12,8 @@ formats        = ['png','pdf']
 #outdir         = './outputs/plots/flavor/' 
 #inputDir       = './outputs/histmaker/flavor/' 
 
-outdir         = './outputs/plots/flavor/extended' 
-inputDir       = './outputs/histmaker/flavor/extended' 
+outdir         = '/afs/cern.ch/work/s/saaumill/public/MyFCCAnalyses/outputs/plots/ZHgamma_btag' 
+inputDir       = '/afs/cern.ch/work/s/saaumill/public/MyFCCAnalyses/outputs/histmaker_fullsim/ZHgamma_btag/' 
 
 plotStatUnc    = True
 
@@ -34,8 +34,15 @@ colors['ZH'] = ROOT.kGray+2
 #procs['backgrounds'] =  {'WW':['p8_ee_WW_ecm240'], 'ZZ':['p8_ee_ZZ_ecm240']}
 procs = {}
 procs['signal'] = {'AH':['p8_ee_Hgamma_ecm240']}
-procs['backgrounds'] =  {'Aqq':['p8_ee_qqgamma_ecm240'], 'Acc':['p8_ee_ccgamma_ecm240'], 'Abb':['p8_ee_bbgamma_ecm240'], 'Atautau':['p8_ee_tautaugamma_ecm240'], 'Amumu':['p8_ee_mumugamma_ecm240'], 'Aee':['p8_ee_eegamma_ecm240'], 'WW':['p8_ee_WW_ecm240'], 'ZZ':['p8_ee_ZZ_ecm240'], 'ZH':['p8_ee_ZH_ecm240']}
-#procs['backgrounds'] =  {'Abb':['p8_ee_bbgamma_ecm240']}
+procs['backgrounds'] =  {'Aqq':['p8_ee_qqgamma_ecm240'], 
+                        'Acc':['p8_ee_ccgamma_ecm240'], 
+                        'Abb':['p8_ee_bbgamma_ecm240'], 
+                        'Atautau':['p8_ee_tautaugamma_ecm240'], 
+                        'Amumu':['p8_ee_mumugamma_ecm240'], 
+                        'Aee':['p8_ee_eegamma_ecm240'], 
+                        # 'WW':['p8_ee_WW_ecm240'], 
+                        # 'ZZ':['p8_ee_ZZ_ecm240'], 
+                        'ZH':['p8_ee_ZH_ecm240']}
 
 
 legend = {}
@@ -68,164 +75,164 @@ hists["cutFlow"] = {
     "ymin":     1e4,
     "ymax":     1e11,
     #"xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 5"],
-    "xtitle":   ["cut 1 to 5", "validate", "B score sum > 1 ", "recoil mass tight", ""],
+    "xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 9", "110 < m_{recoil} < 140 ", "b score sum > 1"],
     "ytitle":   "Events ",
 }
 
 
-hists["recojet_isB_size"] = {
-    "input":   "recojet_isB_size",
-    "output":   "recojet_isB_size",
+hists["b_tags_sum"] = {
+    "input":   "b_tags_sum",
+    "output":   "b_tags_sum",
     "logy":     False,
     "stack":    True,
     "xmin":     0,
-    "xmax":     5,
-    "xtitle":   "recojet_isB_size",
+    "xmax":     2,
+    "xtitle":   "b_tags_sume",
     "ytitle":   "Events ",
     "density": False,
     #"scaleSig": 1000,
 
 }
 
-hists["recojet_isB0"] = {
-    "input":   "recojet_isB0",
-    "output":   "recojet_isB0",
-    "logy":     True,
-    "stack":    True,
-    "xmin":     0,
-    "xmax":     1,
-    "xtitle":   "recojet_isB0",
-    "ytitle":   "Events ",
-    "density": True,
-    #"scaleSig": 1000,
+# hists["recojet_isB0"] = {
+#     "input":   "recojet_isB0",
+#     "output":   "recojet_isB0",
+#     "logy":     True,
+#     "stack":    True,
+#     "xmin":     0,
+#     "xmax":     1,
+#     "xtitle":   "recojet_isB0",
+#     "ytitle":   "Events ",
+#     "density": True,
+#     #"scaleSig": 1000,
 
-}
+# }
 
-hists["recojet_isB1"] = {
-    "input":   "recojet_isB1",
-    "output":   "recojet_isB1",
-    "logy":     True,
-    "stack":    True,
-    "xmin":     0,
-    "xmax":     1,
-    "xtitle":   "recojet_isB1",
-    "ytitle":   "Events ",
-    "density": True,
-    #"scaleSig": 1000,
+# hists["recojet_isB1"] = {
+#     "input":   "recojet_isB1",
+#     "output":   "recojet_isB1",
+#     "logy":     True,
+#     "stack":    True,
+#     "xmin":     0,
+#     "xmax":     1,
+#     "xtitle":   "recojet_isB1",
+#     "ytitle":   "Events ",
+#     "density": True,
+#     #"scaleSig": 1000,
 
-}
+# }
 
-hists["scoresum_B"] = {
-    "input":   "scoresum_B",
-    "output":   "scoresum_B",
-    "logy":     True,
-    "stack":    True,
-    "xmin":     0,
-    "xmax":     2,
-    "xtitle":   "scoresum_B",
-    "ytitle":   "Normalized Events",
-    "density": True,
-    #"scaleSig": 1000,
+# hists["scoresum_B"] = {
+#     "input":   "scoresum_B",
+#     "output":   "scoresum_B",
+#     "logy":     True,
+#     "stack":    True,
+#     "xmin":     0,
+#     "xmax":     2,
+#     "xtitle":   "scoresum_B",
+#     "ytitle":   "Normalized Events",
+#     "density": True,
+#     #"scaleSig": 1000,
 
-}
+# }
 
-hists["scorediv_B"] = {
-    "input":   "scorediv_B",
-    "output":   "scorediv_B",
-    "logy":     True,
-    "stack":    True,
-    "xmin":     0,
-    "xmax":     3,
-    "xtitle":   "scorediv_B",
-    "ytitle":   "Events ",
-    "density": False,
-    #"scaleSig": 1000,
+# hists["scorediv_B"] = {
+#     "input":   "scorediv_B",
+#     "output":   "scorediv_B",
+#     "logy":     True,
+#     "stack":    True,
+#     "xmin":     0,
+#     "xmax":     3,
+#     "xtitle":   "scorediv_B",
+#     "ytitle":   "Events ",
+#     "density": False,
+#     #"scaleSig": 1000,
 
-}
+# }
 
-hists["scoresum_C"] = {
-    "input":   "scoresum_C",
-    "output":   "scoresum_C",
-    "logy":     True,
-    "stack":    True,
-    "xmin":     0,
-    "xmax":     2,
-    "xtitle":   "scoresum_C",
-    "ytitle":   "Events ",
-    "density": False,
-    #"scaleSig": 1000,
+# hists["scoresum_C"] = {
+#     "input":   "scoresum_C",
+#     "output":   "scoresum_C",
+#     "logy":     True,
+#     "stack":    True,
+#     "xmin":     0,
+#     "xmax":     2,
+#     "xtitle":   "scoresum_C",
+#     "ytitle":   "Events ",
+#     "density": False,
+#     #"scaleSig": 1000,
 
-}
+# }
 
-hists["scoresum_U"] = {
-    "input":   "scoresum_U",
-    "output":   "scoresum_U",
-    "logy":     True,
-    "stack":    True,
-    "xmin":     0,
-    "xmax":     2,
-    "xtitle":   "scoresum_U",
-    "ytitle":   "Events ",
-    "density": False,
-    #"scaleSig": 1000,
+# hists["scoresum_U"] = {
+#     "input":   "scoresum_U",
+#     "output":   "scoresum_U",
+#     "logy":     True,
+#     "stack":    True,
+#     "xmin":     0,
+#     "xmax":     2,
+#     "xtitle":   "scoresum_U",
+#     "ytitle":   "Events ",
+#     "density": False,
+#     #"scaleSig": 1000,
 
-}
+# }
 
-hists["scoresum_D"] = {
-    "input":   "scoresum_D",
-    "output":   "scoresum_D",
-    "logy":     True,
-    "stack":    True,
-    "xmin":     0,
-    "xmax":     2,
-    "xtitle":   "scoresum_D",
-    "ytitle":   "Events ",
-    "density": False,
-    #"scaleSig": 1000,
+# hists["scoresum_D"] = {
+#     "input":   "scoresum_D",
+#     "output":   "scoresum_D",
+#     "logy":     True,
+#     "stack":    True,
+#     "xmin":     0,
+#     "xmax":     2,
+#     "xtitle":   "scoresum_D",
+#     "ytitle":   "Events ",
+#     "density": False,
+#     #"scaleSig": 1000,
 
-}
+# }
 
-hists["scoresum_S"] = {
-    "input":   "scoresum_S",
-    "output":   "scoresum_S",
-    "logy":     True,
-    "stack":    True,
-    "xmin":     0,
-    "xmax":     2,
-    "xtitle":   "scoresum_S",
-    "ytitle":   "Events ",
-    "density": False,
-    #"scaleSig": 1000,
+# hists["scoresum_S"] = {
+#     "input":   "scoresum_S",
+#     "output":   "scoresum_S",
+#     "logy":     True,
+#     "stack":    True,
+#     "xmin":     0,
+#     "xmax":     2,
+#     "xtitle":   "scoresum_S",
+#     "ytitle":   "Events ",
+#     "density": False,
+#     #"scaleSig": 1000,
 
-}
+# }
 
-hists["scoresum_G"] = {
-    "input":   "scoresum_G",
-    "output":   "scoresum_G",
-    "logy":     True,
-    "stack":    True,
-    "xmin":     0,
-    "xmax":     2,
-    "xtitle":   "scoresum_G",
-    "ytitle":   "Events ",
-    "density": True,
-    #"scaleSig": 1000,
+# hists["scoresum_G"] = {
+#     "input":   "scoresum_G",
+#     "output":   "scoresum_G",
+#     "logy":     True,
+#     "stack":    True,
+#     "xmin":     0,
+#     "xmax":     2,
+#     "xtitle":   "scoresum_G",
+#     "ytitle":   "Events ",
+#     "density": True,
+#     #"scaleSig": 1000,
 
-}
+# }
 
-hists["scoresum_Tau"] = {
-    "input":   "scoresum_Tau",
-    "output":   "scoresum_Tau",
-    "logy":     True,
-    "stack":    True,
-    "xmin":     0,
-    "xmax":     2,
-    "xtitle":   "scoresum_Tau",
-    "ytitle":   "Events ",
-    "density": False,
-    "scaleSig": 1000,
+# hists["scoresum_Tau"] = {
+#     "input":   "scoresum_Tau",
+#     "output":   "scoresum_Tau",
+#     "logy":     True,
+#     "stack":    True,
+#     "xmin":     0,
+#     "xmax":     2,
+#     "xtitle":   "scoresum_Tau",
+#     "ytitle":   "Events ",
+#     "density": False,
+#     "scaleSig": 1000,
 
-}
+# }
 
 
 

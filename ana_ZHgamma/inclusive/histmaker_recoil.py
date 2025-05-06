@@ -13,11 +13,11 @@ from Juraj 10. April 2025:
 /eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/ccgamma/CLD_o2_v05/rec/00016896
 /eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/bbgamma/CLD_o2_v05/rec/00016899
 
-As these are not nice to link, I've created simlinks here: /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma_fullsim_simlink/
+As these are not nice to link, I've created simlinks here: /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma_fullsim_simlink/inclusive
 This folder has folders with the names of the processes, and inside are the simlinks to the files.
 """
 
-input_base = "/afs/cern.ch/work/s/saaumill/public/analyses/Hgamma_fullsim_simlink/"
+input_base = "/afs/cern.ch/work/s/saaumill/public/analyses/Hgamma_fullsim_simlink/inclusive"
 
 # list of processes (mandatory)
 processList = {
@@ -204,7 +204,7 @@ def build_graph(df, dataset):
  
 
     
-     #########
+    #########
     ### CUT 3: Cos Theta cut
     #########
     df = df.Filter("ROOT::VecOps::All(abs(photons_boosted_cos_theta) < 0.9) ") 
@@ -239,7 +239,7 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("electrons_cos_theta_cut_4", "", 50, -1, 1), "electrons_ordered_cos_theta"))
     """
 
-     # recoil plot
+    # recoil plot
     df = df.Define("gamma_recoil", "FCCAnalyses::ReconstructedParticle::recoilBuilder(240)(photons_boosted)") 
     df = df.Define("gamma_recoil_m", "FCCAnalyses::ReconstructedParticle::get_mass(gamma_recoil)[0]") # recoil mass
     results.append(df.Histo1D(("gamma_recoil_m_cut_3", "", 170, 80, 250), "gamma_recoil_m"))

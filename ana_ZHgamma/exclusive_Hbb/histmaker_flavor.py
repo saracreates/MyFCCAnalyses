@@ -4,35 +4,36 @@ import os, copy
 
 
 """
-from Juraj 10. April 2025: 
-/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/ZH/CLD_o2_v05/rec/00016881
-/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/eegamma/CLD_o2_v05/rec/00016884
-/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/mumugamma/CLD_o2_v05/rec/00016887
-/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/tautaugamma/CLD_o2_v05/rec/00016890
-/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/qqgamma/CLD_o2_v05/rec/00016893
-/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/ccgamma/CLD_o2_v05/rec/00016896
-/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/bbgamma/CLD_o2_v05/rec/00016899
+from Juraj 03. Mai 2025: 
+/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/ZH/CLD_o2_v05/rec/00016944
+/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/eegamma/CLD_o2_v05/rec/00016945
+/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/mumugamma/CLD_o2_v05/rec/00016946
+/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/tautaugamma/CLD_o2_v05/rec/00016947
+/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/qqgamma/CLD_o2_v05/rec/00016948
+/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/ccgamma/CLD_o2_v05/rec/00016949
+/eos/experiment/fcc/prod/fcc/ee/test_spring2024/240gev/bbgamma/CLD_o2_v05/rec/00016950
 
-As these are not nice to link, I've created simlinks here: /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma_fullsim_simlink/
+The tagger was included in CLDConfig when creating this data.
+
+As these are not nice to link, I've created simlinks here: /afs/cern.ch/work/s/saaumill/public/analyses/Hgamma_fullsim_simlink/exlusive_bb
 This folder has folders with the names of the processes, and inside are the simlinks to the files.
 """
 
-input_base = "/afs/cern.ch/work/s/saaumill/public/analyses/Hgamma_fullsim_simlink/"
+input_base = "/afs/cern.ch/work/s/saaumill/public/analyses/Hgamma_fullsim_simlink/exclusive_bb"
 
 # list of processes (mandatory)
 processList = {
     'p8_ee_Hgamma_ecm240':    {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': input_base},  #what are the exact values here?
-#     #'reco_higgsgamma_test_REC.edm4hep': {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/tmp_fullsim_output/reco_higgsgamma"},
-#     'p8_ee_qqgamma_ecm240':    {'fraction':1, 'crossSection': 6.9, 'inputDir': input_base},  #what are the exact values here?
-#     'p8_ee_ccgamma_ecm240':    {'fraction':1, 'crossSection': 2.15, 'inputDir': input_base},  #what are the exact values here?
-#     'p8_ee_bbgamma_ecm240':    {'fraction':1, 'crossSection': 2.35, 'inputDir': input_base},  #what are the exact values here?
-#     # ZH
-#     'p8_ee_ZH_ecm240':              {'fraction':1, 'crossSection': 0.2, 'inputDir': input_base},  #what are the exact values here?
-#     # 'p8_ee_WW_ecm240':    {'fraction':1},  
-#     # 'p8_ee_ZZ_ecm240':    {'fraction':1}, 
-#     'p8_ee_eegamma_ecm240':    {'fraction':1, 'crossSection': 190, 'inputDir': input_base},  #what are the exact values here?
-#     'p8_ee_tautaugamma_ecm240':    {'fraction':1, 'crossSection': 0.77, 'inputDir': input_base},  #what are the exact values here?
-#     'p8_ee_mumugamma_ecm240':    {'fraction':1, 'crossSection': 0.8, 'inputDir': input_base},  #what are the exact values here?
+    # #'reco_higgsgamma_test_REC.edm4hep': {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/tmp_fullsim_output/reco_higgsgamma"},
+    'p8_ee_qqgamma_ecm240':    {'fraction':1, 'crossSection': 6.9, 'inputDir': input_base},  #what are the exact values here?
+    'p8_ee_ccgamma_ecm240':    {'fraction':1, 'crossSection': 2.15, 'inputDir': input_base},  #what are the exact values here?
+    'p8_ee_bbgamma_ecm240':    {'fraction':1, 'crossSection': 2.35, 'inputDir': input_base},  #what are the exact values here?
+    'p8_ee_ZH_ecm240':              {'fraction':1, 'crossSection': 0.2, 'inputDir': input_base},  #what are the exact values here?
+    # 'p8_ee_WW_ecm240':    {'fraction':1},  
+    # 'p8_ee_ZZ_ecm240':    {'fraction':1}, 
+    'p8_ee_eegamma_ecm240':    {'fraction':1, 'crossSection': 190, 'inputDir': input_base},  #what are the exact values here?
+    'p8_ee_tautaugamma_ecm240':    {'fraction':1, 'crossSection': 0.77, 'inputDir': input_base},  #what are the exact values here?
+    'p8_ee_mumugamma_ecm240':    {'fraction':1, 'crossSection': 0.8, 'inputDir': input_base},  #what are the exact values here?
 }
 
 ecm= 240
