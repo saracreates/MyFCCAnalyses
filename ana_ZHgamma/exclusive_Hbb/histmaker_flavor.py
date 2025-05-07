@@ -24,16 +24,16 @@ input_base = "/afs/cern.ch/work/s/saaumill/public/analyses/Hgamma_fullsim_simlin
 # list of processes (mandatory)
 processList = {
     'p8_ee_Hgamma_ecm240':    {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': input_base},  #what are the exact values here?
-    # #'reco_higgsgamma_test_REC.edm4hep': {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/tmp_fullsim_output/reco_higgsgamma"},
-    # 'p8_ee_qqgamma_ecm240':    {'fraction':1, 'crossSection': 6.9, 'inputDir': input_base},  #what are the exact values here?
-    # 'p8_ee_ccgamma_ecm240':    {'fraction':1, 'crossSection': 2.15, 'inputDir': input_base},  #what are the exact values here?
-    # 'p8_ee_bbgamma_ecm240':    {'fraction':1, 'crossSection': 2.35, 'inputDir': input_base},  #what are the exact values here?
-    # 'p8_ee_ZH_ecm240':              {'fraction':1, 'crossSection': 0.2, 'inputDir': input_base},  #what are the exact values here?
-    # # 'p8_ee_WW_ecm240':    {'fraction':1},  
-    # # 'p8_ee_ZZ_ecm240':    {'fraction':1}, 
-    # 'p8_ee_eegamma_ecm240':    {'fraction':1, 'crossSection': 190, 'inputDir': input_base},  #what are the exact values here?
-    # 'p8_ee_tautaugamma_ecm240':    {'fraction':1, 'crossSection': 0.77, 'inputDir': input_base},  #what are the exact values here?
-    # 'p8_ee_mumugamma_ecm240':    {'fraction':1, 'crossSection': 0.8, 'inputDir': input_base},  #what are the exact values here?
+    #'reco_higgsgamma_test_REC.edm4hep': {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/tmp_fullsim_output/reco_higgsgamma"},
+    'p8_ee_qqgamma_ecm240':    {'fraction':1, 'crossSection': 6.9, 'inputDir': input_base},  #what are the exact values here?
+    'p8_ee_ccgamma_ecm240':    {'fraction':1, 'crossSection': 2.15, 'inputDir': input_base},  #what are the exact values here?
+    'p8_ee_bbgamma_ecm240':    {'fraction':1, 'crossSection': 2.35, 'inputDir': input_base},  #what are the exact values here?
+    'p8_ee_ZH_ecm240':              {'fraction':1, 'crossSection': 0.2, 'inputDir': input_base},  #what are the exact values here?
+    # 'p8_ee_WW_ecm240':    {'fraction':1},  
+    # 'p8_ee_ZZ_ecm240':    {'fraction':1}, 
+    'p8_ee_eegamma_ecm240':    {'fraction':1, 'crossSection': 190, 'inputDir': input_base},  #what are the exact values here?
+    'p8_ee_tautaugamma_ecm240':    {'fraction':1, 'crossSection': 0.77, 'inputDir': input_base},  #what are the exact values here?
+    'p8_ee_mumugamma_ecm240':    {'fraction':1, 'crossSection': 0.8, 'inputDir': input_base},  #what are the exact values here?
 }
 
 ecm= 240
@@ -144,11 +144,20 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("electrons_n_baseline", "", *bins_a_n), "electrons_n"))
     results.append(df.Histo1D(("electrons_cos_theta", "", 50, -1, 1), "electrons_ordered_cos_theta"))
 
+    results.append(df.Histo1D(("photons_p_all", "", 40, 60, 100), "photons_p"))
+
+    # fix the energy of the photons by shifting it by 2.6 GeV
+
+    df = df.Define("photons_all_shifted", "FCCAnalyses::shift_E_photons(photons_all)")
+
+    df = df.Define("photons_all_shifted_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_all_shifted)")
+    results.append(df.Histo1D(("photons_p_shifted", "", 40, 60, 100), "photons_all_shifted_p"))
+
    
 
     #isolation cut
-    df = df.Define("photons_iso", "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.5)(photons_all, ReconstructedParticles)")  # is this correct?
-    df = df.Define("photons_sel_iso","FCCAnalyses::ZHfunctions::sel_iso(0.2)(photons_all, photons_iso)",) # and this??
+    df = df.Define("photons_iso", "FCCAnalyses::ZHfunctions::coneIsolation(0.01, 0.5)(photons_all_shifted, ReconstructedParticles)")  # is this correct?
+    df = df.Define("photons_sel_iso","FCCAnalyses::ZHfunctions::sel_iso(0.2)(photons_all_shifted, photons_iso)",) # and this??
    
     df = df.Define("photons_iso_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_sel_iso)") 
     df = df.Define("photons_iso_n","FCCAnalyses::ReconstructedParticle::get_n(photons_sel_iso)")  #number of photons per event
@@ -205,7 +214,7 @@ def build_graph(df, dataset):
  
 
     
-     #########
+    #########
     ### CUT 3: Cos Theta cut
     #########
     df = df.Filter("ROOT::VecOps::All(abs(photons_boosted_cos_theta) < 0.9) ") 
@@ -240,7 +249,19 @@ def build_graph(df, dataset):
     results.append(df.Histo1D(("electrons_cos_theta_cut_4", "", 50, -1, 1), "electrons_ordered_cos_theta"))
     """
 
-    # recoil plot
+    # checks before recoil plot
+    results.append(df.Histo1D(("num_boosted_gamma_for_recoil", "", 5, 0, 5), "photons_boosted_n"))
+    results.append(df.Histo1D(("p_boosted_gamma_for_recoil", "", 40, 60, 100), "photons_boosted_p"))
+    # check gen particles
+    df = df.Define("gen_photons", "FCCAnalyses::sel_type(22, Particle)")
+    df = df.Define("gen_photons_n","FCCAnalyses::MCParticle::get_n(gen_photons)")  #number of photons per event
+    df = df.Define("gen_photons_p", "FCCAnalyses::MCParticle::get_p(gen_photons)")
+    results.append(df.Histo1D(("gen_photons_p", "", 40, 60, 100), "gen_photons_p"))
+    results.append(df.Histo1D(("gen_photons_p_fullrange", "", 100, 0, 100), "gen_photons_p"))
+    results.append(df.Histo1D(("gen_photons_n", "", 5, 0, 5), "gen_photons_n"))
+
+
+    # recoil mass
     df = df.Define("gamma_recoil", "FCCAnalyses::ReconstructedParticle::recoilBuilder(240)(photons_boosted)") 
     df = df.Define("gamma_recoil_m", "FCCAnalyses::ReconstructedParticle::get_mass(gamma_recoil)[0]") # recoil mass
     results.append(df.Histo1D(("gamma_recoil_m_cut_3", "", 170, 80, 250), "gamma_recoil_m"))
@@ -320,7 +341,8 @@ def build_graph(df, dataset):
     ########
     ### Cut 7: tighter cut around recoil mass
     ########
-    df = df.Filter("114 < gamma_recoil_m && gamma_recoil_m < 128")
+    # df = df.Filter("114 < gamma_recoil_m && gamma_recoil_m < 128") # photon E not calibrated
+    df = df.Filter("120 < gamma_recoil_m && gamma_recoil_m < 132")
     df = df.Define("cut7", "7")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
 

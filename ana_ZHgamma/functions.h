@@ -74,6 +74,30 @@ namespace FCCAnalyses {
         return res;
     }
 
+    Vec_rp shift_E_photons(Vec_rp photons){
+        // shift the energy of the photons by 2.6 GeV due to wrong calibration!
+        // momentum must also be modified by the appropriate factor
+        Vec_rp result;
+        result.reserve(photons.size());
+        for (const auto & photon : photons) {
+            edm4hep::ReconstructedParticleData newp = photon;
+            float e = photon.energy;
+            float px = photon.momentum.x;
+            float py = photon.momentum.y;
+            float pz = photon.momentum.z;
+            float p = sqrt(px*px + py*py + pz*pz);
+            float factor = (e - 2.6) / e;
+            newp.energy -= 2.6;
+            newp.momentum.x *= factor;
+            newp.momentum.y *= factor;
+            newp.momentum.z *= factor;
+            result.push_back(newp);
+        }
+
+        return result;
+
+    }
+
     // exclusive bb functions 
     Vec_f get_bscores(ROOT::VecOps::RVec<edm4hep::ParticleIDData> b_tags_coll) {
         // check size of the b-tag collection - must be 2
@@ -345,7 +369,6 @@ Vec_f coneIsolation::coneIsolation::operator() (Vec_rp in, Vec_rp rps) {
     }
     return result;
 }
- 
  
  
 // returns missing energy vector, based on reco particles
