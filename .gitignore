@@ -6,4 +6,5 @@ outputs/
 # cache files
 ana_ZHgamma/inclusive/__pycache__
 ana_ZHgamma/exclusive_Hbb/__pycache__
+ana_ZHgamma/test/__pycache__
 

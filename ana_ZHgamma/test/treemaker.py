@@ -155,19 +155,41 @@ class RDFanalysis:
 
         ## define jet and run clustering parameters
         ## name of collections in EDM root files
+        
+
+        # fast sim 
+        '''
+            collections = {
+                "GenParticles": "Particle",
+                "PFParticles": "ReconstructedParticles",
+                "PFTracks": "EFlowTrack",
+                "PFPhotons": "EFlowPhoton",
+                "PFNeutralHadrons": "EFlowNeutralHadron",
+                "TrackState": "EFlowTrack_1",
+                "TrackerHits": "TrackerHits",
+                "CalorimeterHits": "CalorimeterHits",
+                "dNdx": "EFlowTrack_2",
+                "PathLength": "EFlowTrack_L",
+                "Bz": "magFieldBz",
+            }
+        '''
+        # full sim
         collections = {
-        "GenParticles": "Particle",
-        "PFParticles": "ReconstructedParticles",
-        "PFTracks": "EFlowTrack",
-        "PFPhotons": "EFlowPhoton",
-        "PFNeutralHadrons": "EFlowNeutralHadron",
-        "TrackState": "EFlowTrack_1",
-        "TrackerHits": "TrackerHits",
-        "CalorimeterHits": "CalorimeterHits",
-        "dNdx": "EFlowTrack_2",
-        "PathLength": "EFlowTrack_L",
-        "Bz": "magFieldBz",
-}
+            "GenParticles": "Particle",
+            "PFParticles": "ReconstructedParticles",
+            "PFTracks": "EFlowTrack",
+            "PFPhotons": "EFlowPhoton",
+            "PFNeutralHadrons": "EFlowNeutralHadron",
+            "TrackState": "SiTracks_Refitted",
+
+            # SiTracks: input_line_193:2:230: error: no viable conversion from 'RVec<edm4hep::TrackData>' to 'const RVec<edm4hep::TrackState>'
+
+            "TrackerHits": "TrackerHits",
+            "CalorimeterHits": "CalorimeterHits",
+            "dNdx": "EFlowTrack_2",
+            "PathLength": "EFlowTrack_L",
+            "Bz": "magFieldBz",
+        }
 
         collections_nogamma = copy.deepcopy(collections)
         collections_nogamma["PFParticles"] = "recopart_no_gamma"
@@ -181,6 +203,7 @@ class RDFanalysis:
             collections_nogamma,
             jetClusteringHelper.jets,
             jetClusteringHelper.constituents,
+            sim_type="full",
         )
 
      
