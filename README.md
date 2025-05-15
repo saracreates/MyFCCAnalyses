@@ -99,6 +99,11 @@ export PATH=/cvmfs/sft.cern.ch/lcg/external/texlive/2020/bin/x86_64-linux:$PATH
 fccanalysis plots ./ana_ZHgamma/inclusive/plots_recoil.py
 ```
 
+There are three folders in this repo: 
+- `inclusive`: analysis without tagging/ assumptions on Higgs
+- `exclusive_Hbb`: using b-tags as an analysis handle. Done by accessing the `RefinedJetTags_B` collection in the input data.
+- `test`: WIP folder to make full-sim tagging run on-the-fly in FCCAnalyses so the input files do not have to include jet clustering nor tagging collections.
+
 
 # Perform a Likelihood fit with Combine
 

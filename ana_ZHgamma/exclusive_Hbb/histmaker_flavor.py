@@ -286,6 +286,7 @@ def build_graph(df, dataset):
     ### CUT 5: gamma recoil cut
     #########
     df = df.Filter("110 < gamma_recoil_m && gamma_recoil_m < 150") 
+    # df = df.Filter("120 < gamma_recoil_m && gamma_recoil_m < 132")
     #df = df.Filter("115 < gamma_recoil_m && gamma_recoil_m < 170") 
 
     df = df.Define("cut5", "5")
@@ -342,16 +343,16 @@ def build_graph(df, dataset):
     ### Cut 7: tighter cut around recoil mass
     ########
     # df = df.Filter("114 < gamma_recoil_m && gamma_recoil_m < 128") # photon E not calibrated
-    df = df.Filter("120 < gamma_recoil_m && gamma_recoil_m < 132")
+    df = df.Filter("120 < gamma_recoil_m && gamma_recoil_m < 132") # phototn E shifted to Higgs mass
     df = df.Define("cut7", "7")
     results.append(df.Histo1D(("cutFlow", "", *bins_count), "cut7"))
 
 
    
-    #define further variables for plotting
-    #df = df.Define("photons_all_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_all)")
-    #df = df.Define("photons_boosted_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_boosted)")
-    #df = df.Define("photons_boosted_n","FCCAnalyses::ReconstructedParticle::get_n(photons_boosted)")  #number of photons per event
+    # define further variables for plotting
+    # df = df.Define("photons_all_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_all)")
+    # df = df.Define("photons_boosted_p", "FCCAnalyses::ReconstructedParticle::get_p(photons_boosted)")
+    # df = df.Define("photons_boosted_n","FCCAnalyses::ReconstructedParticle::get_n(photons_boosted)")  #number of photons per event
     
    
     #select highest energetic photon

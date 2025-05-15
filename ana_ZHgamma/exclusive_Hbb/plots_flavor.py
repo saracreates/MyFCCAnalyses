@@ -75,7 +75,7 @@ hists["cutFlow"] = {
     "ymin":     1e4,
     "ymax":     1e11,
     #"xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 5"],
-    "xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 9", "110 < m_{recoil} < 140 ", "b score sum > 1",  "120 < m_{recoil} < 132 "],
+    "xtitle":   ["All events", "iso < 0.2", "60  < p_{#gamma} < 100 ", "|cos(#theta)_{#gamma}|<0.9", "n particles > 9", "110 < m_{recoil} < 150 ", "b score sum > 1", "120 < m_{recoil} < 132 "], #  "120 < m_{recoil} < 132 "], # "110 < m_{recoil} < 140 "
     "ytitle":   "Events ",
 }
 
@@ -97,14 +97,15 @@ hists["cutFlow"] = {
 hists["b_tags_sum"] = {
     "input":   "b_tags_sum",
     "output":   "b_tags_sum",
-    "logy":     False,
+    "logy":     True,
     "stack":    True,
     "xmin":     0,
     "xmax":     2,
-    "xtitle":   "b_tags_sume",
+    "xtitle":   "b-tags sum",
     "ytitle":   "Events ",
     "density": False,
-    #"scaleSig": 1000,
+    "scaleSig": 1000,
+    "rebin": 2,
 
 }
 
