@@ -3,9 +3,9 @@ import os, copy
 input_base = "/afs/cern.ch/work/s/saaumill/public/analyses/Hgamma_fullsim_simlink/exclusive_bb"
 # list of processes
 processList = {
-    'p8_ee_Hgamma_ecm240':    {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': input_base},  #what are the exact values here?
+    'p8_ee_Hgamma_ecm240':    {'fraction':0.01, 'crossSection': 8.20481e-05, 'inputDir': input_base},  #what are the exact values here?
     # #'reco_higgsgamma_test_REC.edm4hep': {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/tmp_fullsim_output/reco_higgsgamma"},
-    # 'p8_ee_qqgamma_ecm240':    {'fraction':1, 'crossSection': 6.9, 'inputDir': input_base},  #what are the exact values here?
+    # 'p8_ee_qqgamma_ecm240':    {'fraction':0.01, 'crossSection': 6.9, 'inputDir': input_base},  #what are the exact values here?
     # 'p8_ee_ccgamma_ecm240':    {'fraction':1, 'crossSection': 2.15, 'inputDir': input_base},  #what are the exact values here?
     # 'p8_ee_bbgamma_ecm240':    {'fraction':1, 'crossSection': 2.35, 'inputDir': input_base},  #what are the exact values here?
     # 'p8_ee_ZH_ecm240':              {'fraction':1, 'crossSection': 0.2, 'inputDir': input_base},  #what are the exact values here?
@@ -180,7 +180,8 @@ class RDFanalysis:
             "PFTracks": "EFlowTrack",
             "PFPhotons": "EFlowPhoton",
             "PFNeutralHadrons": "EFlowNeutralHadron",
-            "TrackState": "SiTracks_Refitted",
+            "Tracks": "SiTracks_Refitted",
+            "TrackStates": "_SiTracks_Refitted_trackStates",
 
             # SiTracks: input_line_193:2:230: error: no viable conversion from 'RVec<edm4hep::TrackData>' to 'const RVec<edm4hep::TrackState>'
 
@@ -251,14 +252,19 @@ class RDFanalysis:
             #"recopart_no_gamma_n",
             #"photons_p"
             #"y23",
+
+            # here I can test variables one by one
+
+            "pfcand_dxy", # works !!!  
         ]
 
         ##  outputs jet properties
         # branchList += jetClusteringHelper.outputBranches()
 
         ## outputs jet scores and constituent breakdown
+
         branchList += jetFlavourHelper.outputBranches()
 
-        print(branchList)
+        print("RDataFrame is calling following columns:", branchList)
 
         return branchList

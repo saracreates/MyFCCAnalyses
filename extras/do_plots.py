@@ -624,7 +624,7 @@ def runPlotsHistmaker(config: dict[str, any], args, hist_name: str, param, hist_
     rt = f"#sqrt{{s}} = {param.energy} TeV, {intLumi}"
 
     if "ee" in param.collider:
-        lt = "FCC-ee Simulation"
+        lt = "       FCC-ee Simulation" # so that 10^3 does not collide 
         rt = f"#sqrt{{s}} = {param.energy} GeV,   {intLumi}"
 
     customLabel = ""

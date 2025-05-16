@@ -13,7 +13,8 @@ formats        = ['png','pdf']
 #inputDir       = './outputs/histmaker/flavor/' 
 
 outdir         = '/afs/cern.ch/work/s/saaumill/public/MyFCCAnalyses/outputs/plots/ZHgamma_btag' 
-inputDir       = '/afs/cern.ch/work/s/saaumill/public/MyFCCAnalyses/outputs/histmaker_fullsim/ZHgamma_btag/' 
+# inputDir       = '/afs/cern.ch/work/s/saaumill/public/MyFCCAnalyses/outputs/histmaker_fullsim/ZHgamma_btag/' 
+inputDir       = '/afs/cern.ch/work/s/saaumill/public/MyFCCAnalyses/outputs/histmaker_fullsim/ZHgamma_btag_looser-cut/'
 
 plotStatUnc    = True
 
@@ -116,6 +117,8 @@ hists["gamma_recoil_m_LHF"] = {
     "stack":    True,
     "xmin":     110,
     "xmax":     150,
+    "ymin":     0,
+    "ymax":     225000, #225000/2
     "xtitle":   "Recoil (GeV)",
     "ytitle":   "Events ",
     "scaleSig": 1000,
@@ -152,7 +155,7 @@ hists["gamma_recoil_m_cut_4"] = {
 
 
 
-hists["gamma_recoil_m_norm_cut_4"] = {
+hists["gamma_recoil_m_cut_4"] = {
     "input":   "gamma_recoil_m_cut_4",
     "output":   "gamma_recoil_m_norm_cut_4",
     "logy":     False,
@@ -173,6 +176,8 @@ hists["gamma_recoil_m_signal_cut"] = {
     "stack":    True,
     "xmin":     110,
     "xmax":     150,
+    "ymin":     0,
+    "ymax":     820000,
     "xtitle":   "Recoil (GeV)",
     "ytitle":   "Events ",
     "density": False,

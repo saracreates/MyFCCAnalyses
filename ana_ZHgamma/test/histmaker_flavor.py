@@ -25,15 +25,15 @@ input_base = "/afs/cern.ch/work/s/saaumill/public/analyses/Hgamma_fullsim_simlin
 processList = {
     'p8_ee_Hgamma_ecm240':    {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': input_base},  #what are the exact values here?
     #'reco_higgsgamma_test_REC.edm4hep': {'fraction':1, 'crossSection': 8.20481e-05, 'inputDir': "/afs/cern.ch/work/s/saaumill/public/tmp_fullsim_output/reco_higgsgamma"},
-    'p8_ee_qqgamma_ecm240':    {'fraction':1, 'crossSection': 6.9, 'inputDir': input_base},  #what are the exact values here?
-    'p8_ee_ccgamma_ecm240':    {'fraction':1, 'crossSection': 2.15, 'inputDir': input_base},  #what are the exact values here?
+    # 'p8_ee_qqgamma_ecm240':    {'fraction':1, 'crossSection': 6.9, 'inputDir': input_base},  #what are the exact values here?
+    # 'p8_ee_ccgamma_ecm240':    {'fraction':1, 'crossSection': 2.15, 'inputDir': input_base},  #what are the exact values here?
     'p8_ee_bbgamma_ecm240':    {'fraction':1, 'crossSection': 2.35, 'inputDir': input_base},  #what are the exact values here?
-    'p8_ee_ZH_ecm240':              {'fraction':1, 'crossSection': 0.2, 'inputDir': input_base},  #what are the exact values here?
-    # 'p8_ee_WW_ecm240':    {'fraction':1},  
-    # 'p8_ee_ZZ_ecm240':    {'fraction':1}, 
-    'p8_ee_eegamma_ecm240':    {'fraction':1, 'crossSection': 190, 'inputDir': input_base},  #what are the exact values here?
-    'p8_ee_tautaugamma_ecm240':    {'fraction':1, 'crossSection': 0.77, 'inputDir': input_base},  #what are the exact values here?
-    'p8_ee_mumugamma_ecm240':    {'fraction':1, 'crossSection': 0.8, 'inputDir': input_base},  #what are the exact values here?
+    # 'p8_ee_ZH_ecm240':              {'fraction':1, 'crossSection': 0.2, 'inputDir': input_base},  #what are the exact values here?
+    # # 'p8_ee_WW_ecm240':    {'fraction':1},  
+    # # 'p8_ee_ZZ_ecm240':    {'fraction':1}, 
+    # 'p8_ee_eegamma_ecm240':    {'fraction':1, 'crossSection': 190, 'inputDir': input_base},  #what are the exact values here?
+    # 'p8_ee_tautaugamma_ecm240':    {'fraction':1, 'crossSection': 0.77, 'inputDir': input_base},  #what are the exact values here?
+    # 'p8_ee_mumugamma_ecm240':    {'fraction':1, 'crossSection': 0.8, 'inputDir': input_base},  #what are the exact values here?
 }
 
 ecm= 240
@@ -53,7 +53,7 @@ includePaths = ["../functions.h"]
 #Optional: output directory, default is local running directory
 
 # outputDir   = "/afs/cern.ch/work/s/saaumill/public/MyFCCAnalyses/outputs/histmaker_fullsim/ZHgamma_btag/"
-outputDir   = "/afs/cern.ch/work/s/saaumill/public/MyFCCAnalyses/outputs/histmaker_fullsim/ZHgamma_btag_looser-cut/"
+outputDir   = "/afs/cern.ch/work/s/saaumill/public/MyFCCAnalyses/outputs/histmaker_fullsim/ZHgamma_btag_test/"
 
 
 # optional: ncpus, default is 4, -1 uses all cores available
@@ -63,6 +63,50 @@ nCPUS       = -1
 doScale = True
 intLumi = 10800000  # 10.8 /ab
 
+## latest particle transformer model, trained on 9M jets in winter2023 samples
+model_name = "fccee_flavtagging_edm4hep_wc"
+
+## model files needed for unit testing in CI
+url_model_dir = "https://fccsw.web.cern.ch/fccsw/testsamples/jet_flavour_tagging/winter2023/wc_pt_13_01_2022/"
+url_preproc = "{}/{}.json".format(url_model_dir, model_name)
+url_model = "{}/{}.onnx".format(url_model_dir, model_name)
+
+
+## model files locally stored on /eos
+# model_dir = (
+#     "/eos/experiment/fcc/ee/jet_flavour_tagging/winter2023/wc_pt_7classes_12_04_2023/"
+# )
+# local_preproc = "{}/{}.json".format(model_dir, model_name)
+# local_model = "{}/{}.onnx".format(model_dir, model_name)
+
+### TEST 
+
+local_model = "/eos/experiment/fcc/ee/jet_flavour_tagging/fullsim_test_spring2024/fullsimCLD240_2mio.onnx"
+local_preproc = "/eos/experiment/fcc/ee/jet_flavour_tagging/fullsim_test_spring2024/preprocess_fullsimCLD240_2mio.json"
+
+
+
+## get local file, else download from url
+def get_file_path(url, filename):
+    if os.path.exists(filename):
+        return os.path.abspath(filename)
+    else:
+        #urllib.request.urlretrieve(url, os.path.basename(url))
+        #return os.path.basename(url)
+        raise ValueError("Model not available locally")
+
+
+weaver_preproc = get_file_path(url_preproc, local_preproc)
+weaver_model = get_file_path(url_model, local_model)
+
+from addons.ONNXRuntime.jetFlavourHelper import JetFlavourHelper
+from addons.FastJet.jetClusteringHelper import (
+    ExclusiveJetClusteringHelper,
+)
+
+jetFlavourHelper = None
+jetClusteringHelper = None
+
 
 # define some binning for various histograms
 bins_a_p = (100, 0, 500) # 100 MeV bins
@@ -70,24 +114,20 @@ bins_a_n = (10, 0, 10) # 100 MeV bins
 
 bins_count = (10, 0, 10)
 
-
-##?| name of collections in EDM root files
+# helper dictionary 
 collections = {
     "GenParticles": "Particle",
     "PFParticles": "ReconstructedParticles",
     "PFTracks": "EFlowTrack",
     "PFPhotons": "EFlowPhoton",
     "PFNeutralHadrons": "EFlowNeutralHadron",
-    # "TrackState": "EFlowTrack_1",
-    "TrackState": "_EFlowTrack_trackStates",
+    "Tracks": "SiTracks_Refitted",
+    "TrackStates": "_SiTracks_Refitted_trackStates",
     "TrackerHits": "TrackerHits",
     "CalorimeterHits": "CalorimeterHits",
-    # "dNdx": "EFlowTrack_2",
-    "dNdx": "_EFlowTrack_dxQuantities",
+    "dNdx": "EFlowTrack_2",
     "PathLength": "EFlowTrack_L",
     "Bz": "magFieldBz",
-    "Electrons": "Electron",
-    "Muons": "Muon",
 }
 
 
@@ -128,6 +168,8 @@ def build_graph(df, dataset):
     #print and check
     #df = df.Define("photons_print", "FCCAnalyses::ZHfunctions::print_momentum(electrons_all)")
     #results.append(df.Histo1D(("photons_print", "", 100, 0, 100), "photons_print"))
+
+
 
 
     #########
@@ -313,10 +355,51 @@ def build_graph(df, dataset):
     ### Cut 6: On b-tagging
     #########
 
-    df = df.Define("b_tags", "FCCAnalyses::get_bscores(RefinedJetTag_B)") # btagging
-    results.append(df.Histo1D(("b_tags", "", 100, 0, 1), "b_tags"))
+    ### THE CLUSTERING & TAGGING 
 
-    df = df.Define("b_tags_sum", "b_tags[0] + b_tags[1]") # sum of b-tag scores 
+    ## perform N=2 jet clustering
+    global jetClusteringHelper
+    global jetFlavourHelper
+
+    collections_nogamma = copy.deepcopy(collections)
+    collections_nogamma["PFParticles"] = "recopart_no_gamma"
+
+    jetClusteringHelper = ExclusiveJetClusteringHelper(collections_nogamma["PFParticles"], 2, "N2")
+    df = jetClusteringHelper.define(df)
+
+    ## define jet flavour tagging parameters
+
+    jetFlavourHelper = JetFlavourHelper(
+        collections_nogamma,
+        jetClusteringHelper.jets,
+        jetClusteringHelper.constituents,
+        sim_type="full",
+    )
+
+    ## define observables for tagger
+    df = jetFlavourHelper.define(df)
+
+    ## tagger inference
+    df = jetFlavourHelper.inference(weaver_preproc, weaver_model, df)
+
+    #df = df.Define("y23", "std::sqrt(JetClusteringUtils::get_exclusive_dmerge(_jet_N2, 2))")
+
+    df = df.Define(
+        "jets_p4",
+        "JetConstituentsUtils::compute_tlv_jets({})".format(
+            jetClusteringHelper.jets
+        ),
+    )
+    df = df.Define(
+        "jj_m",
+        "JetConstituentsUtils::InvariantMass(jets_p4[0], jets_p4[1])",
+    )
+
+
+
+    ### THE TAGGGING CUTS
+
+    df = df.Define("b_tags_sum", "recojet_isB[0] + recojet_isB[1]")
     results.append(df.Histo1D(("b_tags_sum", "", 100, 0, 2), "b_tags_sum"))
 
     # cut 
@@ -337,9 +420,9 @@ def build_graph(df, dataset):
     df = df.Define("jets_m", "FCCAnalyses::ReconstructedParticle::get_mass(jets)[0]") # recoil mass
     results.append(df.Histo1D(("jets_m", "", 100, 0, 240), "jets_m"))
 
-    df = df.Define("jets_p4", "FCCAnalyses::return_p4_jets(RefinedVertexJets)") # recoil mass
-    df = df.Define("m_jj", "JetConstituentsUtils::InvariantMass(jets_p4[0], jets_p4[1])")
-    results.append(df.Histo1D(("m_jj", "", 100, 0, 240), "m_jj"))
+    # df = df.Define("jets_p4", "FCCAnalyses::return_p4_jets(RefinedVertexJets)") # recoil mass
+    # df = df.Define("m_jj", "JetConstituentsUtils::InvariantMass(jets_p4[0], jets_p4[1])")
+    # results.append(df.Histo1D(("m_jj", "", 100, 0, 240), "m_jj"))
 
 
     ########
