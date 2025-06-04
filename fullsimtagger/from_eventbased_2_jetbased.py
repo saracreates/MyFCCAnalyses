@@ -3,7 +3,7 @@ from array import array
 from ROOT import TFile, TTree
 from examples.FCCee.weaver.config import variables_pfcand, variables_jet, flavors
 
-debug = False
+debug = True
 
 if len(sys.argv) < 2:
     print(" Usage: stage2.py input_file output_file n_start n_events")
@@ -20,6 +20,8 @@ infile = TFile.Open(input_file, "READ")
 
 ev = infile.Get("events")
 numberOfEntries = ev.GetEntries()
+if debug:
+    print("-> number of entries in input file: {}".format(numberOfEntries))
 
 ## basic checks
 if n_final > n_start + numberOfEntries:
@@ -28,7 +30,7 @@ if n_final > n_start + numberOfEntries:
 
 branches_pfcand = ["pfcand_erel_log", "pfcand_thetarel", "pfcand_phirel", "pfcand_dptdpt", "pfcand_detadeta", "pfcand_dphidphi", "pfcand_dxydxy", "pfcand_dzdz", "pfcand_dxydz", "pfcand_dphidxy", "pfcand_dlambdadz", "pfcand_dxyc", "pfcand_dxyctgtheta", "pfcand_phic", "pfcand_phidz", "pfcand_phictgtheta", "pfcand_cdz", "pfcand_cctgtheta", "pfcand_mtof", "pfcand_dndx", "pfcand_charge", "pfcand_isMu", "pfcand_isEl", "pfcand_isChargedHad", "pfcand_isGamma", "pfcand_isNeutralHad", "pfcand_dxy", "pfcand_dz", "pfcand_btagSip2dVal", "pfcand_btagSip2dSig", "pfcand_btagSip3dVal", "pfcand_btagSip3dSig", "pfcand_btagJetDistVal", "pfcand_btagJetDistSig", "pfcand_type", "pfcand_e", "pfcand_p"]
 
-branches_jet = ["jet_nmu", "jet_nel", "jet_nchad", "jet_nnhad"]
+branches_jet = ["jet_nmu", "jet_nel", "jet_nchad", "jet_nnhad", 'jet_p_N2', 'jet_e_N2', 'jet_mass_N2', 'jet_phi_N2', 'jet_theta_N2', 'jet_nconst_N2'] # 'event_njet_N2'
 
 if len(branches_pfcand) == 0:
     print("ERROR: branches_pfcand is empty ...")
@@ -62,6 +64,11 @@ for f in flavors:
     jet_array[b2] = array("f", [0.0])
     t.Branch(b1, jet_array[b1], "{}/I".format(b1))
     t.Branch(b2, jet_array[b2], "{}/F".format(b2))
+
+    # jet clustering 
+    b3 = "event_njet_N2"
+    jet_array[b3] = array("i", [0])
+    t.Branch(b3, jet_array[b3], "{}/I".format(b3))
 for b in branches_jet:
     jet_array[b] = array("f", [0])
     t.Branch(b, jet_array[b], "{}/F".format(b))
@@ -92,9 +99,14 @@ for entry in range(n_start, n_final):
     ev.GetEntry(entry)
 
     njets = len(getattr(ev, branches_jet[0]))
+    if debug:
+        print("-> processing event {} with {} jets".format(entry, njets))
 
     ## loop over jets
     for j in range(njets):
+        name = "event_njet_N2"
+        jet_array[name][0] = getattr(ev, name)
+        
 
         ## fill jet-based quantities
         for f in flavors:
@@ -112,11 +124,14 @@ for entry in range(n_start, n_final):
 
         ## loop over constituents
         jet_npfcand[0] = len(getattr(ev, branches_pfcand[0])[j])
+        if debug:
+            print("   jet:", j, "jet_npfcand", jet_npfcand[0])
         for k in range(jet_npfcand[0]):
             for name in branches_pfcand:
                 pfcand_array[name][k] = getattr(ev, name)[j][k]
-                if debug:
-                    print("       const:", k, name, getattr(ev, name)[j][k])
+                if name=="pfcand_p":
+                    if debug:
+                        print("       const:", k, name, getattr(ev, name)[j][k])
 
         ## fill tree at every jet
         t.Fill()

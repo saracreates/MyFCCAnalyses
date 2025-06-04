@@ -49,37 +49,6 @@ def main():
     """
     args = parser.parse_args()
 
-    """
-    proc_pnet = Process(
-        "wzp6_pnet",
-        "wzp6_ee_nunuH",
-        "WZ-Pythia (PNet)",
-        "/eos/experiment/fcc/ee/analyses/case-studies/higgs/flat_trees/pnet_test/",
-    )
-    """
-    """
-    proc_pt = Process(
-        "wzp6_ptold",
-        "wzp6_ee_nunuH",
-        "WZ-Pythia6 (PT -old)",
-        "/eos/experiment/fcc/ee/analyses/case-studies/higgs/flat_trees/pt_test/",
-    )
-    """
-    """
-    proc_pt = Process(
-        "wzp6_ptold",
-        "wzp6_ee_nunuH",
-        "WZ-Pythia6 (PT - old)",
-        "/eos/experiment/fcc/ee/jet_flavour_tagging/winter2023/wc_pt_13_01_2022/",
-    )
-    """
-    proc_pt = Process(
-        "wzp6_ptold",
-        "wzp6_ee_nunuH",
-        "5_classes",
-        "/eos/experiment/fcc/ee/jet_flavour_tagging/winter2023/wc_pt_13_01_2022/",
-    )
-
     proc_pt2 = Process(
         "wzp6_ptnew",
         "wzp6_ee_nunuH",

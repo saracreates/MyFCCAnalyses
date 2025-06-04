@@ -5,13 +5,14 @@ import os, copy
 input_base = '/afs/cern.ch/work/s/saaumill/public/analyses/symlink_Hxx_fullsim/Hxx/'
 processList = {
     # u,d ,s ,c ,b, g, tau
-    'Hbb':    {'fraction':0.01, 'inputDir': input_base},  # test tagger on Hbb data
-    'Hcc':    {'fraction':0.01, 'inputDir': input_base},  # test tagger on Hcc data
-    'Hgg':    {'fraction':0.01, 'inputDir': input_base},  # test tagger on Hgg data
-    'Htautau':{'fraction':0.01, 'inputDir': input_base},  # test tagger on Htautau data
-    'Huu':    {'fraction':0.01, 'inputDir': input_base},  # test tagger on Huu data
-    'Hdd':    {'fraction':0.01, 'inputDir': input_base},  # test tagger on Hdd data
-    'Hss':    {'fraction':0.01, 'inputDir': input_base},  # test tagger on Hss data
+    'test':   {'fraction': 1, 'inputDir': input_base},  # test tagger on test data
+    # 'Hbb':    {'fraction':0.01, 'inputDir': input_base},  # test tagger on Hbb data
+    # 'Hcc':    {'fraction':0.01, 'inputDir': input_base},  # test tagger on Hcc data
+    # 'Hgg':    {'fraction':0.01, 'inputDir': input_base},  # test tagger on Hgg data
+    # 'Htautau':{'fraction':0.01, 'inputDir': input_base},  # test tagger on Htautau data
+    # 'Huu':    {'fraction':0.01, 'inputDir': input_base},  # test tagger on Huu data
+    # 'Hdd':    {'fraction':0.01, 'inputDir': input_base},  # test tagger on Hdd data
+    # 'Hss':    {'fraction':0.01, 'inputDir': input_base},  # test tagger on Hss data
     
 }
 
@@ -85,6 +86,7 @@ collections = {
     "dNdx": "EFlowTrack_2",
     "PathLength": "EFlowTrack_L",
     "Bz": "magFieldBz",
+    "PV": "PrimaryVertices",
 }
 
 bins_count = (10, 0, 10)
@@ -99,8 +101,10 @@ class RDFanalysis:
         # Mandatory: analysers funtion to define the analysers to process, please make sure you return the last dataframe, in this example it is df2
         results = []
         # in FullSim, both the reco and gen particles are produced with a crossing angle
-        df = df.Define("ReconstructedParticles", "FCCAnalyses::unBoostCrossingAngle(PandoraPFOs, -0.015)")
-        df = df.Define("Particle", "FCCAnalyses::unBoostCrossingAngle(MCParticles, -0.015)")
+        df = df.Define("ReconstructedParticles", "PandoraPFOs")
+        df = df.Define("Particle", "MCParticles")
+        # df = df.Define("ReconstructedParticles", "FCCAnalyses::unBoostCrossingAngle(PandoraPFOs, -0.015)")
+        # df = df.Define("Particle", "FCCAnalyses::unBoostCrossingAngle(MCParticles, -0.015)")
         df = df.Alias("Particle0", "_MCParticles_parents.index")
         df = df.Alias("Particle1", "_MCParticles_daughters.index")
 
@@ -188,6 +192,9 @@ class RDFanalysis:
             "jet_nchad", 
             "jet_nnhad",
         ]
+
+        # jet clustering variables
+        branchList += jetClusteringHelper.outputBranches()
 
         ## extras
 
