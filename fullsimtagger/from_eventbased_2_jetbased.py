@@ -56,6 +56,11 @@ out_root = TFile(output_file, "RECREATE")
 t = TTree("tree", "tree with jets")
 
 jet_array = dict()
+
+# number of reconstructed particles per event
+n_reco_particles = array("i", [0])
+t.Branch("n_reco_particles", n_reco_particles, "n_reco_particles/I")
+
 flavors = ["U", "D", "S", "B", "C", "G", "TAU"]
 for f in flavors:
     b1 = "recojet_is{}".format(f.upper())
@@ -106,6 +111,11 @@ for entry in range(n_start, n_final):
     for j in range(njets):
         name = "event_njet_N2"
         jet_array[name][0] = getattr(ev, name)
+
+        # number of reconstructed particles
+        n_reco_particles[0] = getattr(ev, "n_reco_particles")
+        if debug:
+            print("-> processing event {} with {} reconstructed particles".format(entry, n_reco_particles[0]))
         
 
         ## fill jet-based quantities

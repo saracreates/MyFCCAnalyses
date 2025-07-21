@@ -140,6 +140,30 @@ text2hdf5.py mydatacard.txt -o ws_datacard.hdf5
 combinetf.py ws_datacard.hdf5 -o fit_output.root -t -1 --expectSignal=1 --doImpacts
 ```
 
+# On-the-fly full simulation tagging - WIP
+
+Although full simulation tagging is available via key4hep, it would be very handy to be able to tag jets "on-the-fly" in FCCAnalysis like in fast simulation. You can find the ongoing efforts of this in my FCCAnalyses branch 'fullsim-tagger', see [this repo](https://github.com/saracreates/FCCAnalyses/tree/fullsim-tagger). The inference of the tagging in full simulation works in this branch but unfortunately the jet-clustering does not match the set-up the network was trained on, so the results are not usable atm. 
+
+The folder `fullsimtagging` gives an example on how to use on-the-fly full simulation jet tagging in FCCAnalysis (hopefully) in the future: 
+
+1. Be on the 'fullsim-tagger' of [FCCAnalyses](https://github.com/saracreates/FCCAnalyses/tree/fullsim-tagger)
+2. Create an event-based tree with jet tagger variables
+  ```
+  fccanalysis run ../MyFCCAnalyses/fullsimtagger/treemaker.py
+  ```
+3. (Optional) Check the inference by first creating a jet-based tree:
+  ```
+  python3 MyFCCAnalyses/fullsimtagger/from_eventbased_2_jetbased.py  fullsimtagger_jetbased_Hbb.root fullsimtagger_jetbased_Hbb.root 0 1000
+  ```
+
+  You can then create ROC curves from this root file and/or compare the input variable to the neural network. You can use the scripts from my repo [TaggingResults](https://github.com/saracreates/TaggingResults/tree/main/key4hep_checks) e.g. 
+
+  ```
+  python3 jetobs_comparison_FCCAnalyses.py
+  python3 rocs_FCCAnalyses.py
+  ```
+
+
 # Citation
 
 The analyses are published on [CDS](https://repository.cern/communities/fcc-ped-sub/records?q=Sara%20Aumiller&l=list&p=1&s=10&sort=bestmatch). If you use any of the code or results presented, please cite:
@@ -178,7 +202,7 @@ The analyses are published on [CDS](https://repository.cern/communities/fcc-ped-
 }
 ```
 
-- Probing Effective HZ$\gamma$ Couplings via H$\gamma$ Production at FCC-ee
+- Probing Effective $HZ\gamma$ Couplings via $H\gamma$ Production at FCC-ee
 
 ```
 @misc{herrmann_2025_kd1n4-ajd66,

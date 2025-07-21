@@ -108,7 +108,11 @@ class RDFanalysis:
         df = df.Alias("Particle0", "_MCParticles_parents.index")
         df = df.Alias("Particle1", "_MCParticles_daughters.index")
 
-        df = df.Define("photons_all", "FCCAnalyses::sel_type(22, ReconstructedParticles)")      
+        df = df.Define("photons_all", "FCCAnalyses::sel_type(22, ReconstructedParticles)")    
+
+        ## debug 
+        # count the number of reconstructed particles
+        df = df.Define("n_reco_particles", "ReconstructedParticles.size()")
         
         
         ### THE CLUSTERING & TAGGING 
@@ -201,6 +205,7 @@ class RDFanalysis:
         branchList += [
             "pfcand_e",
             "pfcand_p",
+            "n_reco_particles",
         ]
 
         ##  outputs jet tag properties
