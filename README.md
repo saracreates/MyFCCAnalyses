@@ -156,7 +156,7 @@ The folder `fullsimtagging` gives an example on how to use on-the-fly full simul
   python3 MyFCCAnalyses/fullsimtagger/from_eventbased_2_jetbased.py  fullsimtagger_jetbased_Hbb.root fullsimtagger_jetbased_Hbb.root 0 1000
   ```
 
-  You can then create ROC curves from this root file and/or compare the input variable to the neural network. You can use the scripts from my repo [TaggingResults](https://github.com/saracreates/TaggingResults/tree/main/key4hep_checks) e.g. 
+  You can then create ROC curves from this root file and/or compare the input variable to the neural network. You can use the scripts from my repo [TaggingResults](https://github.com/saracreates/TaggingResults/tree/main/FCCAnalyses_checks) e.g. 
 
   ```
   python3 jetobs_comparison_FCCAnalyses.py
